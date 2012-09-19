@@ -27,11 +27,25 @@ public class SettingsHandler {
         editor.commit();
     }
 
+    public void putBoolean(String name, boolean value) {
+        Log.d("[SettingsHandler] - putBoolean", name + " = " + value);
+
+        editor.putBoolean(name, value);
+        editor.commit();
+    }
+
     public String getString(String name) {
         return prefs.getString(name, "");
     }
 
     public int getInt(String name) {
         return prefs.getInt(name, 0);
+    }
+
+    public boolean isFirstRun() {
+        boolean firstRun = prefs.getBoolean("firstRun", true);
+        putBoolean("firstRun", false);
+
+        return firstRun;
     }
 }

@@ -1,4 +1,4 @@
-package com.lauchenauer.nextbusperth;
+package com.lauchenauer.nextbusperth.app;
 
 import android.app.Activity;
 import android.database.sqlite.SQLiteDatabase;
@@ -8,12 +8,14 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.*;
+import com.lauchenauer.nextbusperth.Constants;
+import com.lauchenauer.nextbusperth.R;
+import com.lauchenauer.nextbusperth.SettingsHandler;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.ByteArrayBuffer;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -98,7 +100,7 @@ public class SettingsActivity extends Activity {
     private void doSomeStuff() {
         Log.d("doSomeStuff", "do Some stuff NOW");
 
-        getDatabase();
+//        getDatabase();
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         String today = format.format(new Date());
@@ -110,12 +112,6 @@ public class SettingsActivity extends Activity {
 
         try {
             JSONObject json = new JSONObject(timetableJSON);
-            JSONArray array = json.getJSONArray(today);
-//            for (int i = 0; i < array.length(); i++) {
-            JSONObject entry = array.getJSONObject(0);
-            StopTime time = new StopTime(entry);
-
-//            }
         } catch (JSONException e) {
             Log.e("[JSON]", e.getMessage(), e);
         }

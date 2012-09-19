@@ -1,18 +1,30 @@
-package com.lauchenauer.nextbusperth;
+package com.lauchenauer.nextbusperth.app;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import com.lauchenauer.nextbusperth.R;
+import com.lauchenauer.nextbusperth.SettingsHandler;
+import com.lauchenauer.nextbusperth.service.OnBootReceiver;
 
 public class NextBusActivity extends Activity {
+    private SettingsHandler settingsHandler;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.nextbus);
 
         Log.d("[NextBus - MAIN]", "onCreate");
+
+        settingsHandler = new SettingsHandler(getApplicationContext());
+
+        if (settingsHandler.isFirstRun()) {
+            Log.d("[NextBusActivity]", "firstRun - starting Alarm");
+            OnBootReceiver.startTimeTableAlarm(getApplicationContext());
+        }
     }
 
     @Override

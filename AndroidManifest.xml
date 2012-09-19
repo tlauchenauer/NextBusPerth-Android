@@ -5,15 +5,24 @@
           android:versionName="1.0">
     <uses-sdk android:minSdkVersion="7"/>
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <application android:label="@string/app_name">
-        <activity android:name="NextBusActivity"
+        <activity android:name=".app.NextBusActivity"
                   android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name="AboutActivity" />
-        <activity android:name="SettingsActivity" />
+        <activity android:name=".app.AboutActivity" />
+        <activity android:name=".app.SettingsActivity" />
+        <receiver android:name=".service.OnBootReceiver">
+          <intent-filter>
+            <action android:name="android.intent.action.BOOT_COMPLETED" />
+          </intent-filter>
+        </receiver>
+        <receiver android:name=".service.OnAlarmReceiver"></receiver>
+        <service android:name=".service.TimeTableService"></service>
     </application>
 </manifest> 
