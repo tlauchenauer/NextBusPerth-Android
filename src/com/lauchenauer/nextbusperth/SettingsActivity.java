@@ -1,16 +1,13 @@
 package com.lauchenauer.nextbusperth;
 
 import android.app.Activity;
-import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TimePicker;
+import android.widget.*;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -27,9 +24,10 @@ import java.util.Date;
 
 public class SettingsActivity extends Activity {
     private Button action;
-    private TimePicker splitTime;
     private EditText workText;
     private EditText homeText;
+    private SeekBar splitTime;
+    private TextView splitTimeText;
     private SQLiteDatabase database;
     private SettingsHandler settings;
 
@@ -37,12 +35,13 @@ public class SettingsActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+        setContentView(R.layout.prefs);
 
         action = (Button) findViewById(R.id.action);
-        splitTime = (TimePicker) findViewById(R.id.split_time);
         workText = (EditText) findViewById(R.id.work_text);
         homeText = (EditText) findViewById(R.id.home_text);
+        splitTime = (SeekBar) findViewById(R.id.split_time);
+        splitTimeText = (TextView) findViewById(R.id.split_time_text);
 
         settings = new SettingsHandler(getApplicationContext());
 
@@ -51,13 +50,6 @@ public class SettingsActivity extends Activity {
     }
 
     private void setupUI() {
-        splitTime.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
-            public void onTimeChanged(TimePicker timePicker, int hourOfDay, int minute) {
-                settings.putInt(Constants.SPLIT_TIME_HOUR_SETTING, splitTime.getCurrentHour());
-                settings.putInt(Constants.SPLIT_TIME_MINUTE_SETTING, splitTime.getCurrentMinute());
-            }
-        });
-
         TextWatcher watcher = new TextWatcher() {
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
             }
@@ -74,6 +66,19 @@ public class SettingsActivity extends Activity {
         workText.addTextChangedListener(watcher);
         homeText.addTextChangedListener(watcher);
 
+        splitTime.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                splitTimeText.setText(String.format("%d", i * 5 / 60) + ":" + String.format("%02d", (i * 5) % 60));
+                settings.putInt(Constants.SPLIT_TIME_SETTING, i);
+            }
+
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
+
         action.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 doSomeStuff();
@@ -84,8 +89,10 @@ public class SettingsActivity extends Activity {
     private void readPreferences() {
         workText.setText(settings.getString(Constants.WORK_STOP_SETTING));
         homeText.setText(settings.getString(Constants.HOME_STOP_SETTING));
-        splitTime.setCurrentHour(settings.getInt(Constants.SPLIT_TIME_HOUR_SETTING));
-        splitTime.setCurrentMinute(settings.getInt(Constants.SPLIT_TIME_MINUTE_SETTING));
+
+        int time = settings.getInt(Constants.SPLIT_TIME_SETTING);
+        splitTime.setProgress(time);
+        splitTimeText.setText(String.format("%d", time * 5 / 60) + ":" + String.format("%02d", (time * 5) % 60));
     }
 
     private void doSomeStuff() {
@@ -105,8 +112,8 @@ public class SettingsActivity extends Activity {
             JSONObject json = new JSONObject(timetableJSON);
             JSONArray array = json.getJSONArray(today);
 //            for (int i = 0; i < array.length(); i++) {
-                JSONObject entry = array.getJSONObject(0);
-                StopTime time = new StopTime(entry);
+            JSONObject entry = array.getJSONObject(0);
+            StopTime time = new StopTime(entry);
 
 //            }
         } catch (JSONException e) {

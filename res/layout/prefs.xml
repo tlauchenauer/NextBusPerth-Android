@@ -30,10 +30,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Split Time" />
-    <TimePicker
+    <SeekBar
         android:id="@+id/split_time"
+        android:layout_marginLeft="10px"
+        android:layout_marginRight="10px"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:max="288" />
+    <TextView
+        android:id="@+id/split_time_text"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="" />
     <Button
         android:id="@+id/action"
         android:layout_width="wrap_content"
