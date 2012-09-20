@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.*;
 import com.lauchenauer.nextbusperth.Constants;
+import com.lauchenauer.nextbusperth.DatabaseHelper;
 import com.lauchenauer.nextbusperth.R;
 import com.lauchenauer.nextbusperth.SettingsHandler;
 import org.apache.http.HttpResponse;
@@ -16,6 +17,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.ByteArrayBuffer;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -30,7 +32,6 @@ public class SettingsActivity extends Activity {
     private EditText homeText;
     private SeekBar splitTime;
     private TextView splitTimeText;
-    private SQLiteDatabase database;
     private SettingsHandler settings;
 
 
@@ -100,8 +101,6 @@ public class SettingsActivity extends Activity {
     private void doSomeStuff() {
         Log.d("doSomeStuff", "do Some stuff NOW");
 
-//        getDatabase();
-
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         String today = format.format(new Date());
 
@@ -111,7 +110,8 @@ public class SettingsActivity extends Activity {
         Log.d("JSON from site", timetableJSON);
 
         try {
-            JSONObject json = new JSONObject(timetableJSON);
+            DatabaseHelper dbHelper = new DatabaseHelper(getApplicationContext());
+            dbHelper.writeTimeTable(timetableJSON);
         } catch (JSONException e) {
             Log.e("[JSON]", e.getMessage(), e);
         }
@@ -140,18 +140,5 @@ public class SettingsActivity extends Activity {
         }
 
         return "";
-    }
-
-    private SQLiteDatabase getDatabase() {
-        if (database == null) {
-            database = openOrCreateDatabase(Constants.TIMETABLE_DB, SQLiteDatabase.CREATE_IF_NECESSARY, null);
-
-            database.execSQL("DROP TABLE IF EXISTS tbl_stops");
-            database.execSQL("CREATE TABLE IF NOT EXISTS tbl_stops (id INTEGER PRIMARY KEY AUTOINCREMENT, stop_id STRING, name TEXT, short_name TEXT, long_name TEXT, headsign TEXT, departure DATETIME)");
-            database.execSQL("CREATE INDEX IF NOT EXISTS departure_idx ON tbl_stops(departure)");
-            database.execSQL("CREATE INDEX IF NOT EXISTS stop_idx ON tbl_stops(stop_id)");
-        }
-
-        return database;
     }
 }

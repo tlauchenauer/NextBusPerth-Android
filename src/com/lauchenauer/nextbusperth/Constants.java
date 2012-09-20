@@ -6,7 +6,7 @@ public final class Constants {
     public static final String HOME_STOP_SETTING = "Home-Stop";
     public static final String SPLIT_TIME_SETTING = "SplitTime";
     public static final String BASE_TIMETABLE_URL = "http://perth-timetable.herokuapp.com/time_table/";
-    public static final String TIMETABLE_DB = "nextbus-perth-db";
+
 
     private Constants() {}
 }
