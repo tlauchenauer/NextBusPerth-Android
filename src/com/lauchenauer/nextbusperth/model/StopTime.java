@@ -1,8 +1,11 @@
 package com.lauchenauer.nextbusperth.model;
 
 import android.content.ContentValues;
+import android.util.Log;
 
-public class StopTime {
+public class StopTime extends BaseModel {
+    private static final String DEPARTURE_TIME = "departure_time";
+
     private String stopNumber;
     private String routeNumber;
     private String departureTime;
@@ -11,6 +14,8 @@ public class StopTime {
         this.stopNumber = stopNumber;
         this.routeNumber = routeNumber;
         this.departureTime = departureTime;
+
+        Log.d("[StopTime] - created", "stop : " + stopNumber + " : route : " + routeNumber + " : time : " + departureTime);
     }
 
     public String getStopNumber() {
@@ -28,9 +33,9 @@ public class StopTime {
     public ContentValues getContentValues() {
         ContentValues values = new ContentValues();
 
-        values.put("stop_number", stopNumber);
-        values.put("route_number", routeNumber);
-        values.put("departure_time", departureTime);
+        values.put(STOP_NUMBER, stopNumber);
+        values.put(ROUTE_NUMBER, routeNumber);
+        values.put(DEPARTURE_TIME, departureTime);
 
         return values;
     }

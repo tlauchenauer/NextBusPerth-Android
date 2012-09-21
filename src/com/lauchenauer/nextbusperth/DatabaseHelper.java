@@ -2,6 +2,7 @@ package com.lauchenauer.nextbusperth;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
 import com.lauchenauer.nextbusperth.model.Route;
 import com.lauchenauer.nextbusperth.model.Stop;
@@ -11,63 +12,95 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class DatabaseHelper {
-    private static final String ROUTE_NUMBER = "route_number";
-    private static final String ROUTE_NAME = "route_name";
-    private static final String HEADSIGN = "headsign";
     private static final String TIMETABLE_DB = "nextbus-perth-db";
     private static final String TBL_STOPS = "tbl_stops";
     private static final String TBL_ROUTES = "tbl_routes";
     private static final String TBL_STOP_TIMES = "tbl_stop_times";
     private static final String[] TABLES = {TBL_STOPS, TBL_ROUTES, TBL_STOP_TIMES};
 
-    private SQLiteDatabase database;
+    private Context context;
 
     public DatabaseHelper(Context context) {
-        database = context.openOrCreateDatabase(TIMETABLE_DB, SQLiteDatabase.CREATE_IF_NECESSARY, null);
+        this.context = context;
 
         initDB();
     }
 
-    private void initDB() {
-        for (String table : TABLES) {
-            database.execSQL("DROP TABLE IF EXISTS " + table);
-        }
-
-        database.execSQL("CREATE TABLE IF NOT EXISTS " + TBL_STOPS + " (stop_number STRING PRIMARY KEY, stop_name STRING)");
-        database.execSQL("CREATE TABLE IF NOT EXISTS " + TBL_ROUTES + " (stop_number STRING, route_number STRING, PRIMARY KEY(stop_number, route_number), route_name STRING, headsign STRING)");
-        database.execSQL("CREATE TABLE IF NOT EXISTS " + TBL_STOP_TIMES + " (stop_number STRING, route_number STRING, PRIMARY KEY(stop_number, route_number), departure_time DATETIME)");
+    private SQLiteDatabase getDatabase() {
+        return context.openOrCreateDatabase(TIMETABLE_DB, SQLiteDatabase.CREATE_IF_NECESSARY, null);
     }
 
-    private void writeStop(Stop stop) {
+    private void clearDB() {
+        SQLiteDatabase database = getDatabase();
+        try {
+            for (String table : TABLES) {
+                database.execSQL("DROP TABLE IF EXISTS " + table);
+            }
+        } finally {
+            database.close();
+        }
+    }
+
+    private void initDB() {
+        SQLiteDatabase database = getDatabase();
+        try {
+            database.execSQL("CREATE TABLE IF NOT EXISTS " + TBL_STOPS + " (stop_number STRING PRIMARY KEY, stop_name STRING)");
+            database.execSQL("CREATE TABLE IF NOT EXISTS " + TBL_ROUTES + " (stop_number STRING, route_number STRING, route_name STRING, headsign STRING, PRIMARY KEY(stop_number, route_number))");
+            database.execSQL("CREATE TABLE IF NOT EXISTS " + TBL_STOP_TIMES + " (stop_number STRING, route_number STRING, departure_time DATETIME, PRIMARY KEY(stop_number, route_number, departure_time))");
+        } finally {
+            database.close();
+        }
+    }
+
+    private void writeStop(Stop stop, SQLiteDatabase database) {
         database.insert(TBL_STOPS, null, stop.getContentValues());
     }
 
-    private void writeRoute(Route route) {
+    private void writeRoute(Route route, SQLiteDatabase database) {
         database.insert(TBL_ROUTES, null, route.getContentValues());
     }
 
-    private void writeStopTimes(StopTime stopTime) {
+    private void writeStopTimes(StopTime stopTime, SQLiteDatabase database) {
         database.insert(TBL_STOP_TIMES, null, stopTime.getContentValues());
     }
 
-    public void writeTimeTable(String timeTableJSON) throws JSONException {
-        JSONObject json = new JSONObject(timeTableJSON);
-        JSONArray stops = json.getJSONArray("timetable");
-        for (int i = 0; i < stops.length(); i++) {
-            JSONObject stop = stops.getJSONObject(i);
+    private long fetchRowCount(String table, SQLiteDatabase database) {
+        String sql = "SELECT COUNT(*) FROM " + table;
+        SQLiteStatement statement = database.compileStatement(sql);
+        return statement.simpleQueryForLong();
+    }
 
-            writeStop(new Stop(stop));
+    public void writeTimeTable(String timeTableJSON) {
+        SQLiteDatabase database = getDatabase();
+        try {
+            JSONObject json = new JSONObject(timeTableJSON);
+            JSONArray stops = json.getJSONArray("timetable");
+            for (int i = 0; i < stops.length(); i++) {
+                JSONObject stopJSON = stops.getJSONObject(i);
+                JSONArray routes = stopJSON.getJSONArray("routes");
+                Stop stop = new Stop(stopJSON);
+                writeStop(stop, database);
 
-            Log.d("stop_name", stop.getString("stop_name"));
-            Log.d("stop_number", stop.getString("stop_number"));
+                for (int j = 0; j < routes.length(); j++) {
+                    JSONObject routeJSON = routes.getJSONObject(j);
+                    JSONArray departureTimes = routeJSON.getJSONArray("departure_times");
+                    Route route = new Route(stop.getStopNumber(), routeJSON);
+                    writeRoute(route, database);
 
-            JSONArray routes = stop.getJSONArray("routes");
-            for (int j = 0; j < routes.length(); j++) {
-                JSONObject route = routes.getJSONObject(j);
-                Log.d(ROUTE_NUMBER, route.getString(ROUTE_NUMBER));
-                Log.d(ROUTE_NAME, route.getString(ROUTE_NAME));
-                Log.d(HEADSIGN, route.getString(HEADSIGN));
+                    for (int k = 0; k < departureTimes.length(); k++) {
+                        String departureTime = (String) departureTimes.get(k);
+                        writeStopTimes(new StopTime(stop.getStopNumber(), route.getRouteNumber(), departureTime), database);
+                    }
+                }
             }
+
+            Log.d("Stops COUNT", "rows: " + fetchRowCount(TBL_STOPS, database));
+            Log.d("Routes COUNT", "rows: " + fetchRowCount(TBL_ROUTES, database));
+            Log.d("StopTimes COUNT", "rows: " + fetchRowCount(TBL_STOP_TIMES, database));
+        } catch (JSONException e) {
+            Log.e("[DatabaseHelper.writeTimeTable]", e.getMessage(), e);
+        } finally {
+            database.close();
         }
     }
 }

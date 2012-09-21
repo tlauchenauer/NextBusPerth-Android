@@ -1,28 +1,18 @@
 package com.lauchenauer.nextbusperth.app;
 
 import android.app.Activity;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.*;
-import com.lauchenauer.nextbusperth.Constants;
 import com.lauchenauer.nextbusperth.DatabaseHelper;
 import com.lauchenauer.nextbusperth.R;
 import com.lauchenauer.nextbusperth.SettingsHandler;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.ByteArrayBuffer;
-import org.json.JSONArray;
+import com.lauchenauer.nextbusperth.UrlHelper;
 import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.BufferedInputStream;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -61,8 +51,8 @@ public class SettingsActivity extends Activity {
             }
 
             public void afterTextChanged(Editable editable) {
-                settings.putString(Constants.WORK_STOP_SETTING, workText.getText().toString());
-                settings.putString(Constants.HOME_STOP_SETTING, homeText.getText().toString());
+                settings.setWorkStopNumber(workText.getText().toString());
+                settings.setHomeStopNumber(homeText.getText().toString());
             }
         };
 
@@ -72,7 +62,7 @@ public class SettingsActivity extends Activity {
         splitTime.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 splitTimeText.setText(String.format("%d", i * 5 / 60) + ":" + String.format("%02d", (i * 5) % 60));
-                settings.putInt(Constants.SPLIT_TIME_SETTING, i);
+                settings.setSplitTime(i);
             }
 
             public void onStartTrackingTouch(SeekBar seekBar) {
@@ -90,10 +80,10 @@ public class SettingsActivity extends Activity {
     }
 
     private void readPreferences() {
-        workText.setText(settings.getString(Constants.WORK_STOP_SETTING));
-        homeText.setText(settings.getString(Constants.HOME_STOP_SETTING));
+        workText.setText(settings.getWorkStopNumber());
+        homeText.setText(settings.getHomeStopNumber());
 
-        int time = settings.getInt(Constants.SPLIT_TIME_SETTING);
+        int time = settings.getSplitTime();
         splitTime.setProgress(time);
         splitTimeText.setText(String.format("%d", time * 5 / 60) + ":" + String.format("%02d", (time * 5) % 60));
     }
@@ -101,13 +91,7 @@ public class SettingsActivity extends Activity {
     private void doSomeStuff() {
         Log.d("doSomeStuff", "do Some stuff NOW");
 
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        String today = format.format(new Date());
-
-        Log.d("today", today);
-
-        String timetableJSON = getInputStreamFromUrl(Constants.BASE_TIMETABLE_URL + workText.getText() + "/" + today);
-        Log.d("JSON from site", timetableJSON);
+        String timetableJSON = UrlHelper.readTimeTable(workText.getText().toString(), new Date());
 
         try {
             DatabaseHelper dbHelper = new DatabaseHelper(getApplicationContext());
@@ -116,29 +100,8 @@ public class SettingsActivity extends Activity {
             Log.e("[JSON]", e.getMessage(), e);
         }
 
+
     }
 
-    public static String getInputStreamFromUrl(String url) {
-        InputStream content = null;
-        try {
-            HttpClient httpclient = new DefaultHttpClient();
-            HttpResponse response = httpclient.execute(new HttpGet(url));
-            content = response.getEntity().getContent();
 
-            BufferedInputStream bis = new BufferedInputStream(content);
-            ByteArrayBuffer baf = new ByteArrayBuffer(50);
-
-            int current = 0;
-            while ((current = bis.read()) != -1) {
-                baf.append((byte) current);
-            }
-
-            /* Convert the Bytes read to a String. */
-            return new String(baf.toByteArray());
-        } catch (Exception e) {
-            Log.d("[GET REQUEST]", "Network exception", e);
-        }
-
-        return "";
-    }
 }
