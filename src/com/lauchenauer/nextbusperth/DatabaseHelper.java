@@ -1,6 +1,7 @@
 package com.lauchenauer.nextbusperth;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
@@ -11,7 +12,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class DatabaseHelper {
+    private static final SimpleDateFormat ISO8601FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
     private static final String TIMETABLE_DB = "nextbus-perth-db";
     private static final String TBL_STOPS = "tbl_stops";
     private static final String TBL_ROUTES = "tbl_routes";
@@ -102,5 +108,48 @@ public class DatabaseHelper {
         } finally {
             database.close();
         }
+    }
+    
+    public void getNextBuses(String stopNumber, int maxResults) {
+        SQLiteDatabase database = getDatabase();
+        Cursor cursor = null;
+        try {
+            String queryString = "SELECT s.stop_number, s.stop_name, r.route_number, r.route_name, r.headsign, st.departure_time";
+            queryString += " FROM " + TBL_STOPS + " s";
+            queryString += " JOIN " + TBL_ROUTES + " r ON s.stop_number = r.stop_number";
+            queryString += " JOIN " + TBL_STOP_TIMES + " st ON s.stop_number = st.stop_number AND r.route_number = st.route_number";
+            queryString += " WHERE s.stop_number = ? AND st.departure_time >= ?";
+            queryString += " ORDER BY st.departure_time";
+            queryString += " LIMIT " + maxResults;
+            
+            Log.d("[DatabaseHelper.getNextBuses]", queryString);
+            
+            cursor = database.rawQuery(queryString, new String[] {stopNumber, ISO8601FORMAT.format(new Date())});
+            outputCursor(cursor);
+        } finally {
+            if (cursor != null) cursor.close();
+            database.close();
+        }
+    }
+    
+    private void outputCursor(Cursor cursor) {
+        Log.d("[CURSOR]", "---------------------------------------");
+        
+        String columns = "";
+        for (String col : cursor.getColumnNames()) {
+            columns += col + "  |";
+        }
+        Log.d("[CURSOR]", columns);
+
+        while (cursor.moveToNext()) {
+            String values = "";
+            for (int i = 0; i < cursor.getColumnCount(); i++) {
+                values += cursor.getString(i) + "  |";
+            }
+
+            Log.d("[CURSOR]", values);
+        }
+        
+        Log.d("[CURSOR]", "---------------------------------------");
     }
 }

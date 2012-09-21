@@ -93,14 +93,8 @@ public class SettingsActivity extends Activity {
 
         String timetableJSON = UrlHelper.readTimeTable(workText.getText().toString(), new Date());
 
-        try {
-            DatabaseHelper dbHelper = new DatabaseHelper(getApplicationContext());
-            dbHelper.writeTimeTable(timetableJSON);
-        } catch (JSONException e) {
-            Log.e("[JSON]", e.getMessage(), e);
-        }
-
-
+        DatabaseHelper dbHelper = new DatabaseHelper(getApplicationContext());
+        dbHelper.writeTimeTable(timetableJSON);
     }
 
 

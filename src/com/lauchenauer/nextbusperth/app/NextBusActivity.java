@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import com.lauchenauer.nextbusperth.DatabaseHelper;
 import com.lauchenauer.nextbusperth.R;
 import com.lauchenauer.nextbusperth.SettingsHandler;
 import com.lauchenauer.nextbusperth.service.OnBootReceiver;
@@ -25,6 +26,10 @@ public class NextBusActivity extends Activity {
             Log.d("[NextBusActivity]", "firstRun - starting Alarm");
             OnBootReceiver.startTimeTableAlarm(getApplicationContext());
         }
+
+        SettingsHandler prefs = new SettingsHandler(getApplicationContext());
+        DatabaseHelper helper = new DatabaseHelper(getApplicationContext());
+        helper.getNextBuses(prefs.getWorkStopNumber(), 10);
     }
 
     @Override
