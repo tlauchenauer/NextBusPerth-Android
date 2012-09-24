@@ -6,14 +6,19 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
 import com.lauchenauer.nextbusperth.model.Route;
+import com.lauchenauer.nextbusperth.model.Service;
 import com.lauchenauer.nextbusperth.model.Stop;
 import com.lauchenauer.nextbusperth.model.StopTime;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.zip.DataFormatException;
 
 public class DatabaseHelper {
     private static final SimpleDateFormat ISO8601FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -23,6 +28,7 @@ public class DatabaseHelper {
     private static final String TBL_ROUTES = "tbl_routes";
     private static final String TBL_STOP_TIMES = "tbl_stop_times";
     private static final String[] TABLES = {TBL_STOPS, TBL_ROUTES, TBL_STOP_TIMES};
+    private static final long DEPARTURE_DELTA = 5 * 60 * 1000l;
 
     private Context context;
 
@@ -110,9 +116,10 @@ public class DatabaseHelper {
         }
     }
     
-    public void getNextBuses(String stopNumber, int maxResults) {
+    public List<Service> getNextBuses(String stopNumber, int maxResults) {
         SQLiteDatabase database = getDatabase();
         Cursor cursor = null;
+        ArrayList<Service> services = new ArrayList<Service>();
         try {
             String queryString = "SELECT s.stop_number, s.stop_name, r.route_number, r.route_name, r.headsign, st.departure_time";
             queryString += " FROM " + TBL_STOPS + " s";
@@ -123,13 +130,24 @@ public class DatabaseHelper {
             queryString += " LIMIT " + maxResults;
             
             Log.d("[DatabaseHelper.getNextBuses]", queryString);
-            
-            cursor = database.rawQuery(queryString, new String[] {stopNumber, ISO8601FORMAT.format(new Date())});
-            outputCursor(cursor);
+
+            Date startDate = new Date(new Date().getTime() - DEPARTURE_DELTA);
+            cursor = database.rawQuery(queryString, new String[] {stopNumber, ISO8601FORMAT.format(startDate)});
+            while (cursor.moveToNext()) {
+                services.add(retrieveService(cursor));
+            }
+        } catch (ParseException e) {
+            Log.e("[DatabaseHelper.getNextBuses]", e.getMessage(), e);
         } finally {
             if (cursor != null) cursor.close();
             database.close();
         }
+
+        return services;
+    }
+
+    private Service retrieveService(Cursor cursor) throws ParseException {
+        return new Service(cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), ISO8601FORMAT.parse(cursor.getString(5)));
     }
     
     private void outputCursor(Cursor cursor) {

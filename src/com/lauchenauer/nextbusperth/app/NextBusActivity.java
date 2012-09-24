@@ -1,35 +1,41 @@
 package com.lauchenauer.nextbusperth.app;
 
-import android.app.Activity;
+import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import android.widget.ArrayAdapter;
 import com.lauchenauer.nextbusperth.DatabaseHelper;
-import com.lauchenauer.nextbusperth.R;
 import com.lauchenauer.nextbusperth.SettingsHandler;
-import com.lauchenauer.nextbusperth.service.OnBootReceiver;
+import com.lauchenauer.nextbusperth.model.Service;
 
-public class NextBusActivity extends Activity {
+import java.util.List;
+
+public class NextBusActivity extends ListActivity {
     private SettingsHandler settingsHandler;
+    private DatabaseHelper dbHelper;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.nextbus);
 
         Log.d("[NextBus - MAIN]", "onCreate");
 
         settingsHandler = new SettingsHandler(getApplicationContext());
 
-        if (settingsHandler.isFirstRun()) {
-            Log.d("[NextBusActivity]", "firstRun - starting Alarm");
-            OnBootReceiver.startTimeTableAlarm(getApplicationContext());
-        }
+//        if (settingsHandler.isFirstRun()) {
+//            Log.d("[NextBusActivity]", "firstRun - starting Alarm");
+//            OnBootReceiver.startTimeTableAlarm(getApplicationContext());
+//        }
 
-        SettingsHandler prefs = new SettingsHandler(getApplicationContext());
-        DatabaseHelper helper = new DatabaseHelper(getApplicationContext());
-        helper.getNextBuses(prefs.getWorkStopNumber(), 10);
+        settingsHandler = new SettingsHandler(getApplicationContext());
+        dbHelper = new DatabaseHelper(getApplicationContext());
+
+        List<Service> services = dbHelper.getNextBuses(settingsHandler.getWorkStopNumber(), 5);
+
+        RowAdapter adapter = new RowAdapter(this, services);
+        setListAdapter(adapter);
     }
 
     @Override

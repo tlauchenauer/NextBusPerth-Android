@@ -6,14 +6,15 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
-import android.widget.*;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.SeekBar;
+import android.widget.TextView;
 import com.lauchenauer.nextbusperth.DatabaseHelper;
 import com.lauchenauer.nextbusperth.R;
 import com.lauchenauer.nextbusperth.SettingsHandler;
 import com.lauchenauer.nextbusperth.UrlHelper;
-import org.json.JSONException;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class SettingsActivity extends Activity {
