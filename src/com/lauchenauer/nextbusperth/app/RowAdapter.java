@@ -24,6 +24,14 @@ public class RowAdapter extends ArrayAdapter<Service> {
         this.services = services;
     }
 
+    public void setServices(List<Service> services) {
+        this.services = services;
+        clear();
+        for (Service s : services) {
+            add(s);
+        }
+    }
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);

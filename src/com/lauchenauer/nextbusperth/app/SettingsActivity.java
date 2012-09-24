@@ -1,24 +1,17 @@
 package com.lauchenauer.nextbusperth.app;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.SeekBar;
-import android.widget.TextView;
-import com.lauchenauer.nextbusperth.DatabaseHelper;
+import android.widget.*;
 import com.lauchenauer.nextbusperth.R;
 import com.lauchenauer.nextbusperth.SettingsHandler;
-import com.lauchenauer.nextbusperth.UrlHelper;
-
-import java.util.Date;
+import com.lauchenauer.nextbusperth.TimetableHelper;
 
 public class SettingsActivity extends Activity {
-    private Button action;
     private EditText workText;
     private EditText homeText;
     private SeekBar splitTime;
@@ -31,7 +24,6 @@ public class SettingsActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.prefs);
 
-        action = (Button) findViewById(R.id.action);
         workText = (EditText) findViewById(R.id.work_text);
         homeText = (EditText) findViewById(R.id.home_text);
         splitTime = (SeekBar) findViewById(R.id.split_time);
@@ -73,9 +65,18 @@ public class SettingsActivity extends Activity {
             }
         });
 
+        Button action = (Button) findViewById(R.id.action);
         action.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                doSomeStuff();
+                retrieveTimetables();
+            }
+        });
+
+        ImageButton search = (ImageButton) findViewById(R.id.work_search_btn);
+        search.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                Intent i = new Intent(SettingsActivity.this, StopSelectorActivity.class);
+                startActivity(i);
             }
         });
     }
@@ -89,13 +90,9 @@ public class SettingsActivity extends Activity {
         splitTimeText.setText(String.format("%d", time * 5 / 60) + ":" + String.format("%02d", (time * 5) % 60));
     }
 
-    private void doSomeStuff() {
-        Log.d("doSomeStuff", "do Some stuff NOW");
-
-        String timetableJSON = UrlHelper.readTimeTable(workText.getText().toString(), new Date());
-
-        DatabaseHelper dbHelper = new DatabaseHelper(getApplicationContext());
-        dbHelper.writeTimeTable(timetableJSON);
+    private void retrieveTimetables() {
+        TimetableHelper helper = new TimetableHelper(getApplicationContext());
+        helper.downloadTimeTable();
     }
 
 

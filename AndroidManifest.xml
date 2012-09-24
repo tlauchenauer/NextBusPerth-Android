@@ -16,6 +16,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".app.AboutActivity" />
+        <activity android:name=".app.StopSelectorActivity" />
         <activity android:name=".app.SettingsActivity" />
         <receiver android:name=".service.OnBootReceiver">
           <intent-filter>

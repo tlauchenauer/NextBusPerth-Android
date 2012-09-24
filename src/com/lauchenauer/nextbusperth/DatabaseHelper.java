@@ -3,6 +3,7 @@ package com.lauchenauer.nextbusperth;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
 import com.lauchenauer.nextbusperth.model.Route;
@@ -42,7 +43,7 @@ public class DatabaseHelper {
         return context.openOrCreateDatabase(TIMETABLE_DB, SQLiteDatabase.CREATE_IF_NECESSARY, null);
     }
 
-    private void clearDB() {
+    public void clearDB() {
         SQLiteDatabase database = getDatabase();
         try {
             for (String table : TABLES) {
@@ -65,15 +66,15 @@ public class DatabaseHelper {
     }
 
     private void writeStop(Stop stop, SQLiteDatabase database) {
-        database.insert(TBL_STOPS, null, stop.getContentValues());
+        database.replace(TBL_STOPS, null, stop.getContentValues());
     }
 
     private void writeRoute(Route route, SQLiteDatabase database) {
-        database.insert(TBL_ROUTES, null, route.getContentValues());
+        database.replace(TBL_ROUTES, null, route.getContentValues());
     }
 
     private void writeStopTimes(StopTime stopTime, SQLiteDatabase database) {
-        database.insert(TBL_STOP_TIMES, null, stopTime.getContentValues());
+        database.replace(TBL_STOP_TIMES, null, stopTime.getContentValues());
     }
 
     private long fetchRowCount(String table, SQLiteDatabase database) {
@@ -137,6 +138,8 @@ public class DatabaseHelper {
                 services.add(retrieveService(cursor));
             }
         } catch (ParseException e) {
+            Log.e("[DatabaseHelper.getNextBuses]", e.getMessage(), e);
+        } catch (SQLiteException e) {
             Log.e("[DatabaseHelper.getNextBuses]", e.getMessage(), e);
         } finally {
             if (cursor != null) cursor.close();
