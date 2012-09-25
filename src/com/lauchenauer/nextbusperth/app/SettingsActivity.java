@@ -68,7 +68,7 @@ public class SettingsActivity extends Activity {
         Button action = (Button) findViewById(R.id.action);
         action.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                retrieveTimetables();
+                retrieveData();
             }
         });
 
@@ -90,7 +90,7 @@ public class SettingsActivity extends Activity {
         splitTimeText.setText(String.format("%d", time * 5 / 60) + ":" + String.format("%02d", (time * 5) % 60));
     }
 
-    private void retrieveTimetables() {
+    private void retrieveData() {
         TimetableHelper helper = new TimetableHelper(getApplicationContext());
         helper.downloadTimeTable();
     }

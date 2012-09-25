@@ -15,7 +15,8 @@ import java.util.Date;
 
 public class TimetableHelper {
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-    private static final String BASE_TIMETABLE_URL = "http://perth-timetable.herokuapp.com/time_table/";
+    private static final String TIMETABLE_URL = "time_table/";
+    private static final String BASE_URL = "http://perth-timetable.herokuapp.com/";
 
     private Context context;
 
@@ -40,7 +41,7 @@ public class TimetableHelper {
     private String readTimeTable(String stopNumber, Date date) {
         Log.d("[TimetableHelper.readTimeTable]", "Stop: " + stopNumber + "  for: " + DATE_FORMAT.format(date));
 
-        return readTextFromUrl(BASE_TIMETABLE_URL + stopNumber + "/" + DATE_FORMAT.format(date));
+        return readTextFromUrl(BASE_URL + TIMETABLE_URL + stopNumber + "/" + DATE_FORMAT.format(date));
     }
 
     private String readTextFromUrl(String url) {
