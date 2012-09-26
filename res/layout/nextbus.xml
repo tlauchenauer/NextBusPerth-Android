@@ -19,9 +19,9 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:textSize="18sp"
+            android:textSize="24sp"
             android:textColor="#ffffff"
-            android:text="" />
+            android:text="" android:textStyle="bold"/>
         <TextView
             android:id="@+id/stop_name"
             android:layout_width="fill_parent"

@@ -46,12 +46,10 @@ public class Service {
     public String getTimeDelta() {
         long minutes = timDiffInMinutes(departureTime);
 
-        if (minutes > 0) {
-            return "in " + minutes + " min";
-        } else if (minutes == 0) {
-            return "now";
+        if (minutes == 0) {
+            return "Now";
         } else {
-            return Math.abs(minutes) + " min ago";
+            return minutes + " mins";
         }
     }
 

@@ -2,8 +2,6 @@ package com.lauchenauer.nextbusperth.app;
 
 
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,8 +44,29 @@ public class RowAdapter extends ArrayAdapter<Service> {
         headsign.setText(s.getHeadsign());
         timeDelta.setText(s.getTimeDelta());
 
-        GradientDrawable background = (GradientDrawable) timeDelta.getBackground();
-        background.setColor(Color.rgb(s.hasLeft() ? 200 + position * 10 : 0, 0, s.hasLeft() ? 0 : 250 - position * 20));
+        int pos = position;
+        while (pos > 4) {
+            pos -= 5;
+        }
+
+        switch (pos) {
+            case 0:
+                timeDelta.setBackgroundResource(R.drawable.row_gradient1);
+                break;
+            case 1:
+                timeDelta.setBackgroundResource(R.drawable.row_gradient2);
+                break;
+            case 2:
+                timeDelta.setBackgroundResource(R.drawable.row_gradient3);
+                break;
+            case 3:
+                timeDelta.setBackgroundResource(R.drawable.row_gradient4);
+                break;
+            case 4:
+                timeDelta.setBackgroundResource(R.drawable.row_gradient5);
+                break;
+        }
+
 
         return rowView;
     }
