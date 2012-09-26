@@ -7,7 +7,9 @@ import android.text.format.DateUtils;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.Menu;
+import android.widget.TextView;
 import com.lauchenauer.nextbusperth.DatabaseHelper;
+import com.lauchenauer.nextbusperth.R;
 import com.lauchenauer.nextbusperth.SettingsHandler;
 import com.lauchenauer.nextbusperth.model.Service;
 
@@ -18,12 +20,18 @@ public class NextBusActivity extends ListActivity {
     private SettingsHandler settingsHandler;
     private DatabaseHelper dbHelper;
     private RowAdapter adapter;
+    private TextView journeyName;
+    private TextView stopName;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.nextbus);
 
         Log.d("[NextBus - MAIN]", "onCreate");
+
+        journeyName = (TextView) findViewById(R.id.journey_name);
+        stopName = (TextView) findViewById(R.id.stop_name);
 
         settingsHandler = new SettingsHandler(getApplicationContext());
 
@@ -63,13 +71,20 @@ public class NextBusActivity extends ListActivity {
         Time t = new Time();
         t.setToNow();
         long currentTime = t.hour * 12 + t.minute / 5;
+        journeyName.setText("Work");
 
         String stopNumber = settingsHandler.getWorkStopNumber();
         if (currentTime > splitTime) {
+            journeyName.setText("Home");
             stopNumber = settingsHandler.getHomeStopNumber();
         }
 
         List<Service> services = dbHelper.getNextBuses(stopNumber, 5);
         adapter.setServices(services);
+
+        if (services.size() > 0) {
+            Service s = services.get(0);
+            stopName.setText(s.getStopName());
+        }
     }
 }

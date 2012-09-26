@@ -46,7 +46,7 @@ public class RowAdapter extends ArrayAdapter<Service> {
         headsign.setText(s.getHeadsign());
         timeDelta.setText(s.getTimeDelta());
 
-        GradientDrawable background = (GradientDrawable) rowView.getBackground();
+        GradientDrawable background = (GradientDrawable) timeDelta.getBackground();
         background.setColor(Color.rgb(s.hasLeft() ? 200 + position * 10 : 0, 0, s.hasLeft() ? 0 : 250 - position * 20));
 
         return rowView;

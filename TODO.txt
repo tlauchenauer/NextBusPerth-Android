@@ -1,6 +1,10 @@
 TODO
 
 - swipe screen to switch between Home/Work
+    http://mobile.tutsplus.com/tutorials/android/android-user-interface-design-horizontal-view-paging/
+    http://thepseudocoder.wordpress.com/2011/10/05/android-page-swiping-using-viewpager/
+    http://android-developers.blogspot.com.au/2011/08/horizontal-view-swiping-with-viewpager.html
+
 - add title and station name to which journey is shown
 - show "no data" when no data is available
 - download timetable data in a service/thread
