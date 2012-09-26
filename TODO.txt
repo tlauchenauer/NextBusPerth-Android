@@ -1,0 +1,18 @@
+TODO
+
+- swipe screen to switch between Home/Work
+- add title and station name to which journey is shown
+- show "no data" when no data is available
+- download timetable data in a service/thread
+- clean out unnecessary data after loading data
+- remove title bar from app
+- adjust row display to match sample from Brad
+
+
+- load overlays into map from backend
+- add routes selection for journey allowing for multiple routes and possibly stops as well, stops get derived from the routes
+
+
+
+
+DONE
