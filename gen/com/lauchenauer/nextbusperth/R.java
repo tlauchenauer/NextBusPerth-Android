@@ -12,7 +12,8 @@ public final class R {
     }
     public static final class drawable {
         public static final int ic_btn_search=0x7f020000;
-        public static final int rounded_rect=0x7f020001;
+        public static final int pin_green=0x7f020001;
+        public static final int rounded_rect=0x7f020002;
     }
     public static final class id {
         public static final int action=0x7f05000b;

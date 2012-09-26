@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<com.lauchenauer.nextbusperth.app.NBMapView
+<com.lauchenauer.nextbusperth.app.map.NBMapView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/mapview"
     android:layout_width="fill_parent"
