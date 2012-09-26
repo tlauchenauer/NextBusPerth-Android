@@ -5,13 +5,9 @@ TODO
     http://thepseudocoder.wordpress.com/2011/10/05/android-page-swiping-using-viewpager/
     http://android-developers.blogspot.com.au/2011/08/horizontal-view-swiping-with-viewpager.html
 
-- add title and station name to which journey is shown
 - show "no data" when no data is available
 - download timetable data in a service/thread
 - clean out unnecessary data after loading data
-- remove title bar from app
-- adjust row display to match sample from Brad
-
 
 - load overlays into map from backend
 - add routes selection for journey allowing for multiple routes and possibly stops as well, stops get derived from the routes
@@ -20,3 +16,6 @@ TODO
 
 
 DONE
+- add title and station name to which journey is shown
+- remove title bar from app
+- adjust row display to match sample from Brad

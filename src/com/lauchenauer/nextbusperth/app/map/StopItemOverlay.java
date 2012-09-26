@@ -2,16 +2,19 @@ package com.lauchenauer.nextbusperth.app.map;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.OverlayItem;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class StopItemOverlay extends ItemizedOverlay {
+public class StopItemOverlay extends ItemizedOverlay implements DialogInterface.OnClickListener {
     private List<OverlayItem> overlays = new ArrayList<OverlayItem>();
     private Context context;
+    private OverlayItem item;
 
     public StopItemOverlay(Drawable defaultMarker, Context context) {
         super(boundCenterBottom(defaultMarker));
@@ -35,11 +38,18 @@ public class StopItemOverlay extends ItemizedOverlay {
 
     @Override
     protected boolean onTap(int index) {
-        OverlayItem item = overlays.get(index);
+        item = overlays.get(index);
         AlertDialog.Builder dialog = new AlertDialog.Builder(context);
-        dialog.setTitle(item.getTitle());
+        dialog.setTitle("Select this Stop?");
+        dialog.setPositiveButton("Select", this);
+        dialog.setNegativeButton("Cancel", null);
         dialog.setMessage(item.getSnippet());
         dialog.show();
+
         return true;
+    }
+
+    public void onClick(DialogInterface dialogInterface, int i) {
+        Log.d("MapItem selected!!!!!", item.getSnippet());
     }
 }

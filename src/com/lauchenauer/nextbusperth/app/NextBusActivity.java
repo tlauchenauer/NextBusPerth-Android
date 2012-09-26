@@ -1,60 +1,43 @@
 package com.lauchenauer.nextbusperth.app;
 
-import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.format.DateUtils;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.text.format.Time;
-import android.util.Log;
 import android.view.Menu;
-import android.widget.TextView;
-import com.lauchenauer.nextbusperth.DatabaseHelper;
 import com.lauchenauer.nextbusperth.R;
 import com.lauchenauer.nextbusperth.SettingsHandler;
-import com.lauchenauer.nextbusperth.model.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class NextBusActivity extends ListActivity {
+public class NextBusActivity extends FragmentActivity {
+    private ViewPager viewPager;
     private SettingsHandler settingsHandler;
-    private DatabaseHelper dbHelper;
-    private RowAdapter adapter;
-    private TextView journeyName;
-    private TextView stopName;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.nextbus);
-
-        Log.d("[NextBus - MAIN]", "onCreate");
-
-        journeyName = (TextView) findViewById(R.id.journey_name);
-        stopName = (TextView) findViewById(R.id.stop_name);
+        setContentView(R.layout.main);
 
         settingsHandler = new SettingsHandler(getApplicationContext());
+
+        viewPager = (ViewPager) findViewById(R.id.view_pager);
+        viewPager.setAdapter(new NextBusFragmentAdapter(getSupportFragmentManager()));
+
+        long splitTime = settingsHandler.getSplitTime();
+        Time t = new Time();
+        t.setToNow();
+        long currentTime = t.hour * 12 + t.minute / 5;
+        if (currentTime > splitTime) {
+            viewPager.setCurrentItem(1);
+        }
 
 //        if (settingsHandler.isFirstRun()) {
 //            Log.d("[NextBusActivity]", "firstRun - starting Alarm");
 //            OnBootReceiver.startTimeTableAlarm(getApplicationContext());
 //        }
-
-        settingsHandler = new SettingsHandler(getApplicationContext());
-        dbHelper = new DatabaseHelper(getApplicationContext());
-
-        adapter = new RowAdapter(this, new ArrayList<Service>());
-        setListAdapter(adapter);
-
-        updateData();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        updateData();
-        Log.d("[NextBus - MAIN]", "onResume");
     }
 
     @Override
@@ -66,25 +49,25 @@ public class NextBusActivity extends ListActivity {
         return true;
     }
 
-    private void updateData() {
-        long splitTime = settingsHandler.getSplitTime();
-        Time t = new Time();
-        t.setToNow();
-        long currentTime = t.hour * 12 + t.minute / 5;
-        journeyName.setText("Work");
-
-        String stopNumber = settingsHandler.getWorkStopNumber();
-        if (currentTime > splitTime) {
-            journeyName.setText("Home");
-            stopNumber = settingsHandler.getHomeStopNumber();
+    private static class NextBusFragmentAdapter extends FragmentPagerAdapter {
+        public NextBusFragmentAdapter(FragmentManager fm) {
+            super(fm);
         }
 
-        List<Service> services = dbHelper.getNextBuses(stopNumber, 5);
-        adapter.setServices(services);
+        @Override
+        public int getCount() {
+            return 2;
+        }
 
-        if (services.size() > 0) {
-            Service s = services.get(0);
-            stopName.setText(s.getStopName());
+        @Override
+        public Fragment getItem(int position) {
+            switch (position) {
+                case 0:
+                    return NextBusFragment.newInstance("Work");
+                default:
+                    return NextBusFragment.newInstance("Home");
+            }
+
         }
     }
 }
