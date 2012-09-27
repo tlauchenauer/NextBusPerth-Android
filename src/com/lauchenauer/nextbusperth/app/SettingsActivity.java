@@ -2,6 +2,7 @@ package com.lauchenauer.nextbusperth.app;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -17,6 +18,7 @@ public class SettingsActivity extends Activity {
     private SeekBar splitTime;
     private TextView splitTimeText;
     private SettingsHandler settings;
+    private ProgressBar progressBar;
 
 
     @Override
@@ -28,6 +30,7 @@ public class SettingsActivity extends Activity {
         homeText = (EditText) findViewById(R.id.home_text);
         splitTime = (SeekBar) findViewById(R.id.split_time);
         splitTimeText = (TextView) findViewById(R.id.split_time_text);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
         settings = new SettingsHandler(getApplicationContext());
 
@@ -91,9 +94,22 @@ public class SettingsActivity extends Activity {
     }
 
     private void retrieveData() {
-        TimetableHelper helper = new TimetableHelper(getApplicationContext());
-        helper.downloadTimeTable();
+        progressBar.setVisibility(View.VISIBLE);
+        new TimetableDownloadTask().execute(this);
     }
 
+    private class TimetableDownloadTask extends AsyncTask<SettingsActivity, Integer, Long> {
+        @Override
+        protected Long doInBackground(SettingsActivity... settingsActivities) {
+            TimetableHelper helper = new TimetableHelper(settingsActivities[0].getApplicationContext());
+            helper.downloadTimeTable();
 
+            return 1l;
+        }
+
+        @Override
+        protected void onPostExecute(Long aLong) {
+            SettingsActivity.this.progressBar.setVisibility(View.INVISIBLE);
+        }
+    }
 }
