@@ -8,8 +8,8 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.*;
 import com.lauchenauer.nextbusperth.R;
-import com.lauchenauer.nextbusperth.SettingsHandler;
-import com.lauchenauer.nextbusperth.TimetableHelper;
+import com.lauchenauer.nextbusperth.helper.SettingsHandler;
+import com.lauchenauer.nextbusperth.helper.TimetableHelper;
 
 public class SettingsActivity extends Activity {
     private EditText workText;

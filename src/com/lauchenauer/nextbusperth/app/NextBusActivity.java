@@ -10,7 +10,7 @@ import android.support.v4.view.ViewPager;
 import android.text.format.Time;
 import android.view.Menu;
 import com.lauchenauer.nextbusperth.R;
-import com.lauchenauer.nextbusperth.SettingsHandler;
+import com.lauchenauer.nextbusperth.helper.SettingsHandler;
 
 public class NextBusActivity extends FragmentActivity {
     private ViewPager viewPager;

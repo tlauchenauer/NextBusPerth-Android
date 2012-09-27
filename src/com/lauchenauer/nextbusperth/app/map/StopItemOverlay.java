@@ -20,9 +20,19 @@ public class StopItemOverlay extends ItemizedOverlay implements DialogInterface.
         super(boundCenterBottom(defaultMarker));
         this.context = context;
     }
+    
+    public void addOverlays(List<OverlayItem> overlays) {
+        this.overlays.addAll(overlays);
+        populate();
+    }
 
     public void addOverlay(OverlayItem overlay) {
         overlays.add(overlay);
+        populate();
+    }
+    
+    public void clearOverlays() {
+        overlays.clear();
         populate();
     }
 

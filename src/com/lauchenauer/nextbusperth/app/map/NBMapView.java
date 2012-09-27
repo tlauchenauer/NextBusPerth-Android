@@ -2,9 +2,13 @@ package com.lauchenauer.nextbusperth.app.map;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
+import com.google.android.maps.OverlayItem;
+import com.lauchenauer.nextbusperth.R;
 
 public class NBMapView extends MapView {
     private int oldZoomLevel = -1;
@@ -25,14 +29,14 @@ public class NBMapView extends MapView {
     public void dispatchDraw(Canvas canvas) {
         super.dispatchDraw(canvas);
         if (getZoomLevel() != oldZoomLevel) {
-            triggerOnMapViewCHangedListener();
+            triggerOnMapViewChangedListener();
             oldZoomLevel = getZoomLevel();
         }
     }
 
     public boolean onTouchEvent(MotionEvent ev) {
         if (ev.getAction() == MotionEvent.ACTION_UP) {
-            triggerOnMapViewCHangedListener();
+            triggerOnMapViewChangedListener();
         }
         return super.onTouchEvent(ev);
     }
@@ -41,7 +45,7 @@ public class NBMapView extends MapView {
         this.listener = listener;
     }
 
-    private void triggerOnMapViewCHangedListener() {
+    private void triggerOnMapViewChangedListener() {
         if (listener == null) return;
 
         listener.onMapViewChanged(getZoomLevel(), getProjection().fromPixels(0, 0), getProjection().fromPixels(getWidth(), getHeight()));

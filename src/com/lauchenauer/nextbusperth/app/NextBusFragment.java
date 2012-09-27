@@ -7,9 +7,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import com.lauchenauer.nextbusperth.DatabaseHelper;
+import com.lauchenauer.nextbusperth.helper.DatabaseHelper;
 import com.lauchenauer.nextbusperth.R;
-import com.lauchenauer.nextbusperth.SettingsHandler;
+import com.lauchenauer.nextbusperth.helper.SettingsHandler;
 import com.lauchenauer.nextbusperth.model.Service;
 
 import java.util.ArrayList;

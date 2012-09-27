@@ -1,15 +1,12 @@
 TODO
-
-- swipe screen to switch between Home/Work
-    http://mobile.tutsplus.com/tutorials/android/android-user-interface-design-horizontal-view-paging/
-    http://thepseudocoder.wordpress.com/2011/10/05/android-page-swiping-using-viewpager/
-    http://android-developers.blogspot.com.au/2011/08/horizontal-view-swiping-with-viewpager.html
-
 - show "no data" when no data is available
 - download timetable data in a service/thread
 - clean out unnecessary data after loading data
 
-- load overlays into map from backend
+- move downloading stops overlays into an asynctask with a queuing mechanism
+- add passing back selected stop into the settings
+- add progress display on mapview
+- add text to mapview when zoom level too high
 - add routes selection for journey allowing for multiple routes and possibly stops as well, stops get derived from the routes
 
 
@@ -19,3 +16,8 @@ DONE
 - add title and station name to which journey is shown
 - remove title bar from app
 - adjust row display to match sample from Brad
+- swipe screen to switch between Home/Work
+    http://mobile.tutsplus.com/tutorials/android/android-user-interface-design-horizontal-view-paging/
+    http://thepseudocoder.wordpress.com/2011/10/05/android-page-swiping-using-viewpager/
+    http://android-developers.blogspot.com.au/2011/08/horizontal-view-swiping-with-viewpager.html
+- load overlays into map from backend

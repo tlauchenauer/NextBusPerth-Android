@@ -1,4 +1,4 @@
-package com.lauchenauer.nextbusperth;
+package com.lauchenauer.nextbusperth.helper;
 
 import android.content.Context;
 import android.content.SharedPreferences;
