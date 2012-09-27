@@ -37,7 +37,7 @@ public class StopSelectorActivity extends MapActivity implements OnMapViewChange
         mapView.getController().setZoom(12);
         mapView.setOnMapViewChangedListener(this);
         
-        Drawable bus_stop = this.getResources().getDrawable(R.drawable.pin_green);
+        Drawable bus_stop = this.getResources().getDrawable(R.drawable.green_pin_32);
         overlay = new StopItemOverlay(bus_stop, this);
 
         overlay.addOverlay(new OverlayItem(new GeoPoint(-31950918, 115857486), "Wellington St Before William St / Red And Yellow C", "Wellington St Before William St / Red And Yellow C"));

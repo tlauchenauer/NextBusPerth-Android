@@ -23,8 +23,6 @@ public class Route extends BaseModel {
         this.routeNumber = routeNumber;
         this.routeName = routeName;
         this.headsign = headsign;
-
-        Log.d("[Route] - created", stopNumber + " : route : " + routeNumber + " : " + routeName + " : " + headsign);
     }
 
     public String getStopNumber() {

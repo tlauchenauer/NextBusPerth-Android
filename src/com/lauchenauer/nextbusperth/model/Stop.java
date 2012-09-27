@@ -17,8 +17,6 @@ public class Stop extends BaseModel {
     public Stop(String stopNumber, String stopName) {
         this.stopNumber = stopNumber;
         this.stopName = stopName;
-        
-        Log.d("[Stop] - created", stopNumber + " : " + stopName);
     }
 
     public String getStopNumber() {

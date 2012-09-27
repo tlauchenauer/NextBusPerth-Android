@@ -14,8 +14,6 @@ public class StopTime extends BaseModel {
         this.stopNumber = stopNumber;
         this.routeNumber = routeNumber;
         this.departureTime = departureTime;
-
-        Log.d("[StopTime] - created", "stop : " + stopNumber + " : route : " + routeNumber + " : time : " + departureTime);
     }
 
     public String getStopNumber() {
