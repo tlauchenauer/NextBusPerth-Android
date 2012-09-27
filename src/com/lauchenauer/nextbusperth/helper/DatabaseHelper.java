@@ -19,7 +19,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.zip.DataFormatException;
 
 public class DatabaseHelper {
     private static final SimpleDateFormat ISO8601FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -116,7 +115,7 @@ public class DatabaseHelper {
             database.close();
         }
     }
-    
+
     public List<Service> getNextBuses(String stopNumber, int maxResults) {
         SQLiteDatabase database = getDatabase();
         Cursor cursor = null;
@@ -129,11 +128,9 @@ public class DatabaseHelper {
             queryString += " WHERE s.stop_number = ? AND st.departure_time >= ?";
             queryString += " ORDER BY st.departure_time";
             queryString += " LIMIT " + maxResults;
-            
-            Log.d("[DatabaseHelper.getNextBuses]", queryString);
 
             Date startDate = new Date(new Date().getTime() - DEPARTURE_DELTA);
-            cursor = database.rawQuery(queryString, new String[] {stopNumber, ISO8601FORMAT.format(startDate)});
+            cursor = database.rawQuery(queryString, new String[]{stopNumber, ISO8601FORMAT.format(startDate)});
             while (cursor.moveToNext()) {
                 services.add(retrieveService(cursor));
             }
@@ -152,10 +149,10 @@ public class DatabaseHelper {
     private Service retrieveService(Cursor cursor) throws ParseException {
         return new Service(cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), ISO8601FORMAT.parse(cursor.getString(5)));
     }
-    
+
     private void outputCursor(Cursor cursor) {
         Log.d("[CURSOR]", "---------------------------------------");
-        
+
         String columns = "";
         for (String col : cursor.getColumnNames()) {
             columns += col + "  |";
@@ -170,7 +167,7 @@ public class DatabaseHelper {
 
             Log.d("[CURSOR]", values);
         }
-        
+
         Log.d("[CURSOR]", "---------------------------------------");
     }
 }

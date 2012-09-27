@@ -7,7 +7,12 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
-import android.widget.*;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ProgressBar;
+import android.widget.SeekBar;
+import android.widget.TextView;
 import com.lauchenauer.nextbusperth.R;
 import com.lauchenauer.nextbusperth.helper.SettingsHandler;
 import com.lauchenauer.nextbusperth.helper.TimetableHelper;
@@ -75,8 +80,16 @@ public class SettingsActivity extends Activity {
             }
         });
 
-        ImageButton search = (ImageButton) findViewById(R.id.work_search_btn);
-        search.setOnClickListener(new View.OnClickListener() {
+        ImageButton work_search = (ImageButton) findViewById(R.id.work_search_btn);
+        work_search.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                Intent i = new Intent(SettingsActivity.this, StopSelectorActivity.class);
+                startActivity(i);
+            }
+        });
+
+        ImageButton home_search = (ImageButton) findViewById(R.id.home_search_btn);
+        home_search.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 Intent i = new Intent(SettingsActivity.this, StopSelectorActivity.class);
                 startActivity(i);

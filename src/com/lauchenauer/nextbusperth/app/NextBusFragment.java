@@ -2,7 +2,6 @@ package com.lauchenauer.nextbusperth.app;
 
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,12 +39,7 @@ public class NextBusFragment extends ListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.d("[NextBus - MAIN]", "onCreate");
-
         journey = getArguments() != null ? getArguments().getString("journey") : "Work";
-
-        settingsHandler = new SettingsHandler(getActivity().getApplicationContext());
-
         settingsHandler = new SettingsHandler(getActivity().getApplicationContext());
         dbHelper = new DatabaseHelper(getActivity().getApplicationContext());
 
@@ -55,8 +49,6 @@ public class NextBusFragment extends ListFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.d("[NextBus - MAIN]", "onCreateView");
-
         View v = inflater.inflate(R.layout.nextbus, container, false);
 
         journeyName = (TextView) v.findViewById(R.id.journey_name);
@@ -82,11 +74,9 @@ public class NextBusFragment extends ListFragment {
         active = true;
 
         updateData();
-        Log.d("[NextBus - Fragment]", "onResume");
     }
 
     private void updateData() {
-        Log.d("[NextBus - Fragment]", "updating UI - " + journey);
         journeyName.setText(journey);
 
         String stopNumber = settingsHandler.getWorkStopNumber();

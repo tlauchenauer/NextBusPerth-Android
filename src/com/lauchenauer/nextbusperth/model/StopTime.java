@@ -1,7 +1,6 @@
 package com.lauchenauer.nextbusperth.model;
 
 import android.content.ContentValues;
-import android.util.Log;
 
 public class StopTime extends BaseModel {
     private static final String DEPARTURE_TIME = "departure_time";

@@ -19,20 +19,24 @@ public class StopItemOverlay extends ItemizedOverlay implements DialogInterface.
     public StopItemOverlay(Drawable defaultMarker, Context context) {
         super(boundCenterBottom(defaultMarker));
         this.context = context;
+        populate();  // workaround for the NPE when no items present
     }
-    
+
     public void addOverlays(List<OverlayItem> overlays) {
         this.overlays.addAll(overlays);
+        setLastFocusedIndex(-1);  // Workaround for the ArrayIndexOutOfBoundExcepttion
         populate();
     }
 
     public void addOverlay(OverlayItem overlay) {
         overlays.add(overlay);
+        setLastFocusedIndex(-1);  // Workaround for the ArrayIndexOutOfBoundExcepttion
         populate();
     }
-    
+
     public void clearOverlays() {
         overlays.clear();
+        setLastFocusedIndex(-1);  // Workaround for the ArrayIndexOutOfBoundExcepttion
         populate();
     }
 
@@ -53,7 +57,7 @@ public class StopItemOverlay extends ItemizedOverlay implements DialogInterface.
         dialog.setTitle("Select this Stop?");
         dialog.setPositiveButton("Select", this);
         dialog.setNegativeButton("Cancel", null);
-        dialog.setMessage(item.getSnippet());
+        dialog.setMessage("Stop Number: " + item.getTitle() + " - " + item.getSnippet());
         dialog.show();
 
         return true;
