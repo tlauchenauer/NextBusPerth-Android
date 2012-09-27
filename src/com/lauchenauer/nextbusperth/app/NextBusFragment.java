@@ -2,9 +2,11 @@ package com.lauchenauer.nextbusperth.app;
 
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import com.lauchenauer.nextbusperth.R;
 import com.lauchenauer.nextbusperth.helper.DatabaseHelper;
@@ -57,6 +59,21 @@ public class NextBusFragment extends ListFragment {
 
         updateData();
 
+        Button btn;
+        if (journey.equals("Home")) {
+            btn = (Button) v.findViewById(R.id.prev_journey);
+        } else {
+            btn = (Button) v.findViewById(R.id.next_journey);
+        }
+        btn.setVisibility(View.VISIBLE);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int page = journey.equals("Home") ? 0 : 1;
+                ((NextBusActivity)getActivity()).setPage(page);
+            }
+        });
+
         return v;
     }
 
@@ -85,6 +102,9 @@ public class NextBusFragment extends ListFragment {
         }
 
         List<Service> services = dbHelper.getNextBuses(stopNumber, 5);
+        if (services.size() < 1) {
+            services.add(new Service("", "", "NO DATA", "", "download timetable through settings", null));
+        }
         adapter.setServices(services);
 
         if (services.size() > 0) {

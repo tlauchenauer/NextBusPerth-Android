@@ -14,6 +14,7 @@ import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import com.lauchenauer.nextbusperth.R;
+import com.lauchenauer.nextbusperth.helper.DatabaseHelper;
 import com.lauchenauer.nextbusperth.helper.SettingsHandler;
 import com.lauchenauer.nextbusperth.helper.TimetableHelper;
 
@@ -24,7 +25,6 @@ public class SettingsActivity extends Activity {
     private TextView splitTimeText;
     private SettingsHandler settings;
     private ProgressBar progressBar;
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -93,6 +93,14 @@ public class SettingsActivity extends Activity {
             public void onClick(View view) {
                 Intent i = new Intent(SettingsActivity.this, StopSelectorActivity.class);
                 startActivity(i);
+            }
+        });
+
+        Button reset = (Button) findViewById(R.id.reset_data);
+        reset.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                DatabaseHelper db = new DatabaseHelper(SettingsActivity.this);
+                db.clearDB();
             }
         });
     }

@@ -44,6 +44,10 @@ public class Service {
     }
 
     public String getTimeDelta() {
+        if (departureTime == null) {
+            return "\u221e";
+        }
+
         long minutes = timDiffInMinutes(departureTime);
 
         if (minutes == 0) {

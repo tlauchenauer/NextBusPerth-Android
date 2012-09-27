@@ -8,8 +8,10 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.format.Time;
+import android.util.Log;
 import android.view.Menu;
 import com.lauchenauer.nextbusperth.R;
+import com.lauchenauer.nextbusperth.helper.DatabaseHelper;
 import com.lauchenauer.nextbusperth.helper.SettingsHandler;
 
 public class NextBusActivity extends FragmentActivity {
@@ -38,6 +40,10 @@ public class NextBusActivity extends FragmentActivity {
 //            Log.d("[NextBusActivity]", "firstRun - starting Alarm");
 //            OnBootReceiver.startTimeTableAlarm(getApplicationContext());
 //        }
+    }
+
+    void setPage(int page) {
+        viewPager.setCurrentItem(page);
     }
 
     @Override

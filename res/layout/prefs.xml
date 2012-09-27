@@ -63,7 +63,6 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text=""/>
-
     <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content" android:paddingTop="5dp">
@@ -78,4 +77,9 @@
                 android:id="@+id/progressBar" android:layout_alignParentRight="true" android:indeterminateOnly="true"
                 android:indeterminate="true" android:paddingRight="5dp" android:visibility="invisible"/>
     </RelativeLayout>
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reset all Data"
+            android:id="@+id/reset_data" android:layout_marginTop="50dp"/>
 </LinearLayout>
