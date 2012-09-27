@@ -7,13 +7,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import com.lauchenauer.nextbusperth.helper.DatabaseHelper;
 import com.lauchenauer.nextbusperth.R;
+import com.lauchenauer.nextbusperth.helper.DatabaseHelper;
 import com.lauchenauer.nextbusperth.helper.SettingsHandler;
 import com.lauchenauer.nextbusperth.model.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class NextBusFragment extends ListFragment {
     private SettingsHandler settingsHandler;
@@ -22,6 +24,7 @@ public class NextBusFragment extends ListFragment {
     private TextView journeyName;
     private TextView stopName;
     private String journey;
+    private boolean active = true;
 
     public static NextBusFragment newInstance(String journey) {
         NextBusFragment f = new NextBusFragment();
@@ -58,6 +61,7 @@ public class NextBusFragment extends ListFragment {
 
         journeyName = (TextView) v.findViewById(R.id.journey_name);
         stopName = (TextView) v.findViewById(R.id.stop_name);
+        new UpdateTimerTask(this, 30);
 
         updateData();
 
@@ -65,14 +69,24 @@ public class NextBusFragment extends ListFragment {
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+
+        active = false;
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
 
+        active = true;
+
         updateData();
-        Log.d("[NextBus - MAIN]", "onResume");
+        Log.d("[NextBus - Fragment]", "onResume");
     }
 
     private void updateData() {
+        Log.d("[NextBus - Fragment]", "updating UI - " + journey);
         journeyName.setText(journey);
 
         String stopNumber = settingsHandler.getWorkStopNumber();
@@ -86,6 +100,34 @@ public class NextBusFragment extends ListFragment {
         if (services.size() > 0) {
             Service s = services.get(0);
             stopName.setText(s.getStopName());
+        }
+    }
+
+    private static class UpdateTimerTask extends TimerTask {
+        private NextBusFragment fragment;
+        private Timer timer;
+
+        public UpdateTimerTask(NextBusFragment fragment, int seconds) {
+            this.fragment = fragment;
+
+            timer = new Timer();
+            timer.schedule(this, seconds * 1000, seconds * 1000);
+        }
+
+        @Override
+        public void run() {
+            if (fragment.getActivity() == null || fragment.getActivity().getApplicationContext() == null) {
+                cancel();
+                return;
+            }
+
+            if (!fragment.active) return;
+
+            fragment.getActivity().runOnUiThread(new Runnable() {
+                public void run() {
+                    fragment.updateData();
+                }
+            });
         }
     }
 }

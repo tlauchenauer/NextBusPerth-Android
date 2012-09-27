@@ -3,6 +3,8 @@ package com.lauchenauer.nextbusperth.app;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.OverlayItem;
@@ -20,18 +22,19 @@ public class StopSelectorActivity extends MapActivity implements OnMapViewChange
     private StopItemOverlay overlay;
     private GeoPoint lastTopLeft = new GeoPoint(0, 0);
     private NBMapView mapView;
+    private TextView zoomText;
 
     @Override
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.stop_selector);
+        
+        zoomText = (TextView) findViewById(R.id.zoom_text);
 
         mapView = (NBMapView) findViewById(R.id.mapview);
         mapView.setBuiltInZoomControls(true);
-
         mapView.getController().setCenter(new GeoPoint(-31957406, 115851122));
         mapView.getController().setZoom(12);
-
         mapView.setOnMapViewChangedListener(this);
         
         Drawable bus_stop = this.getResources().getDrawable(R.drawable.pin_green);
@@ -58,6 +61,7 @@ public class StopSelectorActivity extends MapActivity implements OnMapViewChange
         lastTopLeft = topLeft;
 
         if (zoomlevel >= 16) {
+            zoomText.setVisibility(View.INVISIBLE);
             List<MapStop> stops = StopsHelper.retrieveStops(topLeft, bottomRight);
             Log.d("MapStops count", "" + stops.size());
             
@@ -71,10 +75,8 @@ public class StopSelectorActivity extends MapActivity implements OnMapViewChange
             
             overlay.clearOverlays();
             overlay.addOverlays(items);
-
-//            mapView.getOverlays().clear();
-//            mapView.getOverlays().add(overlay);
-//            mapView.invalidate();
+        } else {
+            zoomText.setVisibility(View.VISIBLE);
         }
     }
 }

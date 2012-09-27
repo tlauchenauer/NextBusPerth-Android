@@ -12,6 +12,8 @@ import android.view.Menu;
 import com.lauchenauer.nextbusperth.R;
 import com.lauchenauer.nextbusperth.helper.SettingsHandler;
 
+import java.util.TimerTask;
+
 public class NextBusActivity extends FragmentActivity {
     private ViewPager viewPager;
     private SettingsHandler settingsHandler;

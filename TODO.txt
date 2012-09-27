@@ -6,8 +6,8 @@ TODO
 - move downloading stops overlays into an asynctask with a queuing mechanism
 - add passing back selected stop into the settings
 - add progress display on mapview
-- add text to mapview when zoom level too high
 - add routes selection for journey allowing for multiple routes and possibly stops as well, stops get derived from the routes
+- add address search to mapview
 
 
 
@@ -21,3 +21,5 @@ DONE
     http://thepseudocoder.wordpress.com/2011/10/05/android-page-swiping-using-viewpager/
     http://android-developers.blogspot.com.au/2011/08/horizontal-view-swiping-with-viewpager.html
 - load overlays into map from backend
+- add an update to ui every 30 seconds
+- add text to mapview when zoom level too high
