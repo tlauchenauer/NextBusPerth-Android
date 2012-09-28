@@ -49,6 +49,8 @@ public class RowAdapter extends ArrayAdapter<Service> {
             pos -= 5;
         }
 
+        if (!services.get(0).hasLeft()) pos++;
+
         switch (pos) {
             case 0:
                 timeDelta.setBackgroundResource(R.drawable.row_gradient1);
@@ -64,6 +66,9 @@ public class RowAdapter extends ArrayAdapter<Service> {
                 break;
             case 4:
                 timeDelta.setBackgroundResource(R.drawable.row_gradient5);
+                break;
+            case 5:
+                timeDelta.setBackgroundResource(R.drawable.row_gradient6);
                 break;
         }
 

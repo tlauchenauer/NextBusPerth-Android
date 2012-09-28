@@ -1,11 +1,38 @@
 TODO
+
 - change settings screen to use PreferenceActivity
+- use AsyncTask and progress dialog after change of stop number to download the routes
+- build checkboxes dynamically
+
+private ProgressDialog pdia;
+
+@Override
+protected void onPreExecute(){
+   super.onPreExecute();
+        pdia = new ProgressDialog(yourContext);
+        pdia.setMessage("Loading...");
+        pdia.show();
+}
+
+@Override
+protected void onPostExecute(String result){
+   super.onPostExecute(result);
+        pdia.dismiss();
+}
+
+needs work
+- store each route with routeW prefix and route number as well as stop number for it to be unique
+- need to derive stop numbers at some place
+
+
+
 - add passing back selected stop into the settings
 - only load stops when area is outside of last loaded area
 - add routes selection for journey allowing for multiple routes and possibly stops as well, stops get derived from the routes
 - add updating service to download data periodically
 - clean out unnecessary data after loading data
-- add address search to mapview
+- add address/stopnumber search to mapview
+- fix repainting glitch on map
 
 
 
@@ -26,3 +53,4 @@ DONE
 - move downloading stops overlays into an asynctask with a queuing mechanism
 - clear pins on zooming out past certain level
 - show "no data" when no data is available
+- increase button size on paging

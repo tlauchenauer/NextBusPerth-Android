@@ -9,24 +9,34 @@
                 android:key="Work-Stop"
                 android:defaultValue=""
                 android:summary="6 digit stop number"/>
+        <PreferenceScreen
+                android:title="Routes to Work"
+                android:key="routes-work"
+                android:summary="Select all routes that should have their departure times listed.">
+        </PreferenceScreen>
     </PreferenceCategory>
     <PreferenceCategory
-            android:title="Journey to Home">
+            android:title="Journey Home">
 
         <EditTextPreference
                 android:title="Stop Number"
                 android:key="Home-Stop"
                 android:defaultValue=""
                 android:summary="6 digit stop number"/>
+        <PreferenceScreen
+                android:title="Routes Home"
+                android:key="routes-home"
+                android:summary="Select all routes that should have their departure times listed.">
+        </PreferenceScreen>
     </PreferenceCategory>
 
     <PreferenceCategory
-                android:title="Time split">
+            android:title="Switching time">
 
-            <com.lauchenauer.nextbusperth.app.prefs.TimePreference
-                android:title="Select time split"
+        <com.lauchenauer.nextbusperth.app.prefs.TimePreference
+                android:title="Switch Time"
                 android:key="SplitTime"
                 android:dialogLayout="@layout/time_preference"
-                android:summary="Time when to switch from work to home journey" />
-        </PreferenceCategory>
+                android:summary="Time when to switch from work journey to home journey."/>
+    </PreferenceCategory>
 </PreferenceScreen>

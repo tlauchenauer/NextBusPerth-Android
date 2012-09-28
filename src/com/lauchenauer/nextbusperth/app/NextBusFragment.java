@@ -2,7 +2,6 @@ package com.lauchenauer.nextbusperth.app;
 
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -67,7 +66,6 @@ public class NextBusFragment extends ListFragment {
         }
         btn.setVisibility(View.VISIBLE);
         btn.setOnClickListener(new View.OnClickListener() {
-            @Override
             public void onClick(View view) {
                 int page = journey.equals("Home") ? 0 : 1;
                 ((NextBusActivity)getActivity()).setPage(page);
