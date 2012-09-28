@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+            android:title="Journey to Work">
+
+        <EditTextPreference
+                android:title="Stop Number"
+                android:key="Work-Stop"
+                android:defaultValue=""
+                android:summary="6 digit stop number"/>
+    </PreferenceCategory>
+    <PreferenceCategory
+            android:title="Journey to Home">
+
+        <EditTextPreference
+                android:title="Stop Number"
+                android:key="Home-Stop"
+                android:defaultValue=""
+                android:summary="6 digit stop number"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory
+                android:title="Time split">
+
+            <com.lauchenauer.nextbusperth.app.prefs.TimePreference
+                android:title="Select time split"
+                android:key="SplitTime"
+                android:dialogLayout="@layout/time_preference"
+                android:summary="Time when to switch from work to home journey" />
+        </PreferenceCategory>
+</PreferenceScreen>

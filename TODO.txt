@@ -1,4 +1,5 @@
 TODO
+- change settings screen to use PreferenceActivity
 - add passing back selected stop into the settings
 - only load stops when area is outside of last loaded area
 - add routes selection for journey allowing for multiple routes and possibly stops as well, stops get derived from the routes
