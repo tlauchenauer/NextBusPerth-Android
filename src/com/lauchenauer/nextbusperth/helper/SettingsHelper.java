@@ -19,6 +19,11 @@ public class SettingsHelper {
         editor = prefs.edit();
     }
 
+    public void clearAll() {
+        editor.clear();
+        editor.commit();
+    }
+
     public void setWorkStopNumber(String stopNumber) {
         putString(WORK_STOP_SETTING, stopNumber);
     }

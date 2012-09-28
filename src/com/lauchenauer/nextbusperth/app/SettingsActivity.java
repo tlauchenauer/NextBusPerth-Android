@@ -2,8 +2,10 @@ package com.lauchenauer.nextbusperth.app;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -101,6 +103,15 @@ public class SettingsActivity extends Activity {
             public void onClick(View view) {
                 DatabaseHelper db = new DatabaseHelper(SettingsActivity.this);
                 db.clearDB();
+            }
+        });
+
+        Button resetPrefs = (Button) findViewById(R.id.reset_prefs);
+        resetPrefs.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                SharedPreferences.Editor editor =  PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
+                editor.clear();
+                editor.commit();
             }
         });
     }
