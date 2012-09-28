@@ -3,15 +3,17 @@ package com.lauchenauer.nextbusperth.model;
 import android.content.ContentValues;
 import com.lauchenauer.nextbusperth.helper.JSONConstants;
 
-public class StopTime {
+public class JourneyRoute {
     private String stopNumber;
     private String routeNumber;
-    private String departureTime;
+    private String journeyName;
+    private boolean selected;
 
-    public StopTime(String stopNumber, String routeNumber, String departureTime) {
+    public JourneyRoute(String journeyName, String stopNumber, String routeNumber, boolean selected) {
         this.stopNumber = stopNumber;
         this.routeNumber = routeNumber;
-        this.departureTime = departureTime;
+        this.journeyName = journeyName;
+        this.selected = selected;
     }
 
     public String getStopNumber() {
@@ -22,7 +24,11 @@ public class StopTime {
         return routeNumber;
     }
 
-    public String getDepartureTime() {
-        return departureTime;
+    public String getJourneyName() {
+        return journeyName;
+    }
+
+    public boolean isSelected() {
+        return selected;
     }
 }

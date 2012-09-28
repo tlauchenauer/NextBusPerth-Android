@@ -9,7 +9,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import com.lauchenauer.nextbusperth.R;
 import com.lauchenauer.nextbusperth.helper.DatabaseHelper;
-import com.lauchenauer.nextbusperth.helper.SettingsHandler;
+import com.lauchenauer.nextbusperth.helper.SettingsHelper;
 import com.lauchenauer.nextbusperth.model.Service;
 
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class NextBusFragment extends ListFragment {
-    private SettingsHandler settingsHandler;
+    private SettingsHelper settingsHelper;
     private DatabaseHelper dbHelper;
     private RowAdapter adapter;
     private TextView journeyName;
@@ -41,7 +41,7 @@ public class NextBusFragment extends ListFragment {
         super.onCreate(savedInstanceState);
 
         journey = getArguments() != null ? getArguments().getString("journey") : "Work";
-        settingsHandler = new SettingsHandler(getActivity().getApplicationContext());
+        settingsHelper = new SettingsHelper(getActivity().getApplicationContext());
         dbHelper = new DatabaseHelper(getActivity().getApplicationContext());
 
         adapter = new RowAdapter(getActivity().getApplicationContext(), new ArrayList<Service>());
@@ -68,7 +68,7 @@ public class NextBusFragment extends ListFragment {
         btn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 int page = journey.equals("Home") ? 0 : 1;
-                ((NextBusActivity)getActivity()).setPage(page);
+                ((NextBusActivity) getActivity()).setPage(page);
             }
         });
 
@@ -94,14 +94,14 @@ public class NextBusFragment extends ListFragment {
     private void updateData() {
         journeyName.setText(journey);
 
-        String stopNumber = settingsHandler.getWorkStopNumber();
+        String stopNumber = settingsHelper.getWorkStopNumber();
         if (journey.equals("Home")) {
-            stopNumber = settingsHandler.getHomeStopNumber();
+            stopNumber = settingsHelper.getHomeStopNumber();
         }
 
         List<Service> services = dbHelper.getNextBuses(stopNumber, 5);
         if (services.size() < 1) {
-            services.add(new Service("", "", "NO DATA", "", "download timetable through settings", null));
+            services.add(new Service("", "", "NO DATA", "", "download timetable", null));
         }
         adapter.setServices(services);
 

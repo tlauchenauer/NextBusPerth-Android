@@ -15,7 +15,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import com.lauchenauer.nextbusperth.R;
 import com.lauchenauer.nextbusperth.helper.DatabaseHelper;
-import com.lauchenauer.nextbusperth.helper.SettingsHandler;
+import com.lauchenauer.nextbusperth.helper.SettingsHelper;
 import com.lauchenauer.nextbusperth.helper.TimetableHelper;
 
 public class SettingsActivity extends Activity {
@@ -23,7 +23,7 @@ public class SettingsActivity extends Activity {
     private EditText homeText;
     private SeekBar splitTime;
     private TextView splitTimeText;
-    private SettingsHandler settings;
+    private SettingsHelper settings;
     private ProgressBar progressBar;
 
     @Override
@@ -37,7 +37,7 @@ public class SettingsActivity extends Activity {
         splitTimeText = (TextView) findViewById(R.id.split_time_text);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
-        settings = new SettingsHandler(getApplicationContext());
+        settings = new SettingsHelper(getApplicationContext());
 
         readPreferences();
         setupUI();

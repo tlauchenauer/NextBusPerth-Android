@@ -12,7 +12,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StopsHelper {
+public class StopsHelper implements JSONConstants {
     private static final String STOPS_URL = "stops";
 
     public static List<MapStop> retrieveStops(GeoPoint topLeft, GeoPoint bottomLeft) {
@@ -31,11 +31,11 @@ public class StopsHelper {
         List<MapStop> stops = new ArrayList<MapStop>();
         try {
             JSONObject json = new JSONObject(jsonText);
-            JSONArray stopsArray = json.getJSONArray("stops");
+            JSONArray stopsArray = json.getJSONArray(STOPS);
             for (int i = 0; i < stopsArray.length(); i++) {
                 JSONObject stopJSON = stopsArray.getJSONObject(i);
 
-                stops.add(new MapStop(stopJSON.getString("stop_number"), stopJSON.getString("stop_name"), stopJSON.getDouble("lat"), stopJSON.getDouble("long")));
+                stops.add(new MapStop(stopJSON.getString(STOP_NUMBER), stopJSON.getString(STOP_NAME), stopJSON.getDouble(LAT), stopJSON.getDouble(LONG)));
             }
         } catch (JSONException e) {
             Log.e("[StopsHelper.processJSON]", e.getMessage(), e);

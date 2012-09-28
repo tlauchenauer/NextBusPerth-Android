@@ -8,27 +8,25 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.format.Time;
-import android.util.Log;
 import android.view.Menu;
 import com.lauchenauer.nextbusperth.R;
-import com.lauchenauer.nextbusperth.helper.DatabaseHelper;
-import com.lauchenauer.nextbusperth.helper.SettingsHandler;
+import com.lauchenauer.nextbusperth.helper.SettingsHelper;
 
 public class NextBusActivity extends FragmentActivity {
     private ViewPager viewPager;
-    private SettingsHandler settingsHandler;
+    private SettingsHelper settingsHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        settingsHandler = new SettingsHandler(getApplicationContext());
+        settingsHelper = new SettingsHelper(getApplicationContext());
 
         viewPager = (ViewPager) findViewById(R.id.view_pager);
         viewPager.setAdapter(new NextBusFragmentAdapter(getSupportFragmentManager()));
 
-        long splitTime = settingsHandler.getSplitTime();
+        long splitTime = settingsHelper.getSplitTime();
         Time t = new Time();
         t.setToNow();
         long currentTime = t.hour * 12 + t.minute / 5;
@@ -36,7 +34,7 @@ public class NextBusActivity extends FragmentActivity {
             viewPager.setCurrentItem(1);
         }
 
-//        if (settingsHandler.isFirstRun()) {
+//        if (settingsHelper.isFirstRun()) {
 //            Log.d("[NextBusActivity]", "firstRun - starting Alarm");
 //            OnBootReceiver.startTimeTableAlarm(getApplicationContext());
 //        }

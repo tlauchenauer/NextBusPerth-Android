@@ -62,6 +62,8 @@ public class Service {
     }
 
     private long timDiffInMinutes(Date time) {
+        if (time == null) return 0;
+
         Date now = new Date();
         long millis = time.getTime() - now.getTime();
 

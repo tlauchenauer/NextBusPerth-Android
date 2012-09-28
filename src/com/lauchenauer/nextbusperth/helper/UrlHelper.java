@@ -27,6 +27,7 @@ public class UrlHelper {
             HttpClient httpclient = new DefaultHttpClient();
             Log.d("URL", addParamsToUrl(url, params));
             HttpGet getRequest = new HttpGet(BASE_URL + addParamsToUrl(url, params));
+            Log.d("URL", BASE_URL + addParamsToUrl(url, params));
 
             HttpResponse response = httpclient.execute(getRequest);
             content = response.getEntity().getContent();

@@ -1,8 +1,6 @@
 package com.lauchenauer.nextbusperth.app.prefs;
 
-import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;

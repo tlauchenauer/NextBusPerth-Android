@@ -1,21 +1,15 @@
 package com.lauchenauer.nextbusperth.model;
 
 import android.content.ContentValues;
+import com.lauchenauer.nextbusperth.helper.JSONConstants;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Route extends BaseModel {
-    private static final String ROUTE_NAME = "route_name";
-    private static final String HEADSIGN = "headsign";
-
+public class Route {
     private String stopNumber;
     private String routeNumber;
     private String routeName;
     private String headsign;
-
-    public Route(String stopNumber, JSONObject json) throws JSONException {
-        this(stopNumber, json.getString(BaseModel.ROUTE_NUMBER), json.getString(ROUTE_NAME), json.getString(HEADSIGN));
-    }
 
     public Route(String stopNumber, String routeNumber, String routeName, String headsign) {
         this.stopNumber = stopNumber;
@@ -38,16 +32,5 @@ public class Route extends BaseModel {
 
     public String getHeadsign() {
         return headsign;
-    }
-
-    public ContentValues getContentValues() {
-        ContentValues values = new ContentValues();
-
-        values.put(STOP_NUMBER, stopNumber);
-        values.put(ROUTE_NAME, routeName);
-        values.put(BaseModel.ROUTE_NUMBER, routeNumber);
-        values.put(HEADSIGN, headsign);
-
-        return values;
     }
 }

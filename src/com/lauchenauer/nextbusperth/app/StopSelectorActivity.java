@@ -68,7 +68,7 @@ public class StopSelectorActivity extends MapActivity implements OnMapViewChange
             if (currentTask == null) {
                 progressBar.setVisibility(View.VISIBLE);
                 currentTask = new MapStopsDownloadTask(topLeft, bottomRight);
-                currentTask.execute(this);
+                currentTask.execute();
             } else {
                 nextTask = new MapStopsDownloadTask(topLeft, bottomRight);
             }
@@ -104,11 +104,11 @@ public class StopSelectorActivity extends MapActivity implements OnMapViewChange
             nextTask = null;
 
             progressBar.setVisibility(View.VISIBLE);
-            currentTask.execute(this);
+            currentTask.execute();
         }
     }
 
-    private class MapStopsDownloadTask extends AsyncTask<StopSelectorActivity, Integer, Long> {
+    private class MapStopsDownloadTask extends AsyncTask<Void, Void, List<MapStop>> {
         private GeoPoint topLeft;
         private GeoPoint bottomRight;
 
@@ -118,18 +118,14 @@ public class StopSelectorActivity extends MapActivity implements OnMapViewChange
         }
 
         @Override
-        protected Long doInBackground(StopSelectorActivity... stopSelectorActivities) {
-            final List<MapStop> stops = StopsHelper.retrieveStops(topLeft, bottomRight);
+        protected List<MapStop> doInBackground(Void... voids) {
+            return StopsHelper.retrieveStops(topLeft, bottomRight);
+        }
 
-            stopSelectorActivities[0].runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    StopSelectorActivity.this.updateOverlays(stops);
-                    StopSelectorActivity.this.taskDone();
-                }
-            });
-
-            return 1l;
+        @Override
+        protected void onPostExecute(List<MapStop> mapStops) {
+            StopSelectorActivity.this.updateOverlays(mapStops);
+            StopSelectorActivity.this.taskDone();
         }
     }
 }
