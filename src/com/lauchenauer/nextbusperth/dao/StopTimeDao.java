@@ -28,6 +28,7 @@ public class StopTimeDao extends AbstractDao<StopTime, Long> {
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property Route_id = new Property(1, Long.class, "route_id", false, "ROUTE_ID");
+        public final static Property Departure_time = new Property(2, java.util.Date.class, "departure_time", false, "DEPARTURE_TIME");
     };
 
     private Query<StopTime> route_StopTimeListQuery;
@@ -45,7 +46,8 @@ public class StopTimeDao extends AbstractDao<StopTime, Long> {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "'STOP_TIME' (" + //
                 "'_id' INTEGER PRIMARY KEY ," + // 0: id
-                "'ROUTE_ID' INTEGER);"); // 1: route_id
+                "'ROUTE_ID' INTEGER," + // 1: route_id
+                "'DEPARTURE_TIME' INTEGER);"); // 2: departure_time
         // Add Indexes
         db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_STOP_TIME_DEPARTURE_TIME_ROUTE_ID ON STOP_TIME" +
                 " (DEPARTURE_TIME,ROUTE_ID);");
@@ -66,6 +68,16 @@ public class StopTimeDao extends AbstractDao<StopTime, Long> {
         if (id != null) {
             stmt.bindLong(1, id);
         }
+ 
+        Long route_id = entity.getRoute_id();
+        if (route_id != null) {
+            stmt.bindLong(2, route_id);
+        }
+ 
+        java.util.Date departure_time = entity.getDeparture_time();
+        if (departure_time != null) {
+            stmt.bindLong(3, departure_time.getTime());
+        }
     }
 
     /** @inheritdoc */
@@ -78,7 +90,9 @@ public class StopTimeDao extends AbstractDao<StopTime, Long> {
     @Override
     public StopTime readEntity(Cursor cursor, int offset) {
         StopTime entity = new StopTime( //
-            cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0) // id
+            cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
+            cursor.isNull(offset + 1) ? null : cursor.getLong(offset + 1), // route_id
+            cursor.isNull(offset + 2) ? null : new java.util.Date(cursor.getLong(offset + 2)) // departure_time
         );
         return entity;
     }
@@ -87,6 +101,8 @@ public class StopTimeDao extends AbstractDao<StopTime, Long> {
     @Override
     public void readEntity(Cursor cursor, StopTime entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
+        entity.setRoute_id(cursor.isNull(offset + 1) ? null : cursor.getLong(offset + 1));
+        entity.setDeparture_time(cursor.isNull(offset + 2) ? null : new java.util.Date(cursor.getLong(offset + 2)));
      }
     
     /** @inheritdoc */

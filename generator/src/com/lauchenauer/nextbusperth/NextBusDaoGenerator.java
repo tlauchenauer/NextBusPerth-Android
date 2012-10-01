@@ -32,16 +32,17 @@ public class NextBusDaoGenerator {
         Property headsign = route.addStringProperty("headsign").getProperty();
         Index routeIndex = new Index();
         routeIndex.makeUnique();
+        routeIndex.addProperty(stopId);
         routeIndex.addProperty(routeNumber);
         routeIndex.addProperty(routeName);
         routeIndex.addProperty(headsign);
         route.addIndex(routeIndex);
 
-        // StopTime Entity (route_id LONG, departure_time DATETIME)
+        // StopTime Entity (id LONG, route_id LONG, departure_time DATETIME)
         Entity stopTime = schema.addEntity("StopTime");
         stopTime.addIdProperty();
-        Property stopTimeRouteId = route.addLongProperty("route_id").getProperty();
-        Property departureTime = route.addDateProperty("departure_time").getProperty();
+        Property stopTimeRouteId = stopTime.addLongProperty("route_id").getProperty();
+        Property departureTime = stopTime.addDateProperty("departure_time").getProperty();
         Index stopTimeIndex = new Index();
         stopTimeIndex.makeUnique();
         stopTimeIndex.addProperty(departureTime);
@@ -53,7 +54,7 @@ public class NextBusDaoGenerator {
         journey.addIdProperty();
         journey.addStringProperty("name");
 
-        // JourneyRoute Entity (journey_id LONG, route_id LONG, selected BOOLEAN)
+        // JourneyRoute Entity (id LONG, journey_id LONG, route_id LONG, selected BOOLEAN)
         Entity journeyRoute = schema.addEntity("JourneyRoute");
         journeyRoute.addIdProperty();
         Property journeyId = journeyRoute.addLongProperty("journey_id").getProperty();
@@ -76,30 +77,4 @@ public class NextBusDaoGenerator {
 
         new DaoGenerator().generateAll(schema, "./src/", "./test/");
     }
-
-//    private static void addNote(Schema schema) {
-//        Entity note = schema.addEntity("Note");
-//        note.addIdProperty();
-//        note.addStringProperty("text").notNull();
-//        note.addStringProperty("comment");
-//        note.addDateProperty("date");
-//    }
-//
-//    private static void addCustomerOrder(Schema schema) {
-//        Entity customer = schema.addEntity("Customer");
-//        customer.addIdProperty();
-//        customer.addStringProperty("name").notNull();
-//
-//        Entity order = schema.addEntity("Order");
-//        order.setTableName("ORDERS"); // "ORDER" is a reserved keyword
-//        order.addIdProperty();
-//        Property orderDate = order.addDateProperty("date").getProperty();
-//        Property customerId = order.addLongProperty("customerId").notNull().getProperty();
-//        order.addToOne(customer, customerId);
-//
-//        ToMany customerToOrders = customer.addToMany(order, customerId);
-//        customerToOrders.setName("orders");
-//        customerToOrders.orderAsc(orderDate);
-//    }
-
 }

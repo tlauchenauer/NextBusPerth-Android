@@ -31,23 +31,6 @@ public class NextBusActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, "testing-db", null);
-        SQLiteDatabase db = helper.getWritableDatabase();
-        DaoMaster daoMaster = new DaoMaster(db);
-        DaoSession daoSession = daoMaster.newSession();
-        StopDao stopDao = daoSession.getStopDao();
-        RouteDao routeDao = daoSession.getRouteDao();
-
-        List<Stop> stops = stopDao.queryBuilder().list();
-        for (Stop s : stops) {
-            Log.d("STOP", s.getId() + " - " + s.getNumber() + " - " + s.getName());
-        }
-
-//        stopDao.queryBuilder().where(StopDao.Properties.Number.eq("123456")).unique();
-//        Stop stop = new Stop(null, "523456", "My new brilliant new stop");
-//        stopDao.insert(stop);
-//        Log.d("DAO Testing", "inserted stop " + stop.getId());
-
         settingsHelper = new SettingsHelper(getApplicationContext());
 
         viewPager = (ViewPager) findViewById(R.id.view_pager);

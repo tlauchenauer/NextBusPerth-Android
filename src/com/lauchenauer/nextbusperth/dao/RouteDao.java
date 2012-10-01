@@ -33,8 +33,6 @@ public class RouteDao extends AbstractDao<Route, Long> {
         public final static Property Number = new Property(2, String.class, "number", false, "NUMBER");
         public final static Property Name = new Property(3, String.class, "name", false, "NAME");
         public final static Property Headsign = new Property(4, String.class, "headsign", false, "HEADSIGN");
-        public final static Property Route_id = new Property(5, Long.class, "route_id", false, "ROUTE_ID");
-        public final static Property Departure_time = new Property(6, java.util.Date.class, "departure_time", false, "DEPARTURE_TIME");
     };
 
     private DaoSession daoSession;
@@ -58,12 +56,10 @@ public class RouteDao extends AbstractDao<Route, Long> {
                 "'STOP_ID' INTEGER," + // 1: stop_id
                 "'NUMBER' TEXT," + // 2: number
                 "'NAME' TEXT," + // 3: name
-                "'HEADSIGN' TEXT," + // 4: headsign
-                "'ROUTE_ID' INTEGER," + // 5: route_id
-                "'DEPARTURE_TIME' INTEGER);"); // 6: departure_time
+                "'HEADSIGN' TEXT);"); // 4: headsign
         // Add Indexes
-        db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_ROUTE_NUMBER_NAME_HEADSIGN ON ROUTE" +
-                " (NUMBER,NAME,HEADSIGN);");
+        db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_ROUTE_STOP_ID_NUMBER_NAME_HEADSIGN ON ROUTE" +
+                " (STOP_ID,NUMBER,NAME,HEADSIGN);");
     }
 
     /** Drops the underlying database table. */
@@ -101,16 +97,6 @@ public class RouteDao extends AbstractDao<Route, Long> {
         if (headsign != null) {
             stmt.bindString(5, headsign);
         }
- 
-        Long route_id = entity.getRoute_id();
-        if (route_id != null) {
-            stmt.bindLong(6, route_id);
-        }
- 
-        java.util.Date departure_time = entity.getDeparture_time();
-        if (departure_time != null) {
-            stmt.bindLong(7, departure_time.getTime());
-        }
     }
 
     @Override
@@ -133,9 +119,7 @@ public class RouteDao extends AbstractDao<Route, Long> {
             cursor.isNull(offset + 1) ? null : cursor.getLong(offset + 1), // stop_id
             cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // number
             cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // name
-            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // headsign
-            cursor.isNull(offset + 5) ? null : cursor.getLong(offset + 5), // route_id
-            cursor.isNull(offset + 6) ? null : new java.util.Date(cursor.getLong(offset + 6)) // departure_time
+            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4) // headsign
         );
         return entity;
     }
@@ -148,8 +132,6 @@ public class RouteDao extends AbstractDao<Route, Long> {
         entity.setNumber(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
         entity.setName(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
         entity.setHeadsign(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
-        entity.setRoute_id(cursor.isNull(offset + 5) ? null : cursor.getLong(offset + 5));
-        entity.setDeparture_time(cursor.isNull(offset + 6) ? null : new java.util.Date(cursor.getLong(offset + 6)));
      }
     
     /** @inheritdoc */

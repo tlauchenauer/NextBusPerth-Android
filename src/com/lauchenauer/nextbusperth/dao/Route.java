@@ -18,8 +18,6 @@ public class Route {
     private String number;
     private String name;
     private String headsign;
-    private Long route_id;
-    private java.util.Date departure_time;
 
     /** Used to resolve relations */
     private transient DaoSession daoSession;
@@ -42,14 +40,12 @@ public class Route {
         this.id = id;
     }
 
-    public Route(Long id, Long stop_id, String number, String name, String headsign, Long route_id, java.util.Date departure_time) {
+    public Route(Long id, Long stop_id, String number, String name, String headsign) {
         this.id = id;
         this.stop_id = stop_id;
         this.number = number;
         this.name = name;
         this.headsign = headsign;
-        this.route_id = route_id;
-        this.departure_time = departure_time;
     }
 
     /** called by internal mechanisms, do not call yourself. */
@@ -96,22 +92,6 @@ public class Route {
 
     public void setHeadsign(String headsign) {
         this.headsign = headsign;
-    }
-
-    public Long getRoute_id() {
-        return route_id;
-    }
-
-    public void setRoute_id(Long route_id) {
-        this.route_id = route_id;
-    }
-
-    public java.util.Date getDeparture_time() {
-        return departure_time;
-    }
-
-    public void setDeparture_time(java.util.Date departure_time) {
-        this.departure_time = departure_time;
     }
 
     /** To-one relationship, resolved on first access. */

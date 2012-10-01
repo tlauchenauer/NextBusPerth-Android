@@ -10,6 +10,8 @@ package com.lauchenauer.nextbusperth.dao;
 public class StopTime {
 
     private Long id;
+    private Long route_id;
+    private java.util.Date departure_time;
 
     // KEEP FIELDS - put your custom fields here
     // KEEP FIELDS END
@@ -21,12 +23,34 @@ public class StopTime {
         this.id = id;
     }
 
+    public StopTime(Long id, Long route_id, java.util.Date departure_time) {
+        this.id = id;
+        this.route_id = route_id;
+        this.departure_time = departure_time;
+    }
+
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getRoute_id() {
+        return route_id;
+    }
+
+    public void setRoute_id(Long route_id) {
+        this.route_id = route_id;
+    }
+
+    public java.util.Date getDeparture_time() {
+        return departure_time;
+    }
+
+    public void setDeparture_time(java.util.Date departure_time) {
+        this.departure_time = departure_time;
     }
 
     // KEEP METHODS - put your custom methods here
