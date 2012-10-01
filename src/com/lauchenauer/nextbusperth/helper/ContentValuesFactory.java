@@ -45,6 +45,7 @@ public class ContentValuesFactory implements DBConstants {
         values.put(STOP_NUMBER, j.getStopNumber());
         values.put(ROUTE_NUMBER, j.getRouteNumber());
         values.put(JOURNEY_NAME, j.getJourneyName());
+        values.put(HEADSIGN, j.getHeadsign());
         values.put(SELECTED, j.isSelected());
     }
 }

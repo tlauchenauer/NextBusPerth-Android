@@ -8,6 +8,7 @@
                 android:title="Stop Number"
                 android:key="Work-Stop"
                 android:defaultValue=""
+                android:inputType="number"
                 android:summary="6 digit stop number"/>
         <PreferenceScreen
                 android:title="Routes to Work"
@@ -22,6 +23,7 @@
                 android:title="Stop Number"
                 android:key="Home-Stop"
                 android:defaultValue=""
+                android:inputType="number"
                 android:summary="6 digit stop number"/>
         <PreferenceScreen
                 android:title="Routes Home"

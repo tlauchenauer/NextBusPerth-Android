@@ -1,11 +1,6 @@
 package com.lauchenauer.nextbusperth.model;
 
-import android.content.ContentValues;
-import com.lauchenauer.nextbusperth.helper.JSONConstants;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-public class Route {
+public class Route implements RouteJourneyPreference {
     private String stopNumber;
     private String routeNumber;
     private String routeName;
@@ -32,5 +27,10 @@ public class Route {
 
     public String getHeadsign() {
         return headsign;
+    }
+
+    @Override
+    public boolean isSelected() {
+        return true;
     }
 }

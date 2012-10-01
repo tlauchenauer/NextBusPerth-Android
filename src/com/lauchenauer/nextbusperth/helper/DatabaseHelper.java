@@ -57,9 +57,9 @@ public class DatabaseHelper {
         SQLiteDatabase database = getDatabase();
         try {
             database.execSQL("CREATE TABLE IF NOT EXISTS " + TBL_STOPS + " (stop_number STRING PRIMARY KEY, stop_name STRING)");
-            database.execSQL("CREATE TABLE IF NOT EXISTS " + TBL_ROUTES + " (stop_number STRING, route_number STRING, route_name STRING, headsign STRING, PRIMARY KEY(stop_number, route_number))");
+            database.execSQL("CREATE TABLE IF NOT EXISTS " + TBL_ROUTES + " (stop_number STRING, route_number STRING, route_name STRING, headsign STRING, PRIMARY KEY(stop_number, route_number, headsign))");
             database.execSQL("CREATE TABLE IF NOT EXISTS " + TBL_STOP_TIMES + " (stop_number STRING, route_number STRING, departure_time DATETIME, PRIMARY KEY(stop_number, route_number, departure_time))");
-            database.execSQL("CREATE TABLE IF NOT EXISTS " + TBL_JOURNEY_ROUTES + " (journey_name STRING, stop_number STRING, route_number STRING, BOOLEAN selected, PRIMARY KEY(journey_name, stop_number, route_number))");
+            database.execSQL("CREATE TABLE IF NOT EXISTS " + TBL_JOURNEY_ROUTES + " (journey_name STRING, stop_number STRING, route_number STRING, headsign STRING, selected BOOLEAN, PRIMARY KEY(journey_name, stop_number, route_number, headsign))");
         } finally {
             database.close();
         }
@@ -72,12 +72,18 @@ public class DatabaseHelper {
         database.replace(table, null, values);
     }
 
+    public void deleteFromDB(Class clazz, String where, String[] args, SQLiteDatabase database) {
+        String table = getTableForClass(clazz);
+
+        database.delete(table, where, args);
+    }
+
     private String getTableForModel(Object o) {
         return getTableForClass(o.getClass());
     }
 
     private String getTableForClass(Class clazz) {
-        String table = null;
+        String table;
         if (clazz == Route.class) {
             table = TBL_ROUTES;
         } else if (clazz == Stop.class) {
@@ -86,6 +92,8 @@ public class DatabaseHelper {
             table = TBL_STOP_TIMES;
         } else if (clazz == JourneyRoute.class) {
             table = TBL_JOURNEY_ROUTES;
+        } else {
+            throw new IllegalArgumentException("Unsupported class: " + clazz.getName());
         }
 
         return table;
@@ -113,7 +121,8 @@ public class DatabaseHelper {
             Date startDate = new Date(new Date().getTime() - DEPARTURE_DELTA);
             cursor = database.rawQuery(queryString, new String[]{stopNumber, ISO8601FORMAT.format(startDate)});
             while (cursor.moveToNext()) {
-                services.add(retrieveService(cursor));
+                Service s = new Service(cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), ISO8601FORMAT.parse(cursor.getString(5)));
+                services.add(s);
             }
         } catch (ParseException e) {
             Log.e("[DatabaseHelper.getNextBuses]", e.getMessage(), e);
@@ -127,9 +136,52 @@ public class DatabaseHelper {
         return services;
     }
 
-    private Service retrieveService(Cursor cursor) throws ParseException {
-        return new Service(cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), ISO8601FORMAT.parse(cursor.getString(5)));
+    public List<JourneyRoute> getJourneyRoutes(String journeyName) {
+        SQLiteDatabase database = getDatabase();
+        Cursor cursor = null;
+        ArrayList<JourneyRoute> journeyRoutes = new ArrayList<JourneyRoute>();
+        try {
+            String queryString = "SELECT j.stop_number, j.route_number, j.headsign, j.selected";
+            queryString += " FROM " + TBL_JOURNEY_ROUTES + " j";
+            queryString += " WHERE j.journey_name = ?";
+            queryString += " ORDER BY j.route_number";
+
+            cursor = database.rawQuery(queryString, new String[]{journeyName});
+            while (cursor.moveToNext()) {
+                JourneyRoute r = new JourneyRoute(journeyName, cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getInt(3) > 0);
+                journeyRoutes.add(r);
+            }
+        } catch (SQLiteException e) {
+            Log.e("[DatabaseHelper.getNextBuses]", e.getMessage(), e);
+        } finally {
+            if (cursor != null) cursor.close();
+            database.close();
+        }
+
+        return journeyRoutes;
     }
+
+    public void getSelectedStopNumbersAndRoutes() {
+        SQLiteDatabase database = getDatabase();
+        Cursor cursor = null;
+        ArrayList<JourneyRoute> journeyRoutes = new ArrayList<JourneyRoute>();
+        try {
+            String queryString = "SELECT j.stop_number, j.route_number, j.selected, r.route_name";
+            queryString += " FROM " + TBL_JOURNEY_ROUTES + " j";
+            queryString += " JOIN " + TBL_ROUTES + " r ON j.stop_number = r.stop_number AND j.route_number = r.route_number";
+            queryString += " WHERE j.selected = ?";
+            queryString += " ORDER BY j.route_number";
+
+            cursor = database.rawQuery(queryString, new String[]{"1"});
+            outputCursor(cursor);
+        } catch (SQLiteException e) {
+            Log.e("[DatabaseHelper.getNextBuses]", e.getMessage(), e);
+        } finally {
+            if (cursor != null) cursor.close();
+            database.close();
+        }
+    }
+
 
     private void outputCursor(Cursor cursor) {
         Log.d("[CURSOR]", "---------------------------------------");

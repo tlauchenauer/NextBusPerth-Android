@@ -1,19 +1,21 @@
 package com.lauchenauer.nextbusperth.model;
 
-import android.content.ContentValues;
-import com.lauchenauer.nextbusperth.helper.JSONConstants;
+public class JourneyRoute implements RouteJourneyPreference {
+    public static final String WORK_JOURNEY = "work";
+    public static final String HOME_JOURNEY = "home";
 
-public class JourneyRoute {
     private String stopNumber;
     private String routeNumber;
     private String journeyName;
+    private String headsign;
     private boolean selected;
 
-    public JourneyRoute(String journeyName, String stopNumber, String routeNumber, boolean selected) {
+    public JourneyRoute(String journeyName, String stopNumber, String routeNumber, String headsign, boolean selected) {
         this.stopNumber = stopNumber;
         this.routeNumber = routeNumber;
         this.journeyName = journeyName;
         this.selected = selected;
+        this.headsign = headsign;
     }
 
     public String getStopNumber() {
@@ -30,5 +32,9 @@ public class JourneyRoute {
 
     public boolean isSelected() {
         return selected;
+    }
+
+    public String getHeadsign() {
+        return headsign;
     }
 }

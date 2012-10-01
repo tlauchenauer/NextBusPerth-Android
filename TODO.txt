@@ -1,10 +1,5 @@
 TODO
 
-
-- build checkboxes dynamically
-
-
-
 needs work
 - store each route with routeW prefix and route number as well as stop number for it to be unique
 - need to derive stop numbers at some place
@@ -18,7 +13,6 @@ needs work
 - clean out unnecessary data after loading data
 - add address/stopnumber search to mapview
 - fix repainting glitch on map
-- model classes should implement DatabaseConstants, not JSONConstants
 
 
 
