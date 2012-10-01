@@ -7,15 +7,6 @@ import de.greenrobot.daogenerator.Property;
 import de.greenrobot.daogenerator.Schema;
 import de.greenrobot.daogenerator.ToMany;
 
-import java.io.File;
-
-/**
- * Generates entities and DAOs for the example project DaoExample.
- * <p/>
- * Run it as a Java application (not Android).
- *
- * @author Markus
- */
 public class NextBusDaoGenerator {
     public static void main(String[] args) throws Exception {
         Schema schema = new Schema(1, "com.lauchenauer.nextbusperth.dao");
@@ -48,11 +39,13 @@ public class NextBusDaoGenerator {
 
         // StopTime Entity (route_id LONG, departure_time DATETIME)
         Entity stopTime = schema.addEntity("StopTime");
+        stopTime.addIdProperty();
         Property stopTimeRouteId = route.addLongProperty("route_id").getProperty();
         Property departureTime = route.addDateProperty("departure_time").getProperty();
         Index stopTimeIndex = new Index();
         stopTimeIndex.makeUnique();
         stopTimeIndex.addProperty(departureTime);
+        stopTimeIndex.addProperty(stopTimeRouteId);
         stopTime.addIndex(stopTimeIndex);
 
         // Journey Entity (id LONG, name STRING)
@@ -60,7 +53,7 @@ public class NextBusDaoGenerator {
         journey.addIdProperty();
         journey.addStringProperty("name");
 
-        // JourneyRoute Entity (journey_name STRING, stop_number STRING, route_number STRING, headsign STRING, selected BOOLEAN, PRIMARY KEY(journey_name, stop_number, route_number, headsign))
+        // JourneyRoute Entity (journey_id LONG, route_id LONG, selected BOOLEAN)
         Entity journeyRoute = schema.addEntity("JourneyRoute");
         journeyRoute.addIdProperty();
         Property journeyId = journeyRoute.addLongProperty("journey_id").getProperty();
@@ -74,7 +67,8 @@ public class NextBusDaoGenerator {
 
         // Relationships
         route.addToOne(stop, stopId);
-        stop.addToMany(route, stopId);
+        ToMany stopToRoute = stop.addToMany(route, stopId);
+        stopToRoute.orderAsc(routeNumber);
         route.addToMany(stopTime, stopTimeRouteId);
         journey.addToMany(journeyRoute, journeyId);
         journeyRoute.addToOne(journey, journeyId);

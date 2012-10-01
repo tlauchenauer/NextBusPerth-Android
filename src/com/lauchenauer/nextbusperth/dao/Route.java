@@ -1,5 +1,6 @@
 package com.lauchenauer.nextbusperth.dao;
 
+import java.util.List;
 import com.lauchenauer.nextbusperth.dao.DaoSession;
 import de.greenrobot.dao.DaoException;
 
@@ -17,6 +18,8 @@ public class Route {
     private String number;
     private String name;
     private String headsign;
+    private Long route_id;
+    private java.util.Date departure_time;
 
     /** Used to resolve relations */
     private transient DaoSession daoSession;
@@ -27,6 +30,7 @@ public class Route {
     private Stop stop;
     private Long stop__resolvedKey;
 
+    private List<StopTime> stopTimeList;
 
     // KEEP FIELDS - put your custom fields here
     // KEEP FIELDS END
@@ -38,12 +42,14 @@ public class Route {
         this.id = id;
     }
 
-    public Route(Long id, Long stop_id, String number, String name, String headsign) {
+    public Route(Long id, Long stop_id, String number, String name, String headsign, Long route_id, java.util.Date departure_time) {
         this.id = id;
         this.stop_id = stop_id;
         this.number = number;
         this.name = name;
         this.headsign = headsign;
+        this.route_id = route_id;
+        this.departure_time = departure_time;
     }
 
     /** called by internal mechanisms, do not call yourself. */
@@ -92,6 +98,22 @@ public class Route {
         this.headsign = headsign;
     }
 
+    public Long getRoute_id() {
+        return route_id;
+    }
+
+    public void setRoute_id(Long route_id) {
+        this.route_id = route_id;
+    }
+
+    public java.util.Date getDeparture_time() {
+        return departure_time;
+    }
+
+    public void setDeparture_time(java.util.Date departure_time) {
+        this.departure_time = departure_time;
+    }
+
     /** To-one relationship, resolved on first access. */
     public Stop getStop() {
         if (stop__resolvedKey == null || !stop__resolvedKey.equals(stop_id)) {
@@ -109,6 +131,23 @@ public class Route {
         this.stop = stop;
         stop_id = stop == null ? null : stop.getId();
         stop__resolvedKey = stop_id;
+    }
+
+    /** To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity. */
+    public synchronized List<StopTime> getStopTimeList() {
+        if (stopTimeList == null) {
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            StopTimeDao targetDao = daoSession.getStopTimeDao();
+            stopTimeList = targetDao._queryRoute_StopTimeList(id);
+        }
+        return stopTimeList;
+    }
+
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
+    public synchronized void resetStopTimeList() {
+        stopTimeList = null;
     }
 
     /** Convenient call for {@link AbstractDao#delete(Object)}. Entity must attached to an entity context. */
