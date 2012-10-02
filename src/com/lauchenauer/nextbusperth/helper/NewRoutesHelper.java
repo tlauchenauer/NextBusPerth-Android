@@ -3,11 +3,7 @@ package com.lauchenauer.nextbusperth.helper;
 import android.content.Context;
 import android.util.Log;
 import com.lauchenauer.nextbusperth.app.NextBusApplication;
-import com.lauchenauer.nextbusperth.dao.DaoSession;
-import com.lauchenauer.nextbusperth.dao.Route;
-import com.lauchenauer.nextbusperth.dao.RouteDao;
-import com.lauchenauer.nextbusperth.dao.Stop;
-import com.lauchenauer.nextbusperth.dao.StopDao;
+import com.lauchenauer.nextbusperth.dao.*;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,7 +35,7 @@ public class NewRoutesHelper implements JSONConstants {
             for (int i = 0; i < routesArray.length(); i++) {
                 JSONObject stopJSON = routesArray.getJSONObject(i);
 
-                Stop stop = getOrInsertStop(stopJSON.getString(STOP_NUMBER), "need to pass this along with the JSON");
+                Stop stop = getOrInsertStop(stopJSON.getString(STOP_NUMBER), stopJSON.getString(STOP_NAME));
                 Route route = getOrInsertRoute(stop, stopJSON.getString(ROUTE_NUMBER), stopJSON.getString(ROUTE_NAME), stopJSON.getString(HEADSIGN));
                 routes.add(route);
             }
@@ -55,7 +51,7 @@ public class NewRoutesHelper implements JSONConstants {
 
         Stop stop = stopDao.queryBuilder().where(StopDao.Properties.Number.eq(stopNumber)).unique();
         if (stop == null) {
-            stop = new Stop(null, "523456", "My new brilliant new stop");
+            stop = new Stop(null, stopNumber, stopName);
             stopDao.insert(stop);
         }
 
@@ -67,9 +63,9 @@ public class NewRoutesHelper implements JSONConstants {
 
         Route route = routeDao.queryBuilder()
                 .where(RouteDao.Properties.Stop_id.eq(stop.getId()),
-                RouteDao.Properties.Number.eq(routeNumber),
-                RouteDao.Properties.Name.eq(routeName),
-                RouteDao.Properties.Headsign.eq(headsign))
+                        RouteDao.Properties.Number.eq(routeNumber),
+                        RouteDao.Properties.Name.eq(routeName),
+                        RouteDao.Properties.Headsign.eq(headsign))
                 .unique();
 
         if (route == null) {
@@ -80,45 +76,22 @@ public class NewRoutesHelper implements JSONConstants {
         return route;
     }
 
-    public void writeRoutesToDatabase(List<Route> routes) {
-        DatabaseHelper dbHelper = new DatabaseHelper(context);
-        SQLiteDatabase database = dbHelper.getDatabase();
-
-        try {
-            for (Route route : routes) {
-                dbHelper.writeModelToDB(route, database);
-            }
-        } finally {
-            database.close();
-        }
-    }
-
     public void clearJourneyRoutesFromDatabase(boolean workJourney) {
-        DatabaseHelper dbHelper = new DatabaseHelper(context);
-        SQLiteDatabase database = dbHelper.getDatabase();
-
-        try {
-            dbHelper.deleteFromDB(JourneyRoute.class, "journey_name = ?", new String[]{getJourneyName(workJourney)}, database);
-        } finally {
-            database.close();
-        }
+        Journey journey = workJourney ? NextBusApplication.getApp().getWorkJourney() : NextBusApplication.getApp().getHomeJourney();
+        JourneyRouteDao journeyRouteDao = daoSession.getJourneyRouteDao();
+        journeyRouteDao.queryBuilder().where(JourneyRouteDao.Properties.Journey_id.eq(journey.getId())).buildDelete().executeDeleteWithoutDetachingEntities();
     }
 
-    public void writeJourneyRoutesToDatabase(boolean workJourney, List<Route> routes) {
-        DatabaseHelper dbHelper = new DatabaseHelper(context);
-        SQLiteDatabase database = dbHelper.getDatabase();
+    public void printData() {
+        StopDao stopDao = daoSession.getStopDao();
+        List<Stop> stops = stopDao.queryBuilder().list();
 
-        try {
-            for (Route r : routes) {
-                JourneyRoute jr = new JourneyRoute(getJourneyName(workJourney), r.getStopNumber(), r.getRouteNumber(), r.getHeadsign(), true);
-                dbHelper.writeModelToDB(jr, database);
+        for (Stop s : stops) {
+            Log.d("STOP", s.getId() + ":  " + s.getNumber() + " - " + s.getName());
+
+            for (Route r : s.getRouteList()) {
+                Log.d("ROUTE", r.getId() + ":  " + r.getNumber() + " - " + r.getName() + " - " + r.getHeadsign());
             }
-        } finally {
-            database.close();
         }
-    }
-
-    private String getJourneyName(boolean workJourney) {
-        return workJourney ? JourneyRoute.WORK_JOURNEY : JourneyRoute.HOME_JOURNEY;
     }
 }

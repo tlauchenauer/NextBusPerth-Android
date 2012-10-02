@@ -6,16 +6,13 @@ import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
-import android.preference.EditTextPreference;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
+import android.preference.*;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import com.lauchenauer.nextbusperth.R;
 import com.lauchenauer.nextbusperth.helper.DatabaseHelper;
+import com.lauchenauer.nextbusperth.helper.NewRoutesHelper;
 import com.lauchenauer.nextbusperth.helper.RoutesHelper;
 import com.lauchenauer.nextbusperth.helper.SettingsHelper;
 import com.lauchenauer.nextbusperth.model.JourneyRoute;
@@ -25,7 +22,7 @@ import com.lauchenauer.nextbusperth.model.RouteJourneyPreference;
 import java.util.List;
 import java.util.Map;
 
-public class AboutActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class AboutActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener, Preference.OnPreferenceChangeListener {
     private static final String SIX_DIGIT_STOP_NUMBER = "6 digit stop number";
     private static final String ROUTE_PREFIX = "route";
     private static final String WORK_ROUTE_PREFIX = ROUTE_PREFIX + "W";
@@ -71,6 +68,10 @@ public class AboutActivity extends PreferenceActivity implements SharedPreferenc
                 downloadTimetables();
             }
         });
+
+        NewRoutesHelper h = new NewRoutesHelper();
+        h.retrieveRoutes("64");
+        h.printData();
     }
 
     private void clearRouteSelectionPreferences() {
@@ -118,20 +119,17 @@ public class AboutActivity extends PreferenceActivity implements SharedPreferenc
                 new RoutesDownloadTask(this, false).execute(stopNumber);
                 oldHomeStopNumber = stopNumber;
             }
-        } else if (key.startsWith(ROUTE_PREFIX)) {
-            JourneyCheckBoxPreference p = (JourneyCheckBoxPreference) getPreferenceScreen().findPreference(key);
-            RouteJourneyPreference route = p.getRouteJourneyPreference();
-            Boolean setting = sharedPreferences.getBoolean(key, true);
-            String journeyName = key.startsWith(WORK_ROUTE_PREFIX) ? JourneyRoute.WORK_JOURNEY : JourneyRoute.HOME_JOURNEY;
-
-            JourneyRoute jr = new JourneyRoute(journeyName, route.getStopNumber(), route.getRouteNumber(), route.getHeadsign(), setting);
-            SQLiteDatabase database = dbHelper.getDatabase();
-            try {
-                dbHelper.writeModelToDB(jr, database);
-            } finally {
-                database.close();
-            }
         }
+    }
+
+    public boolean onPreferenceChange(Preference preference, Object o) {
+        if (preference.getClass() != JourneyCheckBoxPreference.class) return true;
+
+        JourneyCheckBoxPreference pref = (JourneyCheckBoxPreference)preference;
+        RouteJourneyPreference p = pref.getRouteJourneyPreference();
+        Log.d("PREFERENCE CHANGED", p.getRouteNumber() + " - " + p.getHeadsign() + " - " + pref.isChecked() + " - " + o.toString());
+
+        return true;
     }
 
     @Override
@@ -167,8 +165,10 @@ public class AboutActivity extends PreferenceActivity implements SharedPreferenc
         CheckBoxPreference p = new JourneyCheckBoxPreference(this, r);
         p.setChecked(r.isSelected());
         p.setKey(key);
+        p.setPersistent(false);
         p.setTitle(r.getRouteNumber());
         p.setSummary(r.getHeadsign());
+        p.setOnPreferenceChangeListener(this);
 
         return p;
     }
