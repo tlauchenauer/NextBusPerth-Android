@@ -17,6 +17,7 @@ import com.lauchenauer.nextbusperth.dao.DaoSession;
 import com.lauchenauer.nextbusperth.dao.RouteDao;
 import com.lauchenauer.nextbusperth.dao.Stop;
 import com.lauchenauer.nextbusperth.dao.StopDao;
+import com.lauchenauer.nextbusperth.helper.NewDatabaseHelper;
 import com.lauchenauer.nextbusperth.helper.SettingsHelper;
 import de.greenrobot.dao.QueryBuilder;
 
@@ -48,6 +49,8 @@ public class NextBusActivity extends FragmentActivity {
 //            Log.d("[NextBusActivity]", "firstRun - starting Alarm");
 //            OnBootReceiver.startTimeTableAlarm(getApplicationContext());
 //        }
+
+        NewDatabaseHelper.getNextBuses(NextBusApplication.JourneyType.home, 6);
     }
 
     void setPage(int page) {

@@ -1,6 +1,7 @@
 package com.lauchenauer.nextbusperth.dao;
 
 import java.util.List;
+import java.util.ArrayList;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
@@ -8,6 +9,7 @@ import android.database.sqlite.SQLiteStatement;
 import de.greenrobot.dao.AbstractDao;
 import de.greenrobot.dao.DaoConfig;
 import de.greenrobot.dao.Property;
+import de.greenrobot.dao.SqlUtils;
 import de.greenrobot.dao.Query;
 import de.greenrobot.dao.QueryBuilder;
 
@@ -31,6 +33,8 @@ public class StopTimeDao extends AbstractDao<StopTime, Long> {
         public final static Property Departure_time = new Property(2, java.util.Date.class, "departure_time", false, "DEPARTURE_TIME");
     };
 
+    private DaoSession daoSession;
+
     private Query<StopTime> route_StopTimeListQuery;
 
     public StopTimeDao(DaoConfig config) {
@@ -39,6 +43,7 @@ public class StopTimeDao extends AbstractDao<StopTime, Long> {
     
     public StopTimeDao(DaoConfig config, DaoSession daoSession) {
         super(config, daoSession);
+        this.daoSession = daoSession;
     }
 
     /** Creates the underlying database table. */
@@ -78,6 +83,12 @@ public class StopTimeDao extends AbstractDao<StopTime, Long> {
         if (departure_time != null) {
             stmt.bindLong(3, departure_time.getTime());
         }
+    }
+
+    @Override
+    protected void attachEntity(StopTime entity) {
+        super.attachEntity(entity);
+        entity.__setDaoSession(daoSession);
     }
 
     /** @inheritdoc */
@@ -140,4 +151,95 @@ public class StopTimeDao extends AbstractDao<StopTime, Long> {
         return route_StopTimeListQuery.list();
     }
 
+    private String selectDeep;
+
+    protected String getSelectDeep() {
+        if (selectDeep == null) {
+            StringBuilder builder = new StringBuilder("SELECT ");
+            SqlUtils.appendColumns(builder, "T", getAllColumns());
+            builder.append(',');
+            SqlUtils.appendColumns(builder, "T0", daoSession.getRouteDao().getAllColumns());
+            builder.append(" FROM STOP_TIME T");
+            builder.append(" LEFT JOIN ROUTE T0 ON T.'ROUTE_ID'=T0.'_id'");
+            builder.append(' ');
+            selectDeep = builder.toString();
+        }
+        return selectDeep;
+    }
+    
+    protected StopTime loadCurrentDeep(Cursor cursor, boolean lock) {
+        StopTime entity = loadCurrent(cursor, 0, lock);
+        int offset = getAllColumns().length;
+
+        Route route = loadCurrentOther(daoSession.getRouteDao(), cursor, offset);
+        entity.setRoute(route);
+
+        return entity;    
+    }
+
+    public StopTime loadDeep(Long key) {
+        assertSinglePk();
+        if (key == null) {
+            return null;
+        }
+
+        StringBuilder builder = new StringBuilder(getSelectDeep());
+        builder.append("WHERE ");
+        SqlUtils.appendColumnsEqValue(builder, "T", getPkColumns());
+        String sql = builder.toString();
+        
+        String[] keyArray = new String[] { key.toString() };
+        Cursor cursor = db.rawQuery(sql, keyArray);
+        
+        try {
+            boolean available = cursor.moveToFirst();
+            if (!available) {
+                return null;
+            } else if (!cursor.isLast()) {
+                throw new IllegalStateException("Expected unique result, but count was " + cursor.getCount());
+            }
+            return loadCurrentDeep(cursor, true);
+        } finally {
+            cursor.close();
+        }
+    }
+    
+    /** Reads all available rows from the given cursor and returns a list of new ImageTO objects. */
+    public List<StopTime> loadAllDeepFromCursor(Cursor cursor) {
+        int count = cursor.getCount();
+        List<StopTime> list = new ArrayList<StopTime>(count);
+        
+        if (cursor.moveToFirst()) {
+            if (identityScope != null) {
+                identityScope.lock();
+                identityScope.reserveRoom(count);
+            }
+            try {
+                do {
+                    list.add(loadCurrentDeep(cursor, false));
+                } while (cursor.moveToNext());
+            } finally {
+                if (identityScope != null) {
+                    identityScope.unlock();
+                }
+            }
+        }
+        return list;
+    }
+    
+    protected List<StopTime> loadDeepAllAndCloseCursor(Cursor cursor) {
+        try {
+            return loadAllDeepFromCursor(cursor);
+        } finally {
+            cursor.close();
+        }
+    }
+    
+
+    /** A raw-style query where you can pass any WHERE clause and arguments. */
+    public List<StopTime> queryDeep(String where, String... selectionArg) {
+        Cursor cursor = db.rawQuery(getSelectDeep() + where, selectionArg);
+        return loadDeepAllAndCloseCursor(cursor);
+    }
+ 
 }

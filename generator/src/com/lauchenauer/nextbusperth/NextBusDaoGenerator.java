@@ -11,7 +11,7 @@ public class NextBusDaoGenerator {
     public static void main(String[] args) throws Exception {
         Schema schema = new Schema(1, "com.lauchenauer.nextbusperth.dao");
 
-        schema.enableKeepSectionsByDefault();
+//        schema.enableKeepSectionsByDefault();
 
         // Stop Entity (id LONG PRIMARY KEY, stop_number STRING, stop_name STRING)
         Entity stop = schema.addEntity("Stop");
@@ -71,6 +71,7 @@ public class NextBusDaoGenerator {
         ToMany stopToRoute = stop.addToMany(route, stopId);
         stopToRoute.orderAsc(routeNumber);
         route.addToMany(stopTime, stopTimeRouteId);
+        stopTime.addToOne(route, stopTimeRouteId);
         journey.addToMany(journeyRoute, journeyId);
         journeyRoute.addToOne(journey, journeyId);
         journeyRoute.addToOne(route, journeyRouteId);

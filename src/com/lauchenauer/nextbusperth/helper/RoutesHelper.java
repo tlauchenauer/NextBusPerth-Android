@@ -92,17 +92,4 @@ public class RoutesHelper implements JSONConstants {
     private Journey getJourney(JourneyType journeyType) {
         return getApp().getJourney(journeyType);
     }
-
-    public void printData() {
-        StopDao stopDao = daoSession.getStopDao();
-        List<Stop> stops = stopDao.queryBuilder().list();
-
-        for (Stop s : stops) {
-            Log.d("STOP", s.getId() + ":  " + s.getNumber() + " - " + s.getName());
-
-            for (Route r : s.getRouteList()) {
-                Log.d("ROUTE", r.getId() + ":  " + r.getNumber() + " - " + r.getName() + " - " + r.getHeadsign());
-            }
-        }
-    }
 }
