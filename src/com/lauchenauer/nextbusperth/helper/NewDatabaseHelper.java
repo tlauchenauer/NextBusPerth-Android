@@ -7,6 +7,7 @@ import com.lauchenauer.nextbusperth.dao.DaoSession;
 import com.lauchenauer.nextbusperth.dao.Journey;
 import com.lauchenauer.nextbusperth.dao.JourneyDao;
 import com.lauchenauer.nextbusperth.dao.JourneyRoute;
+import com.lauchenauer.nextbusperth.dao.JourneyRouteDao;
 import com.lauchenauer.nextbusperth.dao.Route;
 import com.lauchenauer.nextbusperth.dao.RouteDao;
 import com.lauchenauer.nextbusperth.dao.Stop;
@@ -67,64 +68,31 @@ public class NewDatabaseHelper {
         return stopTime;
     }
 
-    public static List<Service> getNextBuses(JourneyType journeyType, int maxResults) {
-        Journey journey = getApp().getJourney(journeyType);
-        StringBuilder stopNumbers = new StringBuilder("('");
-        List<JourneyRoute> journeyRoutes = journey.getJourneyRouteList();
-        for (JourneyRoute jr : journeyRoutes) {
-            stopNumbers.append(jr.getRoute().getStop().getNumber());
-            stopNumbers.append("','");
-        }
-        stopNumbers.deleteCharAt(stopNumbers.length() - 1);
-        stopNumbers.deleteCharAt(stopNumbers.length() - 1);
-        stopNumbers.append(")");
-
+    public static List<Service> getNextBuses(Journey journey, int maxResults) {
         StopTimeDao stopTimeDao = getApp().getDaoSession().getStopTimeDao();
-        String  queryString = " JOIN " + RouteDao.TABLENAME + " r ON T." + StopTimeDao.Properties.Route_id.columnName + " = r." + RouteDao.Properties.Id.columnName;
-                queryString += " JOIN " + StopDao.TABLENAME + " s ON r." + RouteDao.Properties.Stop_id.columnName + " = s." + StopDao.Properties.Id.columnName;
-                queryString += " WHERE s." + StopDao.Properties.Number.columnName + " IN " + stopNumbers.toString() + " AND T." + StopTimeDao.Properties.Departure_time.columnName + " >= ?";
-                queryString += " ORDER BY T." + StopTimeDao.Properties.Departure_time.columnName;
-                queryString += " LIMIT " + maxResults;
+        String queryString = " JOIN " + RouteDao.TABLENAME + " r ON T." + StopTimeDao.Properties.Route_id.columnName + " = r." + RouteDao.Properties.Id.columnName;
+        queryString += " JOIN " + JourneyRouteDao.TABLENAME + " jr ON r." + RouteDao.Properties.Id.columnName + " = jr." + JourneyRouteDao.Properties.Route_id.columnName;
+        queryString += " JOIN " + JourneyDao.TABLENAME + " j ON jr." + JourneyRouteDao.Properties.Journey_id.columnName + " = j." + JourneyDao.Properties.Id.columnName;
+        queryString += " WHERE j." + JourneyDao.Properties.Id.columnName + " = ?";
+        queryString += " AND jr." + JourneyRouteDao.Properties.Selected.columnName + " = ?";
+        queryString += " AND T." + StopTimeDao.Properties.Departure_time.columnName + " >= ?";
+        queryString += " ORDER BY T." + StopTimeDao.Properties.Departure_time.columnName;
+        queryString += " LIMIT " + maxResults;
 
         Date startDate = new Date(new Date().getTime() - DEPARTURE_DELTA);
-        List<StopTime> stopTimes = stopTimeDao.queryRaw(queryString, ISO8601FORMAT.format(startDate));
+        List<StopTime> stopTimes = stopTimeDao.queryRaw(queryString, journey.getId().toString(), "1", "" + startDate.getTime());
 
-        Log.d("BOOOOOOOOO", queryString);
-        Log.d("BOOOOOOOOO", "" + stopTimes.size());
+
+        ArrayList<Service> services = new ArrayList<Service>();
         for (StopTime st : stopTimes) {
-            Log.d("TIME", st.getRoute().getStop().getNumber() + " - " + st.getRoute().getStop().getName() + " - " + st.getRoute().getNumber() + " - " + st.getRoute().getHeadsign() + " - " + st.getDeparture_time());
+            Route route = st.getRoute();
+            Stop stop = route.getStop();
+            services.add(new Service(stop.getNumber(), stop.getName(), route.getNumber(), route.getName(), route.getHeadsign(), st.getDeparture_time()));
+            Log.d("TIME", stop.getNumber() + " - " + stop.getName() + " - " + route.getNumber() + " - " + route.getHeadsign() + " - " + st.getDeparture_time());
         }
 
-
-//            SQLiteDatabase database = getDatabase();
-//            Cursor cursor = null;
-//            ArrayList<Service> services = new ArrayList<Service>();
-//            try {
-//                String queryString = "SELECT s.stop_number, s.stop_name, r.route_number, r.route_name, r.headsign, st.departure_time";
-//                queryString += " FROM " + TBL_STOPS + " s";
-//                queryString += " JOIN " + TBL_ROUTES + " r ON s.stop_number = r.stop_number";
-//                queryString += " JOIN " + TBL_STOP_TIMES + " st ON s.stop_number = st.stop_number AND r.route_number = st.route_number";
-//                queryString += " WHERE s.stop_number = ? AND st.departure_time >= ?";
-//                queryString += " ORDER BY st.departure_time";
-//                queryString += " LIMIT " + maxResults;
-//
-//                Date startDate = new Date(new Date().getTime() - DEPARTURE_DELTA);
-//                cursor = database.rawQuery(queryString, new String[]{stopNumber, ISO8601FORMAT.format(startDate)});
-//                while (cursor.moveToNext()) {
-//                    Service s = new Service(cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), ISO8601FORMAT.parse(cursor.getString(5)));
-//                    services.add(s);
-//                }
-//            } catch (ParseException e) {
-//                Log.e("[DatabaseHelper.getNextBuses]", e.getMessage(), e);
-//            } catch (SQLiteException e) {
-//                Log.e("[DatabaseHelper.getNextBuses]", e.getMessage(), e);
-//            } finally {
-//                if (cursor != null) cursor.close();
-//                database.close();
-//            }
-
-            return null;
-        }
+        return services;
+    }
 
     public static void printData() {
         DaoSession daoSession = getApp().getDaoSession();

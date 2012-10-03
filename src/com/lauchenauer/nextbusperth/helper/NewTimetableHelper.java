@@ -26,7 +26,7 @@ import static com.lauchenauer.nextbusperth.helper.NewDatabaseHelper.getOrInsertS
 
 public class NewTimetableHelper implements JSONConstants {
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-    private static final SimpleDateFormat DEPARTURETIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+    private static final SimpleDateFormat DEPARTURETIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private static final String TIMETABLE_URL = "time_table/";
 
     private Context context;

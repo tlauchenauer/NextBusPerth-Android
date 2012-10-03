@@ -50,8 +50,10 @@ public class NextBusActivity extends FragmentActivity {
 //            OnBootReceiver.startTimeTableAlarm(getApplicationContext());
 //        }
 
-        NewDatabaseHelper.getNextBuses(NextBusApplication.JourneyType.home, 6);
+//        NewDatabaseHelper.getNextBuses(NextBusApplication.JourneyType.work, 6);
+        NewDatabaseHelper.printData();
     }
+
 
     void setPage(int page) {
         viewPager.setCurrentItem(page);

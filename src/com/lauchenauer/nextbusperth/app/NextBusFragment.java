@@ -8,7 +8,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import com.lauchenauer.nextbusperth.R;
-import com.lauchenauer.nextbusperth.helper.DatabaseHelper;
+import com.lauchenauer.nextbusperth.dao.Journey;
+import com.lauchenauer.nextbusperth.helper.NewDatabaseHelper;
 import com.lauchenauer.nextbusperth.helper.SettingsHelper;
 import com.lauchenauer.nextbusperth.model.Service;
 
@@ -17,20 +18,21 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static com.lauchenauer.nextbusperth.app.NextBusApplication.*;
+
 public class NextBusFragment extends ListFragment {
     private SettingsHelper settingsHelper;
-    private DatabaseHelper dbHelper;
     private RowAdapter adapter;
-    private TextView journeyName;
-    private TextView stopName;
-    private String journey;
+    private TextView journeyNameView;
+    private TextView stopNameView;
+    private String journeyName;
     private boolean active = true;
 
     public static NextBusFragment newInstance(String journey) {
         NextBusFragment f = new NextBusFragment();
 
         Bundle args = new Bundle();
-        args.putString("journey", journey);
+        args.putString("journeyName", journey);
         f.setArguments(args);
 
         return f;
@@ -40,9 +42,8 @@ public class NextBusFragment extends ListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        journey = getArguments() != null ? getArguments().getString("journey") : "Work";
+        journeyName = getArguments() != null ? getArguments().getString("journeyName") : "Work";
         settingsHelper = new SettingsHelper(getActivity().getApplicationContext());
-        dbHelper = new DatabaseHelper(getActivity().getApplicationContext());
 
         adapter = new RowAdapter(getActivity().getApplicationContext(), new ArrayList<Service>());
         setListAdapter(adapter);
@@ -52,14 +53,14 @@ public class NextBusFragment extends ListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.nextbus, container, false);
 
-        journeyName = (TextView) v.findViewById(R.id.journey_name);
-        stopName = (TextView) v.findViewById(R.id.stop_name);
+        journeyNameView = (TextView) v.findViewById(R.id.journey_name);
+        stopNameView = (TextView) v.findViewById(R.id.stop_name);
         new UpdateTimerTask(this, 30);
 
         updateData();
 
         Button btn;
-        if (journey.equals("Home")) {
+        if (journeyName.equals("Home")) {
             btn = (Button) v.findViewById(R.id.prev_journey);
         } else {
             btn = (Button) v.findViewById(R.id.next_journey);
@@ -67,7 +68,7 @@ public class NextBusFragment extends ListFragment {
         btn.setVisibility(View.VISIBLE);
         btn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                int page = journey.equals("Home") ? 0 : 1;
+                int page = journeyName.equals("Home") ? 0 : 1;
                 ((NextBusActivity) getActivity()).setPage(page);
             }
         });
@@ -92,14 +93,14 @@ public class NextBusFragment extends ListFragment {
     }
 
     private void updateData() {
-        journeyName.setText(journey);
+        journeyNameView.setText(journeyName);
 
-        String stopNumber = settingsHelper.getWorkStopNumber();
-        if (journey.equals("Home")) {
-            stopNumber = settingsHelper.getHomeStopNumber();
+        Journey journey = getApp().getJourney(JourneyType.work);
+        if (journeyName.equals("Home")) {
+            journey = getApp().getJourney(JourneyType.home);
         }
 
-        List<Service> services = dbHelper.getNextBuses(stopNumber, 5);
+        List<Service> services = NewDatabaseHelper.getNextBuses(journey, 5);
         if (services.size() < 1) {
             services.add(new Service("", "", "NO DATA", "", "download timetable", null));
         }
@@ -107,7 +108,7 @@ public class NextBusFragment extends ListFragment {
 
         if (services.size() > 0) {
             Service s = services.get(0);
-            stopName.setText(s.getStopName());
+            stopNameView.setText(s.getStopName());
         }
     }
 
