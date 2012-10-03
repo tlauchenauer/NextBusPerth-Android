@@ -3,7 +3,6 @@ package com.lauchenauer.nextbusperth.app;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.*;
@@ -11,16 +10,16 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import com.lauchenauer.nextbusperth.R;
-import com.lauchenauer.nextbusperth.helper.DatabaseHelper;
-import com.lauchenauer.nextbusperth.helper.NewRoutesHelper;
+import com.lauchenauer.nextbusperth.dao.JourneyRoute;
+import com.lauchenauer.nextbusperth.dao.JourneyRouteDao;
+import com.lauchenauer.nextbusperth.dao.Route;
+import com.lauchenauer.nextbusperth.helper.NewTimetableHelper;
 import com.lauchenauer.nextbusperth.helper.RoutesHelper;
 import com.lauchenauer.nextbusperth.helper.SettingsHelper;
-import com.lauchenauer.nextbusperth.model.JourneyRoute;
-import com.lauchenauer.nextbusperth.model.Route;
-import com.lauchenauer.nextbusperth.model.RouteJourneyPreference;
 
 import java.util.List;
-import java.util.Map;
+
+import static com.lauchenauer.nextbusperth.app.NextBusApplication.JourneyType;
 
 public class AboutActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener, Preference.OnPreferenceChangeListener {
     private static final String SIX_DIGIT_STOP_NUMBER = "6 digit stop number";
@@ -28,7 +27,6 @@ public class AboutActivity extends PreferenceActivity implements SharedPreferenc
     private static final String WORK_ROUTE_PREFIX = ROUTE_PREFIX + "W";
     private static final String HOME_ROUTE_PREFIX = ROUTE_PREFIX + "H";
 
-    private DatabaseHelper dbHelper;
     private EditTextPreference workStopNumberPref;
     private EditTextPreference homeStopNumberPref;
     private PreferenceScreen workRoutesScreenPref;
@@ -47,8 +45,6 @@ public class AboutActivity extends PreferenceActivity implements SharedPreferenc
         homeRoutesScreenPref = (PreferenceScreen) getPreferenceScreen().findPreference("routes-home");
         workRoutesScreenPref = (PreferenceScreen) getPreferenceScreen().findPreference("routes-work");
 
-        clearRouteSelectionPreferences();
-
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         oldHomeStopNumber = prefs.getString(SettingsHelper.HOME_STOP_SETTING, "");
         oldWorkStopNumber = prefs.getString(SettingsHelper.WORK_STOP_SETTING, "");
@@ -58,38 +54,20 @@ public class AboutActivity extends PreferenceActivity implements SharedPreferenc
         stopNumber = prefs.getString(SettingsHelper.HOME_STOP_SETTING, SIX_DIGIT_STOP_NUMBER);
         homeStopNumberPref.setSummary(stopNumber);
 
-        dbHelper = new DatabaseHelper(getApplicationContext());
-        processRoutes(true, dbHelper.getJourneyRoutes(JourneyRoute.WORK_JOURNEY));
-        processRoutes(false, dbHelper.getJourneyRoutes(JourneyRoute.HOME_JOURNEY));
+        processRoutes(JourneyType.work);
+        processRoutes(JourneyType.home);
 
         Button download = (Button) findViewById(R.id.download_button);
         download.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                downloadTimetables();
+                new TimetableDownloadTask(AboutActivity.this).execute();
             }
         });
-
-        NewRoutesHelper h = new NewRoutesHelper();
-        h.retrieveRoutes("64");
-        h.printData();
-    }
-
-    private void clearRouteSelectionPreferences() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = prefs.edit();
-        Map<String, ?> settings = prefs.getAll();
-        for (String key : settings.keySet()) {
-            if (key.startsWith(ROUTE_PREFIX)) {
-                editor.remove(key);
-            }
-        }
-        editor.commit();
     }
 
     private void downloadTimetables() {
         Log.d(" < DOWNLOAD TIMETABLES", "-------------------------------------------------------------------------");
 
-        dbHelper.getSelectedStopNumbersAndRoutes();
 
         Log.d(" > DOWNLOAD TIMETABLES", "-------------------------------------------------------------------------");
     }
@@ -104,7 +82,7 @@ public class AboutActivity extends PreferenceActivity implements SharedPreferenc
             workStopNumberPref.setSummary(stopNumber);
 
             if (!stopNumber.equals(oldWorkStopNumber)) {
-                new RoutesDownloadTask(this, true).execute(stopNumber);
+                new RoutesDownloadTask(this, JourneyType.work).execute(stopNumber);
                 oldWorkStopNumber = stopNumber;
             }
         } else if (key.equals(SettingsHelper.HOME_STOP_SETTING)) {
@@ -114,9 +92,8 @@ public class AboutActivity extends PreferenceActivity implements SharedPreferenc
             }
             homeStopNumberPref.setSummary(stopNumber);
 
-            new RoutesDownloadTask(this, false).execute(stopNumber);
             if (!stopNumber.equals(oldHomeStopNumber)) {
-                new RoutesDownloadTask(this, false).execute(stopNumber);
+                new RoutesDownloadTask(this, JourneyType.home).execute(stopNumber);
                 oldHomeStopNumber = stopNumber;
             }
         }
@@ -125,9 +102,12 @@ public class AboutActivity extends PreferenceActivity implements SharedPreferenc
     public boolean onPreferenceChange(Preference preference, Object o) {
         if (preference.getClass() != JourneyCheckBoxPreference.class) return true;
 
-        JourneyCheckBoxPreference pref = (JourneyCheckBoxPreference)preference;
-        RouteJourneyPreference p = pref.getRouteJourneyPreference();
-        Log.d("PREFERENCE CHANGED", p.getRouteNumber() + " - " + p.getHeadsign() + " - " + pref.isChecked() + " - " + o.toString());
+        JourneyCheckBoxPreference pref = (JourneyCheckBoxPreference) preference;
+        JourneyRoute jr = pref.getJourneyRoute();
+        jr.setSelected((Boolean) o);
+
+        JourneyRouteDao journeyRouteDao = NextBusApplication.getApp().getDaoSession().getJourneyRouteDao();
+        journeyRouteDao.update(jr);
 
         return true;
     }
@@ -144,84 +124,120 @@ public class AboutActivity extends PreferenceActivity implements SharedPreferenc
         getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
     }
 
-    private void processRoutes(boolean workRoutes, List<? extends RouteJourneyPreference> routes) {
-        if (workRoutes) {
-            createRoutePreferences(workRoutesScreenPref, WORK_ROUTE_PREFIX, routes);
-        } else {
-            createRoutePreferences(homeRoutesScreenPref, HOME_ROUTE_PREFIX, routes);
+    private void processRoutes(JourneyType journeyType) {
+        RoutesHelper helper = new RoutesHelper();
+        List<JourneyRoute> journeyRoutes = helper.getJourneyRoutes(journeyType);
+        switch (journeyType) {
+            case work:
+                createRoutePreferences(workRoutesScreenPref, WORK_ROUTE_PREFIX, journeyRoutes);
+                break;
+            case home:
+                createRoutePreferences(homeRoutesScreenPref, HOME_ROUTE_PREFIX, journeyRoutes);
+                break;
         }
     }
 
-    private void createRoutePreferences(PreferenceScreen screen, String key, List<? extends RouteJourneyPreference> routes) {
+    private void createRoutePreferences(PreferenceScreen screen, String key, List<JourneyRoute> routes) {
         screen.removeAll();
 
-        for (RouteJourneyPreference r : routes) {
-            CheckBoxPreference p = createCheckBoxPreference(key + "-" + r.getRouteNumber() + "-" + r.getStopNumber(), r);
+        for (JourneyRoute jr : routes) {
+            CheckBoxPreference p = createCheckBoxPreference(key + "-" + jr.getId(), jr);
             screen.addPreference(p);
         }
     }
 
-    private CheckBoxPreference createCheckBoxPreference(String key, RouteJourneyPreference r) {
-        CheckBoxPreference p = new JourneyCheckBoxPreference(this, r);
-        p.setChecked(r.isSelected());
+    private CheckBoxPreference createCheckBoxPreference(String key, JourneyRoute jr) {
+        CheckBoxPreference p = new JourneyCheckBoxPreference(this, jr);
+        p.setChecked(jr.getSelected());
         p.setKey(key);
         p.setPersistent(false);
-        p.setTitle(r.getRouteNumber());
-        p.setSummary(r.getHeadsign());
+        p.setTitle(jr.getRoute().getNumber());
+        p.setSummary(jr.getRoute().getHeadsign());
         p.setOnPreferenceChangeListener(this);
 
         return p;
     }
 
     private class JourneyCheckBoxPreference extends CheckBoxPreference {
-        private RouteJourneyPreference preference;
+        private JourneyRoute journeyRoute;
 
-        public JourneyCheckBoxPreference(Context context, RouteJourneyPreference preference) {
+        public JourneyCheckBoxPreference(Context context, JourneyRoute journeyRoute) {
             super(context);
-            this.preference = preference;
+            this.journeyRoute = journeyRoute;
         }
 
-        public RouteJourneyPreference getRouteJourneyPreference() {
-            return preference;
+        public JourneyRoute getJourneyRoute() {
+            return journeyRoute;
         }
     }
 
-    private class RoutesDownloadTask extends AsyncTask<String, Void, List<? extends Route>> {
+    private class RoutesDownloadTask extends AsyncTask<String, Void, Boolean> {
         private ProgressDialog progressDialog;
         private Context context;
-        private boolean workRoutes;
+        private JourneyType journeyType;
 
-        public RoutesDownloadTask(Context context, boolean workRoutes) {
+        public RoutesDownloadTask(Context context, JourneyType journeyType) {
             this.context = context;
-            this.workRoutes = workRoutes;
+            this.journeyType = journeyType;
         }
 
         @Override
-        protected List<? extends Route> doInBackground(String... stopNumbers) {
-            RoutesHelper helper = new RoutesHelper(getApplicationContext());
+        protected Boolean doInBackground(String... stopNumbers) {
+            RoutesHelper helper = new RoutesHelper();
 
-            helper.clearJourneyRoutesFromDatabase(workRoutes);
+            helper.clearJourneyRoutesFromDatabase(journeyType);
             List<Route> routes = helper.retrieveRoutes(stopNumbers[0]);
-            helper.writeRoutesToDatabase(routes);
-            helper.writeJourneyRoutesToDatabase(workRoutes, routes);
+            helper.writeJourneyRoutesToDatabase(journeyType, routes);
 
-            return routes;
+            return true;
         }
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             progressDialog = new ProgressDialog(context);
-            progressDialog.setMessage("Loading...");
+            progressDialog.setMessage("downloading routes...");
             progressDialog.show();
         }
 
         @Override
-        protected void onPostExecute(List<? extends Route> routes) {
-            super.onPostExecute(routes);
+        protected void onPostExecute(Boolean success) {
+            super.onPostExecute(success);
+
+            processRoutes(journeyType);
+            progressDialog.dismiss();
+        }
+    }
+
+    private class TimetableDownloadTask extends AsyncTask<Void, Void, Boolean> {
+        private ProgressDialog progressDialog;
+        private Context context;
+
+        public TimetableDownloadTask(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            NewTimetableHelper helper = new NewTimetableHelper(context);
+            helper.downloadTimeTable();
+
+            return true;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(context);
+            progressDialog.setMessage("downloading departure times ...");
+            progressDialog.show();
+        }
+
+        @Override
+        protected void onPostExecute(Boolean success) {
+            super.onPostExecute(success);
 
             progressDialog.dismiss();
-            processRoutes(workRoutes, routes);
         }
     }
 }

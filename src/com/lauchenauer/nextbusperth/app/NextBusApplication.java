@@ -6,6 +6,8 @@ import com.lauchenauer.nextbusperth.dao.*;
 
 public class NextBusApplication extends Application {
     private static final String TIMETABLE_DB = "nextbus-perth-db";
+    private static final String WORK_JOURNEY_NAME = "work";
+    private static final String HOME_JOURNEY_NAME = "home";
     private static NextBusApplication application;
 
     private DaoSession daoSession;
@@ -29,8 +31,8 @@ public class NextBusApplication extends Application {
     }
 
     private void loadSeedData() {
-        homeJourney = getOrInsertJourney(Journey.HOME_JOURNEY_NAME);
-        workJourney = getOrInsertJourney(Journey.WORK_JOURNEY_NAME);
+        homeJourney = getOrInsertJourney(HOME_JOURNEY_NAME);
+        workJourney = getOrInsertJourney(WORK_JOURNEY_NAME);
     }
 
     private Journey getOrInsertJourney(String journeyName) {
@@ -55,11 +57,16 @@ public class NextBusApplication extends Application {
         return daoSession;
     }
 
-    public Journey getWorkJourney() {
-        return workJourney;
+    public Journey getJourney(JourneyType jt) {
+        switch (jt) {
+            case work:
+                return workJourney;
+            case home:
+                return homeJourney;
+        }
+
+        return null;
     }
 
-    public Journey getHomeJourney() {
-        return homeJourney;
-    }
+    public enum JourneyType {work, home}
 }

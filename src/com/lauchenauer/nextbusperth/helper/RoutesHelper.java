@@ -1,10 +1,13 @@
 package com.lauchenauer.nextbusperth.helper;
 
-import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
-import com.lauchenauer.nextbusperth.model.JourneyRoute;
-import com.lauchenauer.nextbusperth.model.Route;
+import com.lauchenauer.nextbusperth.dao.DaoSession;
+import com.lauchenauer.nextbusperth.dao.Journey;
+import com.lauchenauer.nextbusperth.dao.JourneyRoute;
+import com.lauchenauer.nextbusperth.dao.JourneyRouteDao;
+import com.lauchenauer.nextbusperth.dao.Route;
+import com.lauchenauer.nextbusperth.dao.Stop;
+import com.lauchenauer.nextbusperth.dao.StopDao;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,13 +15,18 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.lauchenauer.nextbusperth.app.NextBusApplication.JourneyType;
+import static com.lauchenauer.nextbusperth.app.NextBusApplication.getApp;
+import static com.lauchenauer.nextbusperth.helper.NewDatabaseHelper.getOrInsertRoute;
+import static com.lauchenauer.nextbusperth.helper.NewDatabaseHelper.getOrInsertStop;
+
 public class RoutesHelper implements JSONConstants {
     private static final String STOPS_URL = "routes/";
 
-    private Context context;
+    private DaoSession daoSession;
 
-    public RoutesHelper(Context context) {
-        this.context = context;
+    public RoutesHelper() {
+        daoSession = getApp().getDaoSession();
     }
 
     public List<Route> retrieveRoutes(String stopNumber) {
@@ -36,7 +44,8 @@ public class RoutesHelper implements JSONConstants {
             for (int i = 0; i < routesArray.length(); i++) {
                 JSONObject stopJSON = routesArray.getJSONObject(i);
 
-                Route route = new Route(stopJSON.getString(STOP_NUMBER), stopJSON.getString(ROUTE_NUMBER), stopJSON.getString(ROUTE_NAME), stopJSON.getString(HEADSIGN));
+                Stop stop = getOrInsertStop(stopJSON.getString(STOP_NUMBER), stopJSON.getString(STOP_NAME));
+                Route route = getOrInsertRoute(stop, stopJSON.getString(ROUTE_NUMBER), stopJSON.getString(ROUTE_NAME), stopJSON.getString(HEADSIGN));
                 routes.add(route);
             }
         } catch (JSONException e) {
@@ -46,45 +55,54 @@ public class RoutesHelper implements JSONConstants {
         return routes;
     }
 
-    public void writeRoutesToDatabase(List<Route> routes) {
-        DatabaseHelper dbHelper = new DatabaseHelper(context);
-        SQLiteDatabase database = dbHelper.getDatabase();
+    public void clearJourneyRoutesFromDatabase(JourneyType journeyType) {
+        JourneyRouteDao journeyRouteDao = daoSession.getJourneyRouteDao();
+        journeyRouteDao.queryBuilder().where(JourneyRouteDao.Properties.Journey_id.eq(getJourney(journeyType).getId())).buildDelete().executeDeleteWithoutDetachingEntities();
+        getJourney(journeyType).resetJourneyRouteList();
+    }
 
-        try {
-            for (Route route : routes) {
-                dbHelper.writeModelToDB(route, database);
+    public void writeJourneyRoutesToDatabase(JourneyType journeyType, List<Route> routes) {
+        Journey journey = getJourney(journeyType);
+        JourneyRouteDao journeyRouteDao = daoSession.getJourneyRouteDao();
+
+        for (Route r : routes) {
+            JourneyRoute jr = new JourneyRoute(null, journey.getId(), r.getId(), true);
+            journeyRouteDao.insert(jr);
+        }
+    }
+
+    public List<JourneyRoute> getJourneyRoutes(JourneyType journeyType) {
+        JourneyRouteDao journeyRouteDao = daoSession.getJourneyRouteDao();
+        return journeyRouteDao.queryBuilder().where(JourneyRouteDao.Properties.Journey_id.eq(getJourney(journeyType).getId())).list();
+    }
+
+    public List<Route> getSelectedRoutes(JourneyType journeyType) {
+        List<JourneyRoute> journeyRoutes = getJourneyRoutes(journeyType);
+
+        List<Route> routes = new ArrayList<Route>();
+        for (JourneyRoute jr : journeyRoutes) {
+            if (jr.getSelected()) {
+                routes.add(jr.getRoute());
             }
-        } finally {
-            database.close();
         }
+
+        return routes;
     }
 
-    public void clearJourneyRoutesFromDatabase(boolean workJourney) {
-        DatabaseHelper dbHelper = new DatabaseHelper(context);
-        SQLiteDatabase database = dbHelper.getDatabase();
-
-        try {
-            dbHelper.deleteFromDB(JourneyRoute.class, "journey_name = ?", new String[]{getJourneyName(workJourney)}, database);
-        } finally {
-            database.close();
-        }
+    private Journey getJourney(JourneyType journeyType) {
+        return getApp().getJourney(journeyType);
     }
 
-    public void writeJourneyRoutesToDatabase(boolean workJourney, List<Route> routes) {
-        DatabaseHelper dbHelper = new DatabaseHelper(context);
-        SQLiteDatabase database = dbHelper.getDatabase();
+    public void printData() {
+        StopDao stopDao = daoSession.getStopDao();
+        List<Stop> stops = stopDao.queryBuilder().list();
 
-        try {
-            for (Route r : routes) {
-                JourneyRoute jr = new JourneyRoute(getJourneyName(workJourney), r.getStopNumber(), r.getRouteNumber(), r.getHeadsign(), true);
-                dbHelper.writeModelToDB(jr, database);
+        for (Stop s : stops) {
+            Log.d("STOP", s.getId() + ":  " + s.getNumber() + " - " + s.getName());
+
+            for (Route r : s.getRouteList()) {
+                Log.d("ROUTE", r.getId() + ":  " + r.getNumber() + " - " + r.getName() + " - " + r.getHeadsign());
             }
-        } finally {
-            database.close();
         }
-    }
-
-    private String getJourneyName(boolean workJourney) {
-        return workJourney ? JourneyRoute.WORK_JOURNEY : JourneyRoute.HOME_JOURNEY;
     }
 }

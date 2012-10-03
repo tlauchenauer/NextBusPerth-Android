@@ -25,8 +25,6 @@ public class Journey {
     private List<JourneyRoute> journeyRouteList;
 
     // KEEP FIELDS - put your custom fields here
-    public static final String WORK_JOURNEY_NAME = "work";
-    public static final String HOME_JOURNEY_NAME = "home";
     // KEEP FIELDS END
 
     public Journey() {

@@ -16,6 +16,7 @@ import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import com.lauchenauer.nextbusperth.R;
+import com.lauchenauer.nextbusperth.dao.DaoSession;
 import com.lauchenauer.nextbusperth.helper.DatabaseHelper;
 import com.lauchenauer.nextbusperth.helper.SettingsHelper;
 import com.lauchenauer.nextbusperth.helper.TimetableHelper;
@@ -103,13 +104,21 @@ public class SettingsActivity extends Activity {
             public void onClick(View view) {
                 DatabaseHelper db = new DatabaseHelper(SettingsActivity.this);
                 db.clearDB();
+
+                DaoSession daoSession = NextBusApplication.getApp().getDaoSession();
+                daoSession.getJourneyDao().deleteAll();
+                daoSession.getJourneyRouteDao().deleteAll();
+                daoSession.getStopTimeDao().deleteAll();
+                daoSession.getRouteDao().deleteAll();
+                daoSession.getStopDao().deleteAll();
+                daoSession.clear();
             }
         });
 
         Button resetPrefs = (Button) findViewById(R.id.reset_prefs);
         resetPrefs.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                SharedPreferences.Editor editor =  PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
+                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
                 editor.clear();
                 editor.commit();
             }

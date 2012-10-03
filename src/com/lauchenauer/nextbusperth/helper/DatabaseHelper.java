@@ -136,53 +136,6 @@ public class DatabaseHelper {
         return services;
     }
 
-    public List<JourneyRoute> getJourneyRoutes(String journeyName) {
-        SQLiteDatabase database = getDatabase();
-        Cursor cursor = null;
-        ArrayList<JourneyRoute> journeyRoutes = new ArrayList<JourneyRoute>();
-        try {
-            String queryString = "SELECT j.stop_number, j.route_number, j.headsign, j.selected";
-            queryString += " FROM " + TBL_JOURNEY_ROUTES + " j";
-            queryString += " WHERE j.journey_name = ?";
-            queryString += " ORDER BY j.route_number";
-
-            cursor = database.rawQuery(queryString, new String[]{journeyName});
-            while (cursor.moveToNext()) {
-                JourneyRoute r = new JourneyRoute(journeyName, cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getInt(3) > 0);
-                journeyRoutes.add(r);
-            }
-        } catch (SQLiteException e) {
-            Log.e("[DatabaseHelper.getNextBuses]", e.getMessage(), e);
-        } finally {
-            if (cursor != null) cursor.close();
-            database.close();
-        }
-
-        return journeyRoutes;
-    }
-
-    public void getSelectedStopNumbersAndRoutes() {
-        SQLiteDatabase database = getDatabase();
-        Cursor cursor = null;
-        ArrayList<JourneyRoute> journeyRoutes = new ArrayList<JourneyRoute>();
-        try {
-            String queryString = "SELECT j.stop_number, j.route_number, j.selected, r.route_name";
-            queryString += " FROM " + TBL_JOURNEY_ROUTES + " j";
-            queryString += " JOIN " + TBL_ROUTES + " r ON j.stop_number = r.stop_number AND j.route_number = r.route_number";
-            queryString += " WHERE j.selected = ?";
-            queryString += " ORDER BY j.route_number";
-
-            cursor = database.rawQuery(queryString, new String[]{"1"});
-            outputCursor(cursor);
-        } catch (SQLiteException e) {
-            Log.e("[DatabaseHelper.getNextBuses]", e.getMessage(), e);
-        } finally {
-            if (cursor != null) cursor.close();
-            database.close();
-        }
-    }
-
-
     private void outputCursor(Cursor cursor) {
         Log.d("[CURSOR]", "---------------------------------------");
 

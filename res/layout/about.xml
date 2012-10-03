@@ -7,8 +7,11 @@
     <ListView android:id="@android:id/list"
               android:layout_width="fill_parent"
               android:layout_height="wrap_content"/>
+
     <Button android:id="@+id/download_button"
-            android:text="Download Timetables"
+            android:text="Download Departure Times"
             android:layout_width="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
             android:layout_height="wrap_content"/>
 </LinearLayout>

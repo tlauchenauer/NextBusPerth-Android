@@ -1,40 +1,14 @@
 TODO
 
-needs work
-- store each route with routeW prefix and route number as well as stop number for it to be unique
-- need to derive stop numbers at some place
-
+- add selected routes to the Routes Screen preference
+- add actual departure time to time table list
+- add actual stop name to time table list
+- change from 2 journeys (home and work) to multiple journeys, allow selection of "Default for: AM / PM / Blank"
 
 
 - add passing back selected stop into the settings
 - only load stops when area is outside of last loaded area
-- add routes selection for journey allowing for multiple routes and possibly stops as well, stops get derived from the routes
 - add updating service to download data periodically
 - clean out unnecessary data after loading data
 - add address/stopnumber search to mapview
 - fix repainting glitch on map
-
-
-
-
-DONE
-- add title and station name to which journey is shown
-- remove title bar from app
-- adjust row display to match sample from Brad
-- swipe screen to switch between Home/Work
-    http://mobile.tutsplus.com/tutorials/android/android-user-interface-design-horizontal-view-paging/
-    http://thepseudocoder.wordpress.com/2011/10/05/android-page-swiping-using-viewpager/
-    http://android-developers.blogspot.com.au/2011/08/horizontal-view-swiping-with-viewpager.html
-- load overlays into map from backend
-- add an update to ui every 30 seconds
-- add text to mapview when zoom level too high
-- download timetable data in a service/thread (asynctask) and show progress bar while downloading
-- remove initial pins and fix exceptions
-- add progress display on mapview
-- move downloading stops overlays into an asynctask with a queuing mechanism
-- clear pins on zooming out past certain level
-- show "no data" when no data is available
-- increase button size on paging
-- get rid of JSON constructors on the model classes
-- change settings screen to use PreferenceActivity
-- use AsyncTask and progress dialog after change of stop number to download the routes
