@@ -40,9 +40,6 @@ public class NextBusActivity extends FragmentActivity {
 //            Log.d("[NextBusActivity]", "firstRun - starting Alarm");
 //            OnBootReceiver.startTimeTableAlarm(getApplicationContext());
 //        }
-
-//        DatabaseHelper.getNextBuses(NextBusApplication.JourneyType.work, 6);
-        DatabaseHelper.printData();
     }
 
 

@@ -1,17 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="fill_parent"
-              android:layout_height="fill_parent"
-              android:orientation="vertical">
+<LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical"
+        xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <ListView android:id="@android:id/list"
-              android:layout_width="fill_parent"
-              android:layout_height="wrap_content"/>
-
-    <Button android:id="@+id/download_button"
-            android:text="Download Departure Times"
+        <ImageButton
+                android:id="@+id/work_search_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_btn_search"/>
+    <TextView
             android:layout_width="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="20dp"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:text="Split Time"/>
+    <SeekBar
+            android:id="@+id/split_time"
+            android:layout_marginLeft="10px"
+            android:layout_marginRight="10px"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:max="288"/>
+    <TextView
+            android:id="@+id/split_time_text"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text=""/>
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" android:layout_marginTop="50dp">
+
+        <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Reset all Data"
+                android:id="@+id/reset_data"/>
+        <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Reset preferences"
+                android:id="@+id/reset_prefs"/>
+    </LinearLayout>
+
 </LinearLayout>
