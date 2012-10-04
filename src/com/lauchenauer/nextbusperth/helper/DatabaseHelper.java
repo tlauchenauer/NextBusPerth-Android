@@ -1,159 +1,125 @@
 package com.lauchenauer.nextbusperth.helper;
 
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
-import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
-import com.lauchenauer.nextbusperth.model.JourneyRoute;
-import com.lauchenauer.nextbusperth.model.Route;
-import com.lauchenauer.nextbusperth.model.Service;
-import com.lauchenauer.nextbusperth.model.Stop;
-import com.lauchenauer.nextbusperth.model.StopTime;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.lauchenauer.nextbusperth.dao.DaoSession;
+import com.lauchenauer.nextbusperth.dao.Journey;
+import com.lauchenauer.nextbusperth.dao.JourneyDao;
+import com.lauchenauer.nextbusperth.dao.JourneyRoute;
+import com.lauchenauer.nextbusperth.dao.JourneyRouteDao;
+import com.lauchenauer.nextbusperth.dao.Route;
+import com.lauchenauer.nextbusperth.dao.RouteDao;
+import com.lauchenauer.nextbusperth.dao.Service;
+import com.lauchenauer.nextbusperth.dao.Stop;
+import com.lauchenauer.nextbusperth.dao.StopDao;
+import com.lauchenauer.nextbusperth.dao.StopTime;
+import com.lauchenauer.nextbusperth.dao.StopTimeDao;
+
+import static com.lauchenauer.nextbusperth.app.NextBusApplication.getApp;
+
 public class DatabaseHelper {
     private static final SimpleDateFormat ISO8601FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-    private static final String TIMETABLE_DB = "nextbus-perth-db";
-    private static final String TBL_STOPS = "tbl_stops";
-    private static final String TBL_ROUTES = "tbl_routes";
-    private static final String TBL_STOP_TIMES = "tbl_stop_times";
-    private static final String TBL_JOURNEY_ROUTES = "tbl_journey_routes";
-    private static final String[] TABLES = {TBL_STOPS, TBL_ROUTES, TBL_STOP_TIMES, TBL_JOURNEY_ROUTES};
     private static final long DEPARTURE_DELTA = 5 * 60 * 1000l;
 
-    private Context context;
-
-    public DatabaseHelper(Context context) {
-        this.context = context;
-
-        initDB();
-    }
-
-    public SQLiteDatabase getDatabase() {
-        return context.openOrCreateDatabase(TIMETABLE_DB, SQLiteDatabase.CREATE_IF_NECESSARY, null);
-    }
-
-    public void clearDB() {
-        SQLiteDatabase database = getDatabase();
-        try {
-            for (String table : TABLES) {
-                database.execSQL("DROP TABLE IF EXISTS " + table);
-            }
-        } finally {
-            database.close();
-        }
-    }
-
-    private void initDB() {
-        SQLiteDatabase database = getDatabase();
-        try {
-            database.execSQL("CREATE TABLE IF NOT EXISTS " + TBL_STOPS + " (stop_number STRING PRIMARY KEY, stop_name STRING)");
-            database.execSQL("CREATE TABLE IF NOT EXISTS " + TBL_ROUTES + " (stop_number STRING, route_number STRING, route_name STRING, headsign STRING, PRIMARY KEY(stop_number, route_number, headsign))");
-            database.execSQL("CREATE TABLE IF NOT EXISTS " + TBL_STOP_TIMES + " (stop_number STRING, route_number STRING, departure_time DATETIME, PRIMARY KEY(stop_number, route_number, departure_time))");
-            database.execSQL("CREATE TABLE IF NOT EXISTS " + TBL_JOURNEY_ROUTES + " (journey_name STRING, stop_number STRING, route_number STRING, headsign STRING, selected BOOLEAN, PRIMARY KEY(journey_name, stop_number, route_number, headsign))");
-        } finally {
-            database.close();
-        }
-    }
-
-    public void writeModelToDB(Object o, SQLiteDatabase database) {
-        ContentValues values = ContentValuesFactory.getContentValues(o);
-        String table = getTableForModel(o);
-
-        database.replace(table, null, values);
-    }
-
-    public void deleteFromDB(Class clazz, String where, String[] args, SQLiteDatabase database) {
-        String table = getTableForClass(clazz);
-
-        database.delete(table, where, args);
-    }
-
-    private String getTableForModel(Object o) {
-        return getTableForClass(o.getClass());
-    }
-
-    private String getTableForClass(Class clazz) {
-        String table;
-        if (clazz == Route.class) {
-            table = TBL_ROUTES;
-        } else if (clazz == Stop.class) {
-            table = TBL_STOPS;
-        } else if (clazz == StopTime.class) {
-            table = TBL_STOP_TIMES;
-        } else if (clazz == JourneyRoute.class) {
-            table = TBL_JOURNEY_ROUTES;
-        } else {
-            throw new IllegalArgumentException("Unsupported class: " + clazz.getName());
+    public static Stop getOrInsertStop(String stopNumber, String stopName) {
+        StopDao stopDao = getApp().getDaoSession().getStopDao();
+        Stop stop = stopDao.queryBuilder().where(StopDao.Properties.Number.eq(stopNumber)).unique();
+        if (stop == null) {
+            stop = new Stop(null, stopNumber, stopName);
+            stopDao.insert(stop);
         }
 
-        return table;
+        return stop;
     }
 
-    public long fetchRowCount(Class clazz, SQLiteDatabase database) {
-        String sql = "SELECT COUNT(*) FROM " + getTableForClass(clazz);
-        SQLiteStatement statement = database.compileStatement(sql);
-        return statement.simpleQueryForLong();
+    public static Route getOrInsertRoute(Stop stop, String routeNumber, String routeName, String headsign) {
+        RouteDao routeDao = getApp().getDaoSession().getRouteDao();
+        Route route = routeDao.queryBuilder()
+                .where(RouteDao.Properties.Stop_id.eq(stop.getId()),
+                        RouteDao.Properties.Number.eq(routeNumber),
+                        RouteDao.Properties.Name.eq(routeName),
+                        RouteDao.Properties.Headsign.eq(headsign))
+                .unique();
+        if (route == null) {
+            route = new Route(null, stop.getId(), routeNumber, routeName, headsign);
+            routeDao.insert(route);
+        }
+
+        return route;
     }
 
-    public List<Service> getNextBuses(String stopNumber, int maxResults) {
-        SQLiteDatabase database = getDatabase();
-        Cursor cursor = null;
+    public static StopTime getOrInsertStopTime(Route route, Date departureTime) {
+        StopTimeDao stopTimeDao = getApp().getDaoSession().getStopTimeDao();
+        StopTime stopTime = stopTimeDao.queryBuilder()
+                .where(StopTimeDao.Properties.Route_id.eq(route.getId()),
+                        StopTimeDao.Properties.Departure_time.eq(departureTime))
+                .unique();
+        if (stopTime == null) {
+            stopTime = new StopTime(null, route.getId(), departureTime);
+            stopTimeDao.insert(stopTime);
+        }
+
+        return stopTime;
+    }
+
+    public static List<Service> getNextBuses(Journey journey, int maxResults) {
+        StopTimeDao stopTimeDao = getApp().getDaoSession().getStopTimeDao();
+        String queryString = " JOIN " + RouteDao.TABLENAME + " r ON T." + StopTimeDao.Properties.Route_id.columnName + " = r." + RouteDao.Properties.Id.columnName;
+        queryString += " JOIN " + JourneyRouteDao.TABLENAME + " jr ON r." + RouteDao.Properties.Id.columnName + " = jr." + JourneyRouteDao.Properties.Route_id.columnName;
+        queryString += " JOIN " + JourneyDao.TABLENAME + " j ON jr." + JourneyRouteDao.Properties.Journey_id.columnName + " = j." + JourneyDao.Properties.Id.columnName;
+        queryString += " WHERE j." + JourneyDao.Properties.Id.columnName + " = ?";
+        queryString += " AND jr." + JourneyRouteDao.Properties.Selected.columnName + " = ?";
+        queryString += " AND T." + StopTimeDao.Properties.Departure_time.columnName + " >= ?";
+        queryString += " ORDER BY T." + StopTimeDao.Properties.Departure_time.columnName;
+        queryString += " LIMIT " + maxResults;
+
+        Date startDate = new Date(new Date().getTime() - DEPARTURE_DELTA);
+        List<StopTime> stopTimes = stopTimeDao.queryRaw(queryString, journey.getId().toString(), "1", "" + startDate.getTime());
+
+
         ArrayList<Service> services = new ArrayList<Service>();
-        try {
-            String queryString = "SELECT s.stop_number, s.stop_name, r.route_number, r.route_name, r.headsign, st.departure_time";
-            queryString += " FROM " + TBL_STOPS + " s";
-            queryString += " JOIN " + TBL_ROUTES + " r ON s.stop_number = r.stop_number";
-            queryString += " JOIN " + TBL_STOP_TIMES + " st ON s.stop_number = st.stop_number AND r.route_number = st.route_number";
-            queryString += " WHERE s.stop_number = ? AND st.departure_time >= ?";
-            queryString += " ORDER BY st.departure_time";
-            queryString += " LIMIT " + maxResults;
-
-            Date startDate = new Date(new Date().getTime() - DEPARTURE_DELTA);
-            cursor = database.rawQuery(queryString, new String[]{stopNumber, ISO8601FORMAT.format(startDate)});
-            while (cursor.moveToNext()) {
-                Service s = new Service(cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), ISO8601FORMAT.parse(cursor.getString(5)));
-                services.add(s);
-            }
-        } catch (ParseException e) {
-            Log.e("[DatabaseHelper.getNextBuses]", e.getMessage(), e);
-        } catch (SQLiteException e) {
-            Log.e("[DatabaseHelper.getNextBuses]", e.getMessage(), e);
-        } finally {
-            if (cursor != null) cursor.close();
-            database.close();
+        for (StopTime st : stopTimes) {
+            Route route = st.getRoute();
+            Stop stop = route.getStop();
+            services.add(new Service(stop.getNumber(), stop.getName(), route.getNumber(), route.getName(), route.getHeadsign(), st.getDeparture_time()));
+            Log.d("TIME", stop.getNumber() + " - " + stop.getName() + " - " + route.getNumber() + " - " + route.getHeadsign() + " - " + st.getDeparture_time());
         }
 
         return services;
     }
 
-    private void outputCursor(Cursor cursor) {
-        Log.d("[CURSOR]", "---------------------------------------");
+    public static void printData() {
+        DaoSession daoSession = getApp().getDaoSession();
 
-        String columns = "";
-        for (String col : cursor.getColumnNames()) {
-            columns += col + "  |";
-        }
-        Log.d("[CURSOR]", columns);
+        JourneyDao journeyDao = daoSession.getJourneyDao();
+        List<Journey> journeys = journeyDao.queryBuilder().list();
 
-        while (cursor.moveToNext()) {
-            String values = "";
-            for (int i = 0; i < cursor.getColumnCount(); i++) {
-                values += cursor.getString(i) + "  |";
+        for (Journey j : journeys) {
+            Log.d("JOURNEY", j.getId() + " - " + j.getName());
+
+            for (JourneyRoute jr : j.getJourneyRouteList()) {
+                Log.d("JOURNEYROUTE", jr.getRoute().getNumber() + " - " + jr.getRoute().getHeadsign() + " - " + jr.getSelected());
             }
-
-            Log.d("[CURSOR]", values);
         }
 
-        Log.d("[CURSOR]", "---------------------------------------");
+        StopDao stopDao = daoSession.getStopDao();
+        List<Stop> stops = stopDao.queryBuilder().list();
+
+        for (Stop s : stops) {
+            Log.d("STOP", s.getId() + ":  " + s.getNumber() + " - " + s.getName());
+
+            for (Route r : s.getRouteList()) {
+                Log.d("ROUTE", r.getId() + ":  " + r.getNumber() + " - " + r.getName() + " - " + r.getHeadsign());
+
+                for (StopTime st : r.getStopTimeList()) {
+                    Log.d("STOPTIME", st.getId() + " - " + st.getDeparture_time());
+                }
+            }
+        }
     }
 }

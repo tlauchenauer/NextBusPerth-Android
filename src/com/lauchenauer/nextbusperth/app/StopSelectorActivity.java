@@ -10,15 +10,16 @@ import android.widget.TextView;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.OverlayItem;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import com.lauchenauer.nextbusperth.R;
 import com.lauchenauer.nextbusperth.app.map.MapStop;
 import com.lauchenauer.nextbusperth.app.map.NBMapView;
 import com.lauchenauer.nextbusperth.app.map.OnMapViewChangedListener;
 import com.lauchenauer.nextbusperth.app.map.StopItemOverlay;
 import com.lauchenauer.nextbusperth.helper.StopsHelper;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class StopSelectorActivity extends MapActivity implements OnMapViewChangedListener {
     private static final int ZOOM_LEVEL = 16;

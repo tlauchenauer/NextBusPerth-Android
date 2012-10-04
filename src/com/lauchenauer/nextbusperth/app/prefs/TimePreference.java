@@ -6,6 +6,7 @@ import android.preference.DialogPreference;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.TimePicker;
+
 import com.lauchenauer.nextbusperth.R;
 
 public class TimePreference extends DialogPreference {

@@ -1,4 +1,4 @@
-package com.lauchenauer.nextbusperth.model;
+package com.lauchenauer.nextbusperth.dao;
 
 import java.util.Date;
 

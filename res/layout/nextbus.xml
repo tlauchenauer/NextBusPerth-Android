@@ -1,61 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical"
-    xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <RelativeLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/gray_gradient"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp"
-            xmlns:android="http://schemas.android.com/apk/res/android" android:layout_alignParentLeft="false"
-            android:layout_alignParentTop="false">
-
-            <TextView
-                android:id="@+id/journey_name"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:textSize="24sp"
-                android:textColor="#ffffff"
-                android:text="" android:textStyle="bold"/>
-            <TextView
-                android:id="@+id/stop_name"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:textSize="16sp"
-                android:textColor="#ffffff"
-                android:text="" />
-        </LinearLayout>
-        <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="&lt;"
-                android:id="@+id/prev_journey" android:layout_alignParentLeft="true" android:textSize="24sp"
-                android:textStyle="bold" android:paddingLeft="10dp" android:layout_centerVertical="true"
-                android:background="@android:color/transparent" android:paddingRight="10dp"
-                android:visibility="invisible" android:textColor="#e0e0e0"/>
-        <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="&gt;"
-                android:id="@+id/next_journey" android:layout_alignParentRight="true" android:textStyle="bold"
-                android:textSize="24sp" android:paddingRight="10dp" android:layout_centerVertical="true"
-                android:background="@android:color/transparent" android:paddingLeft="10dp"
-                android:visibility="invisible" android:textColor="#e0e0e0"/>
-    </RelativeLayout>
-
-    <ListView
-        android:id="@android:id/list"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent">
+    <android.support.v4.view.ViewPager
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:cacheColorHint="#00000000"/>
+        android:id="@+id/view_pager"/>
 </LinearLayout>

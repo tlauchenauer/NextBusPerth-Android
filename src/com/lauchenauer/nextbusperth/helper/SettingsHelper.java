@@ -19,27 +19,6 @@ public class SettingsHelper {
         editor = prefs.edit();
     }
 
-    public void clearAll() {
-        editor.clear();
-        editor.commit();
-    }
-
-    public void setWorkStopNumber(String stopNumber) {
-        putString(WORK_STOP_SETTING, stopNumber);
-    }
-
-    public String getWorkStopNumber() {
-        return prefs.getString(WORK_STOP_SETTING, "");
-    }
-
-    public void setHomeStopNumber(String stopNumber) {
-        putString(HOME_STOP_SETTING, stopNumber);
-    }
-
-    public String getHomeStopNumber() {
-        return prefs.getString(HOME_STOP_SETTING, "");
-    }
-
     public void setSplitTime(int splitTime) {
         putInt(SPLIT_TIME_SETTING, splitTime);
     }

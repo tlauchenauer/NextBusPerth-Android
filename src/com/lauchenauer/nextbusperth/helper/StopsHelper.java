@@ -2,7 +2,6 @@ package com.lauchenauer.nextbusperth.helper;
 
 import android.util.Log;
 import com.google.android.maps.GeoPoint;
-import com.lauchenauer.nextbusperth.app.map.MapStop;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
@@ -11,6 +10,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.lauchenauer.nextbusperth.app.map.MapStop;
 
 public class StopsHelper implements JSONConstants {
     private static final String STOPS_URL = "stops";

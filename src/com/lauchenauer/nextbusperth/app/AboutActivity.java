@@ -5,19 +5,25 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.*;
+import android.preference.CheckBoxPreference;
+import android.preference.EditTextPreference;
+import android.preference.Preference;
+import android.preference.PreferenceActivity;
+import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+
+import java.util.List;
+
 import com.lauchenauer.nextbusperth.R;
 import com.lauchenauer.nextbusperth.dao.JourneyRoute;
 import com.lauchenauer.nextbusperth.dao.JourneyRouteDao;
 import com.lauchenauer.nextbusperth.dao.Route;
-import com.lauchenauer.nextbusperth.helper.NewTimetableHelper;
+import com.lauchenauer.nextbusperth.helper.TimetableHelper;
 import com.lauchenauer.nextbusperth.helper.RoutesHelper;
 import com.lauchenauer.nextbusperth.helper.SettingsHelper;
-
-import java.util.List;
 
 import static com.lauchenauer.nextbusperth.app.NextBusApplication.JourneyType;
 
@@ -219,7 +225,7 @@ public class AboutActivity extends PreferenceActivity implements SharedPreferenc
 
         @Override
         protected Boolean doInBackground(Void... voids) {
-            NewTimetableHelper helper = new NewTimetableHelper(context);
+            TimetableHelper helper = new TimetableHelper(context);
             helper.downloadTimeTable();
 
             return true;

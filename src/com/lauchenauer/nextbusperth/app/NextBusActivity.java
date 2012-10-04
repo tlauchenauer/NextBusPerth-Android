@@ -1,7 +1,6 @@
 package com.lauchenauer.nextbusperth.app;
 
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -9,19 +8,11 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.format.Time;
-import android.util.Log;
 import android.view.Menu;
-import com.lauchenauer.nextbusperth.R;
-import com.lauchenauer.nextbusperth.dao.DaoMaster;
-import com.lauchenauer.nextbusperth.dao.DaoSession;
-import com.lauchenauer.nextbusperth.dao.RouteDao;
-import com.lauchenauer.nextbusperth.dao.Stop;
-import com.lauchenauer.nextbusperth.dao.StopDao;
-import com.lauchenauer.nextbusperth.helper.NewDatabaseHelper;
-import com.lauchenauer.nextbusperth.helper.SettingsHelper;
-import de.greenrobot.dao.QueryBuilder;
 
-import java.util.List;
+import com.lauchenauer.nextbusperth.R;
+import com.lauchenauer.nextbusperth.helper.DatabaseHelper;
+import com.lauchenauer.nextbusperth.helper.SettingsHelper;
 
 public class NextBusActivity extends FragmentActivity {
     private ViewPager viewPager;
@@ -30,7 +21,7 @@ public class NextBusActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+        setContentView(R.layout.nextbus);
 
         settingsHelper = new SettingsHelper(getApplicationContext());
 
@@ -50,8 +41,8 @@ public class NextBusActivity extends FragmentActivity {
 //            OnBootReceiver.startTimeTableAlarm(getApplicationContext());
 //        }
 
-//        NewDatabaseHelper.getNextBuses(NextBusApplication.JourneyType.work, 6);
-        NewDatabaseHelper.printData();
+//        DatabaseHelper.getNextBuses(NextBusApplication.JourneyType.work, 6);
+        DatabaseHelper.printData();
     }
 
 

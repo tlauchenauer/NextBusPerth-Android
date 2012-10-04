@@ -1,13 +1,6 @@
 package com.lauchenauer.nextbusperth.helper;
 
 import android.util.Log;
-import com.lauchenauer.nextbusperth.dao.DaoSession;
-import com.lauchenauer.nextbusperth.dao.Journey;
-import com.lauchenauer.nextbusperth.dao.JourneyRoute;
-import com.lauchenauer.nextbusperth.dao.JourneyRouteDao;
-import com.lauchenauer.nextbusperth.dao.Route;
-import com.lauchenauer.nextbusperth.dao.Stop;
-import com.lauchenauer.nextbusperth.dao.StopDao;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,10 +8,17 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.lauchenauer.nextbusperth.dao.DaoSession;
+import com.lauchenauer.nextbusperth.dao.Journey;
+import com.lauchenauer.nextbusperth.dao.JourneyRoute;
+import com.lauchenauer.nextbusperth.dao.JourneyRouteDao;
+import com.lauchenauer.nextbusperth.dao.Route;
+import com.lauchenauer.nextbusperth.dao.Stop;
+
 import static com.lauchenauer.nextbusperth.app.NextBusApplication.JourneyType;
 import static com.lauchenauer.nextbusperth.app.NextBusApplication.getApp;
-import static com.lauchenauer.nextbusperth.helper.NewDatabaseHelper.getOrInsertRoute;
-import static com.lauchenauer.nextbusperth.helper.NewDatabaseHelper.getOrInsertStop;
+import static com.lauchenauer.nextbusperth.helper.DatabaseHelper.getOrInsertRoute;
+import static com.lauchenauer.nextbusperth.helper.DatabaseHelper.getOrInsertStop;
 
 public class RoutesHelper implements JSONConstants {
     private static final String STOPS_URL = "routes/";

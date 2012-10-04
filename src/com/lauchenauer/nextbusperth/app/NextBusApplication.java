@@ -2,7 +2,11 @@ package com.lauchenauer.nextbusperth.app;
 
 import android.app.Application;
 import android.database.sqlite.SQLiteDatabase;
-import com.lauchenauer.nextbusperth.dao.*;
+
+import com.lauchenauer.nextbusperth.dao.DaoMaster;
+import com.lauchenauer.nextbusperth.dao.DaoSession;
+import com.lauchenauer.nextbusperth.dao.Journey;
+import com.lauchenauer.nextbusperth.dao.JourneyDao;
 
 public class NextBusApplication extends Application {
     private static final String TIMETABLE_DB = "nextbus-perth-db";

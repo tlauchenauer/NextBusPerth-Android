@@ -7,18 +7,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import com.lauchenauer.nextbusperth.R;
-import com.lauchenauer.nextbusperth.dao.Journey;
-import com.lauchenauer.nextbusperth.helper.NewDatabaseHelper;
-import com.lauchenauer.nextbusperth.helper.SettingsHelper;
-import com.lauchenauer.nextbusperth.model.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static com.lauchenauer.nextbusperth.app.NextBusApplication.*;
+import com.lauchenauer.nextbusperth.R;
+import com.lauchenauer.nextbusperth.dao.Journey;
+import com.lauchenauer.nextbusperth.dao.Service;
+import com.lauchenauer.nextbusperth.helper.DatabaseHelper;
+import com.lauchenauer.nextbusperth.helper.SettingsHelper;
+
+import static com.lauchenauer.nextbusperth.app.NextBusApplication.JourneyType;
+import static com.lauchenauer.nextbusperth.app.NextBusApplication.getApp;
 
 public class NextBusFragment extends ListFragment {
     private SettingsHelper settingsHelper;
@@ -51,7 +53,7 @@ public class NextBusFragment extends ListFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.nextbus, container, false);
+        View v = inflater.inflate(R.layout.nextbus_fragment, container, false);
 
         journeyNameView = (TextView) v.findViewById(R.id.journey_name);
         stopNameView = (TextView) v.findViewById(R.id.stop_name);
@@ -100,7 +102,7 @@ public class NextBusFragment extends ListFragment {
             journey = getApp().getJourney(JourneyType.home);
         }
 
-        List<Service> services = NewDatabaseHelper.getNextBuses(journey, 5);
+        List<Service> services = DatabaseHelper.getNextBuses(journey, 5);
         if (services.size() < 1) {
             services.add(new Service("", "", "NO DATA", "", "download timetable", null));
         }
