@@ -2,6 +2,7 @@ package com.lauchenauer.nextbusperth.app;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -18,6 +19,7 @@ import android.widget.Button;
 import java.util.List;
 
 import com.lauchenauer.nextbusperth.R;
+import com.lauchenauer.nextbusperth.app.prefs.StopSelectorPreference;
 import com.lauchenauer.nextbusperth.dao.JourneyRoute;
 import com.lauchenauer.nextbusperth.dao.JourneyRouteDao;
 import com.lauchenauer.nextbusperth.dao.Route;
@@ -34,7 +36,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
     private static final String HOME_ROUTE_PREFIX = ROUTE_PREFIX + "H";
 
     private EditTextPreference workStopNumberPref;
-    private EditTextPreference homeStopNumberPref;
+    private StopSelectorPreference homeStopNumberPref;
     private PreferenceScreen workRoutesScreenPref;
     private PreferenceScreen homeRoutesScreenPref;
     private String oldWorkStopNumber;
@@ -47,7 +49,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         setContentView(R.layout.settings);
 
         workStopNumberPref = (EditTextPreference) getPreferenceScreen().findPreference(SettingsHelper.WORK_STOP_SETTING);
-        homeStopNumberPref = (EditTextPreference) getPreferenceScreen().findPreference(SettingsHelper.HOME_STOP_SETTING);
+        homeStopNumberPref = (StopSelectorPreference) getPreferenceScreen().findPreference(SettingsHelper.HOME_STOP_SETTING);
         homeRoutesScreenPref = (PreferenceScreen) getPreferenceScreen().findPreference("routes-home");
         workRoutesScreenPref = (PreferenceScreen) getPreferenceScreen().findPreference("routes-work");
 
@@ -69,13 +71,14 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
                 new TimetableDownloadTask(SettingsActivity.this).execute();
             }
         });
-    }
 
-    private void downloadTimetables() {
-        Log.d(" < DOWNLOAD TIMETABLES", "-------------------------------------------------------------------------");
-
-
-        Log.d(" > DOWNLOAD TIMETABLES", "-------------------------------------------------------------------------");
+        homeStopNumberPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            public boolean onPreferenceClick(Preference preference) {
+                Intent i = new Intent(SettingsActivity.this, StopSelectorActivity.class);
+                startActivityForResult(i, 0);
+                return true;
+            }
+        });
     }
 
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {

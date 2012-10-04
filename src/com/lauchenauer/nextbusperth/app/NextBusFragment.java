@@ -8,7 +8,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -23,10 +25,12 @@ import static com.lauchenauer.nextbusperth.app.NextBusApplication.JourneyType;
 import static com.lauchenauer.nextbusperth.app.NextBusApplication.getApp;
 
 public class NextBusFragment extends ListFragment {
-    private SettingsHelper settingsHelper;
+    static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm");
+
     private RowAdapter adapter;
     private TextView journeyNameView;
     private TextView stopNameView;
+    private TextView lastUpdateView;
     private String journeyName;
     private boolean active = true;
 
@@ -45,7 +49,6 @@ public class NextBusFragment extends ListFragment {
         super.onCreate(savedInstanceState);
 
         journeyName = getArguments() != null ? getArguments().getString("journeyName") : "Work";
-        settingsHelper = new SettingsHelper(getActivity().getApplicationContext());
 
         adapter = new RowAdapter(getActivity().getApplicationContext(), new ArrayList<Service>());
         setListAdapter(adapter);
@@ -57,6 +60,7 @@ public class NextBusFragment extends ListFragment {
 
         journeyNameView = (TextView) v.findViewById(R.id.journey_name);
         stopNameView = (TextView) v.findViewById(R.id.stop_name);
+        lastUpdateView = (TextView) v.findViewById(R.id.last_update);
         new UpdateTimerTask(this, 30);
 
         updateData();
@@ -96,6 +100,7 @@ public class NextBusFragment extends ListFragment {
 
     private void updateData() {
         journeyNameView.setText(journeyName);
+        lastUpdateView.setText("updated at " + TIME_FORMAT.format(new Date()));
 
         Journey journey = getApp().getJourney(JourneyType.work);
         if (journeyName.equals("Home")) {

@@ -1,8 +1,10 @@
 package com.lauchenauer.nextbusperth.app.map;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import com.google.android.maps.ItemizedOverlay;
@@ -13,12 +15,12 @@ import java.util.List;
 
 public class StopItemOverlay extends ItemizedOverlay implements DialogInterface.OnClickListener {
     private List<OverlayItem> overlays = new ArrayList<OverlayItem>();
-    private Context context;
     private OverlayItem item;
+    private Activity parentActivity;
 
-    public StopItemOverlay(Drawable defaultMarker, Context context) {
+    public StopItemOverlay(Drawable defaultMarker, Activity parentActivity) {
         super(boundCenterBottom(defaultMarker));
-        this.context = context;
+        this.parentActivity = parentActivity;
         populate();  // workaround for the NPE when no items present
     }
 
@@ -53,7 +55,7 @@ public class StopItemOverlay extends ItemizedOverlay implements DialogInterface.
     @Override
     protected boolean onTap(int index) {
         item = overlays.get(index);
-        AlertDialog.Builder dialog = new AlertDialog.Builder(context);
+        AlertDialog.Builder dialog = new AlertDialog.Builder(parentActivity);
         dialog.setTitle("Select this Stop?");
         dialog.setPositiveButton("Select", this);
         dialog.setNegativeButton("Cancel", null);
@@ -65,5 +67,9 @@ public class StopItemOverlay extends ItemizedOverlay implements DialogInterface.
 
     public void onClick(DialogInterface dialogInterface, int i) {
         Log.d("MapItem selected!!!!!", item.getSnippet());
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra("stop_number", item.getTitle());
+        parentActivity.setResult(Activity.RESULT_OK, resultIntent);
+        parentActivity.finish();
     }
 }

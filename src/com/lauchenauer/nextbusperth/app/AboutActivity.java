@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -29,7 +30,7 @@ public class AboutActivity extends Activity {
         work_search.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 Intent i = new Intent(AboutActivity.this, StopSelectorActivity.class);
-                startActivity(i);
+                startActivityForResult(i, 0);
             }
         });
 
@@ -54,5 +55,15 @@ public class AboutActivity extends Activity {
                 editor.commit();
             }
         });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == Activity.RESULT_OK) {
+            String stopNumber = data.getStringExtra("stop_number");
+            Log.d("GOT A RETURN", stopNumber);
+        }
     }
 }

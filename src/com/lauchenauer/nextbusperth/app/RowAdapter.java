@@ -39,11 +39,19 @@ public class RowAdapter extends ArrayAdapter<Service> {
         TextView routeNumber = (TextView) rowView.findViewById(R.id.route_number);
         TextView headsign = (TextView) rowView.findViewById(R.id.headsign);
         TextView timeDelta = (TextView) rowView.findViewById(R.id.time_delta);
+        TextView stopName = (TextView) rowView.findViewById(R.id.stop_name);
+        TextView departureTime = (TextView) rowView.findViewById(R.id.departure_time);
 
         Service s = services.get(position);
         routeNumber.setText(s.getRouteNumber());
         headsign.setText(s.getHeadsign());
         timeDelta.setText(s.getTimeDelta());
+        stopName.setText(s.getStopName());
+        if (s.getDepartureTime() == null) {
+            departureTime.setText("");
+        } else {
+            departureTime.setText(NextBusFragment.TIME_FORMAT.format(s.getDepartureTime()));
+        }
 
         int pos = position;
         while (pos > 4) {

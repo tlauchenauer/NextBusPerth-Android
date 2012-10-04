@@ -19,7 +19,7 @@
     <PreferenceCategory
             android:title="Journey Home">
 
-        <EditTextPreference
+        <com.lauchenauer.nextbusperth.app.prefs.StopSelectorPreference
                 android:title="Stop Number"
                 android:key="Home-Stop"
                 android:defaultValue=""
