@@ -87,7 +87,6 @@ public class DatabaseHelper {
             Route route = st.getRoute();
             Stop stop = route.getStop();
             services.add(new Service(stop.getNumber(), stop.getName(), route.getNumber(), route.getName(), route.getHeadsign(), st.getDeparture_time()));
-            Log.d("TIME", stop.getNumber() + " - " + stop.getName() + " - " + route.getNumber() + " - " + route.getHeadsign() + " - " + st.getDeparture_time());
         }
 
         return services;

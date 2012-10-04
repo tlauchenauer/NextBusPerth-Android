@@ -1,5 +1,6 @@
 package com.lauchenauer.nextbusperth.app;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -29,13 +30,15 @@ import com.lauchenauer.nextbusperth.helper.SettingsHelper;
 
 import static com.lauchenauer.nextbusperth.app.NextBusApplication.JourneyType;
 
-public class SettingsActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener, Preference.OnPreferenceChangeListener {
+public class SettingsActivity extends PreferenceActivity implements Preference.OnPreferenceChangeListener {
     private static final String SIX_DIGIT_STOP_NUMBER = "6 digit stop number";
     private static final String ROUTE_PREFIX = "route";
     private static final String WORK_ROUTE_PREFIX = ROUTE_PREFIX + "W";
     private static final String HOME_ROUTE_PREFIX = ROUTE_PREFIX + "H";
+    private static final int HOME_STOP = 1;
+    private static final int WORK_STOP = 2;
 
-    private EditTextPreference workStopNumberPref;
+    private StopSelectorPreference workStopNumberPref;
     private StopSelectorPreference homeStopNumberPref;
     private PreferenceScreen workRoutesScreenPref;
     private PreferenceScreen homeRoutesScreenPref;
@@ -48,7 +51,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         addPreferencesFromResource(R.xml.preferences);
         setContentView(R.layout.settings);
 
-        workStopNumberPref = (EditTextPreference) getPreferenceScreen().findPreference(SettingsHelper.WORK_STOP_SETTING);
+        workStopNumberPref = (StopSelectorPreference) getPreferenceScreen().findPreference(SettingsHelper.WORK_STOP_SETTING);
         homeStopNumberPref = (StopSelectorPreference) getPreferenceScreen().findPreference(SettingsHelper.HOME_STOP_SETTING);
         homeRoutesScreenPref = (PreferenceScreen) getPreferenceScreen().findPreference("routes-home");
         workRoutesScreenPref = (PreferenceScreen) getPreferenceScreen().findPreference("routes-work");
@@ -75,38 +78,75 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         homeStopNumberPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference preference) {
                 Intent i = new Intent(SettingsActivity.this, StopSelectorActivity.class);
-                startActivityForResult(i, 0);
+                startActivityForResult(i, HOME_STOP);
+                return true;
+            }
+        });
+
+        workStopNumberPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            public boolean onPreferenceClick(Preference preference) {
+                Intent i = new Intent(SettingsActivity.this, StopSelectorActivity.class);
+                startActivityForResult(i, WORK_STOP);
                 return true;
             }
         });
     }
 
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        Log.d("Preference changed", key);
-        if (key.equals(SettingsHelper.WORK_STOP_SETTING)) {
-            String stopNumber = sharedPreferences.getString(SettingsHelper.WORK_STOP_SETTING, "");
-            if (stopNumber.trim().length() < 1) {
-                stopNumber = SIX_DIGIT_STOP_NUMBER;
-            }
-            workStopNumberPref.setSummary(stopNumber);
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
-            if (!stopNumber.equals(oldWorkStopNumber)) {
-                new RoutesDownloadTask(this, JourneyType.work).execute(stopNumber);
-                oldWorkStopNumber = stopNumber;
-            }
-        } else if (key.equals(SettingsHelper.HOME_STOP_SETTING)) {
-            String stopNumber = sharedPreferences.getString(SettingsHelper.HOME_STOP_SETTING, "");
-            if (stopNumber.trim().length() < 1) {
-                stopNumber = SIX_DIGIT_STOP_NUMBER;
-            }
-            homeStopNumberPref.setSummary(stopNumber);
+        if (resultCode == Activity.RESULT_OK) {
+            String stopNumber = data.getStringExtra("stop_number");
+            SettingsHelper helper = new SettingsHelper(this);
 
-            if (!stopNumber.equals(oldHomeStopNumber)) {
-                new RoutesDownloadTask(this, JourneyType.home).execute(stopNumber);
-                oldHomeStopNumber = stopNumber;
+            switch (requestCode) {
+                case HOME_STOP:
+                    homeStopNumberPref.setSummary(stopNumber);
+                    helper.setJourneyStopNumber(JourneyType.home, stopNumber);
+                    if (!stopNumber.equals(oldHomeStopNumber)) {
+                        new RoutesDownloadTask(this, JourneyType.home).execute(stopNumber);
+                        oldHomeStopNumber = stopNumber;
+                    }
+                    break;
+                case WORK_STOP:
+                    workStopNumberPref.setSummary(stopNumber);
+                    helper.setJourneyStopNumber(JourneyType.work, stopNumber);
+                    if (!stopNumber.equals(oldWorkStopNumber)) {
+                        new RoutesDownloadTask(this, JourneyType.work).execute(stopNumber);
+                        oldWorkStopNumber = stopNumber;
+                    }
+                    break;
             }
         }
     }
+
+//    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+//        Log.d("Preference changed", key);
+//        if (key.equals(SettingsHelper.WORK_STOP_SETTING)) {
+//            String stopNumber = sharedPreferences.getString(SettingsHelper.WORK_STOP_SETTING, "");
+//            if (stopNumber.trim().length() < 1) {
+//                stopNumber = SIX_DIGIT_STOP_NUMBER;
+//            }
+//            workStopNumberPref.setSummary(stopNumber);
+//
+//            if (!stopNumber.equals(oldWorkStopNumber)) {
+//                new RoutesDownloadTask(this, JourneyType.work).execute(stopNumber);
+//                oldWorkStopNumber = stopNumber;
+//            }
+//        } else if (key.equals(SettingsHelper.HOME_STOP_SETTING)) {
+//            String stopNumber = sharedPreferences.getString(SettingsHelper.HOME_STOP_SETTING, "");
+//            if (stopNumber.trim().length() < 1) {
+//                stopNumber = SIX_DIGIT_STOP_NUMBER;
+//            }
+//            homeStopNumberPref.setSummary(stopNumber);
+//
+//            if (!stopNumber.equals(oldHomeStopNumber)) {
+//                new RoutesDownloadTask(this, JourneyType.home).execute(stopNumber);
+//                oldHomeStopNumber = stopNumber;
+//            }
+//        }
+//    }
 
     public boolean onPreferenceChange(Preference preference, Object o) {
         if (preference.getClass() != JourneyCheckBoxPreference.class) return true;
@@ -121,17 +161,17 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         return true;
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
-    }
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+//    }
+//
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+//    }
 
     private void processRoutes(JourneyType journeyType) {
         RoutesHelper helper = new RoutesHelper();

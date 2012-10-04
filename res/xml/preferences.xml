@@ -4,12 +4,13 @@
     <PreferenceCategory
             android:title="Journey to Work">
 
-        <EditTextPreference
+        <com.lauchenauer.nextbusperth.app.prefs.StopSelectorPreference
                 android:title="Stop Number"
                 android:key="Work-Stop"
                 android:defaultValue=""
                 android:inputType="number"
-                android:summary="6 digit stop number"/>
+                android:summary="stop number"
+                android:persistent="false"/>
         <PreferenceScreen
                 android:title="Routes to Work"
                 android:key="routes-work"
@@ -24,7 +25,8 @@
                 android:key="Home-Stop"
                 android:defaultValue=""
                 android:inputType="number"
-                android:summary="6 digit stop number"/>
+                android:summary="stop number"
+                android:persistent="false"/>
         <PreferenceScreen
                 android:title="Routes Home"
                 android:key="routes-home"

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import com.lauchenauer.nextbusperth.app.NextBusApplication;
 
 public class SettingsHelper {
     private static final String FIRST_RUN = "firstRun";
@@ -25,6 +26,24 @@ public class SettingsHelper {
         int minute = prefs.getInt(SPLIT_TIME_SETTING_MINUTE, 0);
 
         return hour * 60 + minute;
+    }
+
+    public void setJourneyStopNumber(NextBusApplication.JourneyType journeyType, String stopNumber) {
+        switch (journeyType) {
+            case work:
+                putString(WORK_STOP_SETTING, stopNumber);
+                break;
+            case home:
+                putString(HOME_STOP_SETTING, stopNumber);
+                break;
+        }
+    }
+
+    private void putString(String name, String value) {
+        Log.d("[SettingsHelper] - putString", name + " = " + value);
+
+        editor.putString(name, value);
+        editor.commit();
     }
 
     private void putBoolean(String name, boolean value) {
