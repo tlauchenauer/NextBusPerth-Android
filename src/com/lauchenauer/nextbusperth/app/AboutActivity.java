@@ -26,14 +26,6 @@ public class AboutActivity extends Activity {
     }
 
     private void setupUI() {
-        ImageButton work_search = (ImageButton) findViewById(R.id.work_search_btn);
-        work_search.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                Intent i = new Intent(AboutActivity.this, StopSelectorActivity.class);
-                startActivityForResult(i, 0);
-            }
-        });
-
         Button reset = (Button) findViewById(R.id.reset_data);
         reset.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
@@ -55,15 +47,5 @@ public class AboutActivity extends Activity {
                 editor.commit();
             }
         });
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode == Activity.RESULT_OK) {
-            String stopNumber = data.getStringExtra("stop_number");
-            Log.d("GOT A RETURN", stopNumber);
-        }
     }
 }
