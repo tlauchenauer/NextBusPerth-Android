@@ -31,7 +31,7 @@ public class NextBusActivity extends FragmentActivity {
         long splitTime = settingsHelper.getSplitTime();
         Time t = new Time();
         t.setToNow();
-        long currentTime = t.hour * 12 + t.minute / 5;
+        long currentTime = t.hour * 60 + t.minute;
         if (currentTime > splitTime) {
             viewPager.setCurrentItem(1);
         }

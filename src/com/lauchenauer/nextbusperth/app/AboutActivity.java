@@ -16,38 +16,15 @@ import com.lauchenauer.nextbusperth.dao.DaoSession;
 import com.lauchenauer.nextbusperth.helper.SettingsHelper;
 
 public class AboutActivity extends Activity {
-    private SeekBar splitTime;
-    private TextView splitTimeText;
-    private SettingsHelper settings;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.about);
 
-        splitTime = (SeekBar) findViewById(R.id.split_time);
-        splitTimeText = (TextView) findViewById(R.id.split_time_text);
-
-        settings = new SettingsHelper(getApplicationContext());
-
-        readPreferences();
         setupUI();
     }
 
     private void setupUI() {
-        splitTime.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                splitTimeText.setText(String.format("%d", i * 5 / 60) + ":" + String.format("%02d", (i * 5) % 60));
-                settings.setSplitTime(i);
-            }
-
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-
-            public void onStopTrackingTouch(SeekBar seekBar) {
-            }
-        });
-
         ImageButton work_search = (ImageButton) findViewById(R.id.work_search_btn);
         work_search.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
@@ -77,11 +54,5 @@ public class AboutActivity extends Activity {
                 editor.commit();
             }
         });
-    }
-
-    private void readPreferences() {
-        int time = settings.getSplitTime();
-        splitTime.setProgress(time);
-        splitTimeText.setText(String.format("%d", time * 5 / 60) + ":" + String.format("%02d", (time * 5) % 60));
     }
 }
