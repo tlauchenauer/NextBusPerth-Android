@@ -53,12 +53,8 @@ public class Service {
         if (minutes == 0) {
             return "Now";
         } else {
-            return minutes + " mins";
+            return "" + minutes;
         }
-    }
-
-    public boolean hasLeft() {
-        return timDiffInMinutes(departureTime) < 0;
     }
 
     private long timDiffInMinutes(Date time) {

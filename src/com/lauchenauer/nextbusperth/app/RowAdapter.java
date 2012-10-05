@@ -41,6 +41,7 @@ public class RowAdapter extends ArrayAdapter<Service> {
         TextView timeDelta = (TextView) rowView.findViewById(R.id.time_delta);
         TextView stopName = (TextView) rowView.findViewById(R.id.stop_name);
         TextView departureTime = (TextView) rowView.findViewById(R.id.departure_time);
+        TextView minsLabel = (TextView) rowView.findViewById(R.id.mins);
 
         Service s = services.get(position);
         routeNumber.setText(s.getRouteNumber());
@@ -51,6 +52,11 @@ public class RowAdapter extends ArrayAdapter<Service> {
             departureTime.setText("");
         } else {
             departureTime.setText(NextBusFragment.TIME_FORMAT.format(s.getDepartureTime()));
+        }
+
+        minsLabel.setVisibility(View.VISIBLE);
+        if (s.getTimeDelta().equals("Now")) {
+            minsLabel.setVisibility(View.INVISIBLE);
         }
 
         return rowView;

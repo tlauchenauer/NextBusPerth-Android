@@ -1,5 +1,5 @@
 TODO
-
+- fix the Now display
 - add select/unselect all button to the route selection
 - maintain stop name in settings so that stop name is displayed in settings instead of number
 - add loading of routes when entering routes selection if no routes available (i.e. routes download was cancelled)
