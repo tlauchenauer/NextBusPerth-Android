@@ -9,11 +9,11 @@
             android:id="@+id/time_delta"
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
-            android:textColor="#000000"
+            android:textColor="#ffffff"
             android:text="95 mins"
             android:textSize="24sp" android:textStyle="bold"
             android:password="false" android:width="120dp" android:singleLine="true" android:gravity="top|center_horizontal"
-            android:background="@drawable/row_gradient1" android:paddingTop="4dp" android:paddingBottom="10dp"/>
+            android:background="@drawable/green_gradient" android:paddingTop="4dp" android:paddingBottom="10dp"/>
 
 
     <LinearLayout

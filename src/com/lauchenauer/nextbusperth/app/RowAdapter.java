@@ -53,35 +53,6 @@ public class RowAdapter extends ArrayAdapter<Service> {
             departureTime.setText(NextBusFragment.TIME_FORMAT.format(s.getDepartureTime()));
         }
 
-        int pos = position;
-        while (pos > 4) {
-            pos -= 5;
-        }
-
-        if (!services.get(0).hasLeft()) pos++;
-
-        switch (pos) {
-            case 0:
-                timeDelta.setBackgroundResource(R.drawable.row_gradient1);
-                break;
-            case 1:
-                timeDelta.setBackgroundResource(R.drawable.row_gradient2);
-                break;
-            case 2:
-                timeDelta.setBackgroundResource(R.drawable.row_gradient3);
-                break;
-            case 3:
-                timeDelta.setBackgroundResource(R.drawable.row_gradient4);
-                break;
-            case 4:
-                timeDelta.setBackgroundResource(R.drawable.row_gradient5);
-                break;
-            case 5:
-                timeDelta.setBackgroundResource(R.drawable.row_gradient6);
-                break;
-        }
-
-
         return rowView;
     }
 }
