@@ -121,33 +121,6 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
         }
     }
 
-//    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-//        Log.d("Preference changed", key);
-//        if (key.equals(SettingsHelper.WORK_STOP_SETTING)) {
-//            String stopNumber = sharedPreferences.getString(SettingsHelper.WORK_STOP_SETTING, "");
-//            if (stopNumber.trim().length() < 1) {
-//                stopNumber = SIX_DIGIT_STOP_NUMBER;
-//            }
-//            workStopNumberPref.setSummary(stopNumber);
-//
-//            if (!stopNumber.equals(oldWorkStopNumber)) {
-//                new RoutesDownloadTask(this, JourneyType.work).execute(stopNumber);
-//                oldWorkStopNumber = stopNumber;
-//            }
-//        } else if (key.equals(SettingsHelper.HOME_STOP_SETTING)) {
-//            String stopNumber = sharedPreferences.getString(SettingsHelper.HOME_STOP_SETTING, "");
-//            if (stopNumber.trim().length() < 1) {
-//                stopNumber = SIX_DIGIT_STOP_NUMBER;
-//            }
-//            homeStopNumberPref.setSummary(stopNumber);
-//
-//            if (!stopNumber.equals(oldHomeStopNumber)) {
-//                new RoutesDownloadTask(this, JourneyType.home).execute(stopNumber);
-//                oldHomeStopNumber = stopNumber;
-//            }
-//        }
-//    }
-
     public boolean onPreferenceChange(Preference preference, Object o) {
         if (preference.getClass() != JourneyCheckBoxPreference.class) return true;
 
@@ -160,18 +133,6 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
 
         return true;
     }
-
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
-//    }
-//
-//    @Override
-//    protected void onPause() {
-//        super.onPause();
-//        getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
-//    }
 
     private void processRoutes(JourneyType journeyType) {
         RoutesHelper helper = new RoutesHelper();

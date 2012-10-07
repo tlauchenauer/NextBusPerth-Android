@@ -2,10 +2,12 @@ package com.lauchenauer.nextbusperth.app;
 
 
 import android.content.Context;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.List;
@@ -42,6 +44,7 @@ public class RowAdapter extends ArrayAdapter<Service> {
         TextView stopName = (TextView) rowView.findViewById(R.id.stop_name);
         TextView departureTime = (TextView) rowView.findViewById(R.id.departure_time);
         TextView minsLabel = (TextView) rowView.findViewById(R.id.mins);
+        TextView timeCenter = (TextView) rowView.findViewById(R.id.time_center);
 
         Service s = services.get(position);
         routeNumber.setText(s.getRouteNumber());
@@ -54,9 +57,15 @@ public class RowAdapter extends ArrayAdapter<Service> {
             departureTime.setText(NextBusFragment.TIME_FORMAT.format(s.getDepartureTime()));
         }
 
-        minsLabel.setVisibility(View.VISIBLE);
-        if (s.getTimeDelta().equals("Now")) {
-            minsLabel.setVisibility(View.INVISIBLE);
+        if (s.getTimeDelta().equals("Now") || s.getTimeDelta().equals("\u221e")) {
+            minsLabel.setVisibility(View.GONE);
+            timeDelta.setVisibility(View.GONE);
+            timeCenter.setVisibility(View.VISIBLE);
+            timeCenter.setText(s.getTimeDelta());
+        } else {
+            timeCenter.setVisibility(View.GONE);
+            minsLabel.setVisibility(View.VISIBLE);
+            timeDelta.setVisibility(View.VISIBLE);
         }
 
         return rowView;

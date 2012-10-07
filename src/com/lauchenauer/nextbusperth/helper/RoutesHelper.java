@@ -6,6 +6,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import com.lauchenauer.nextbusperth.dao.DaoSession;
@@ -73,7 +75,30 @@ public class RoutesHelper implements JSONConstants {
 
     public List<JourneyRoute> getJourneyRoutes(JourneyType journeyType) {
         JourneyRouteDao journeyRouteDao = daoSession.getJourneyRouteDao();
-        return journeyRouteDao.queryBuilder().where(JourneyRouteDao.Properties.Journey_id.eq(getJourney(journeyType).getId())).list();
+        List<JourneyRoute> journeyRoutes = journeyRouteDao.queryBuilder().where(JourneyRouteDao.Properties.Journey_id.eq(getJourney(journeyType).getId())).list();
+        Collections.sort(journeyRoutes, new Comparator<JourneyRoute>() {
+            @Override
+            public int compare(JourneyRoute journeyRoute1, JourneyRoute journeyRoute2) {
+                String routeNumber1 = journeyRoute1.getRoute().getNumber();
+                String routeNumber2 = journeyRoute2.getRoute().getNumber();
+
+                if (routeNumber1.equals(routeNumber2)) {
+                    routeNumber1 += journeyRoute1.getRoute().getHeadsign();
+                    routeNumber2 += journeyRoute2.getRoute().getHeadsign();
+                } else {
+                    try {
+                        int routeNumberInt1 = Integer.parseInt(routeNumber1);
+                        int routeNumberInt2 = Integer.parseInt(routeNumber2);
+
+                        return new Integer(routeNumberInt1).compareTo(routeNumberInt2);
+                    } catch (NumberFormatException e) { /* ignore */ }
+                }
+
+                return routeNumber1.compareTo(routeNumber2);
+            }
+        });
+
+        return journeyRoutes;
     }
 
     public List<Route> getSelectedRoutes(JourneyType journeyType) {
