@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
+import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
@@ -17,6 +18,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.lauchenauer.nextbusperth.R;
@@ -150,8 +152,12 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
     private void createRoutePreferences(PreferenceScreen screen, String key, List<JourneyRoute> routes) {
         screen.removeAll();
 
+        SelectAllListPreference selectAll = new SelectAllListPreference(this);
+        screen.addPreference(selectAll);
+
         for (JourneyRoute jr : routes) {
             CheckBoxPreference p = createCheckBoxPreference(key + "-" + jr.getId(), jr);
+            selectAll.addTrackedPreference(p);
             screen.addPreference(p);
         }
     }
@@ -166,6 +172,41 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
         p.setOnPreferenceChangeListener(this);
 
         return p;
+    }
+
+    private class SelectAllListPreference extends ListPreference implements Preference.OnPreferenceChangeListener {
+        private static final String ALL = "all";
+        private static final String NONE = "none";
+        private List<CheckBoxPreference> trackedPreferences;
+
+        public SelectAllListPreference(Context context) {
+            super(context);
+            setTitle("Select All/None");
+            setEntries(new String[]{"select all", "select none"});
+            setEntryValues(new String[]{ALL, NONE});
+            trackedPreferences = new ArrayList<CheckBoxPreference>();
+            setOnPreferenceChangeListener(this);
+        }
+
+        public boolean onPreferenceChange(Preference preference, Object o) {
+            boolean setting = true;
+            if (o.toString().equals(NONE)) {
+                setting = false;
+            } else {
+                return true; // selection was cancelled
+            }
+
+            for (CheckBoxPreference cbp : trackedPreferences) {
+                cbp.setChecked(setting);
+                cbp.getOnPreferenceChangeListener().onPreferenceChange(cbp, setting);
+            }
+
+            return true;
+        }
+
+        public void addTrackedPreference(CheckBoxPreference preference) {
+            trackedPreferences.add(preference);
+        }
     }
 
     private class JourneyCheckBoxPreference extends CheckBoxPreference {
