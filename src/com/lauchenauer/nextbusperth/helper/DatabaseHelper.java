@@ -2,7 +2,6 @@ package com.lauchenauer.nextbusperth.helper;
 
 import android.util.Log;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -10,6 +9,7 @@ import java.util.List;
 import com.lauchenauer.nextbusperth.dao.DaoSession;
 import com.lauchenauer.nextbusperth.dao.Journey;
 import com.lauchenauer.nextbusperth.dao.JourneyDao;
+import com.lauchenauer.nextbusperth.dao.JourneyDefaultFor;
 import com.lauchenauer.nextbusperth.dao.JourneyRoute;
 import com.lauchenauer.nextbusperth.dao.JourneyRouteDao;
 import com.lauchenauer.nextbusperth.dao.Route;
@@ -23,8 +23,39 @@ import com.lauchenauer.nextbusperth.dao.StopTimeDao;
 import static com.lauchenauer.nextbusperth.app.NextBusApplication.getApp;
 
 public class DatabaseHelper {
-    private static final SimpleDateFormat ISO8601FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private static final long DEPARTURE_DELTA = 5 * 60 * 1000l;
+
+    public static Journey getOrInsertJourney(String journeyName, String stop_number, String stop_name, Integer stop_lat, Integer stop_lon, JourneyDefaultFor default_for) {
+        JourneyDao journeyDao = getApp().getDaoSession().getJourneyDao();
+
+        Journey journey = journeyDao.queryBuilder().where(JourneyDao.Properties.Name.eq(journeyName)).unique();
+        if (journey == null) {
+            journey = new Journey(null, journeyName, stop_number, stop_name, stop_lat, stop_lon, default_for);
+            journeyDao.insert(journey);
+        }
+
+        return journey;
+    }
+
+    public static void updateJourney(Journey journey) {
+        JourneyDao journeyDao = getApp().getDaoSession().getJourneyDao();
+        journeyDao.update(journey);
+    }
+
+    public static Journey getJourneyById(long id) {
+        JourneyDao journeyDao = getApp().getDaoSession().getJourneyDao();
+        return journeyDao.queryBuilder().where(JourneyDao.Properties.Id.eq(id)).unique();
+    }
+
+    public static Journey getJourneyByName(String name) {
+        JourneyDao journeyDao = getApp().getDaoSession().getJourneyDao();
+        return journeyDao.queryBuilder().where(JourneyDao.Properties.Name.eq(name)).unique();
+    }
+
+    public static List<Journey> getAllJourneys() {
+        JourneyDao journeyDao = getApp().getDaoSession().getJourneyDao();
+        return journeyDao.queryBuilder().list();
+    }
 
     public static Stop getOrInsertStop(String stopNumber, String stopName) {
         StopDao stopDao = getApp().getDaoSession().getStopDao();

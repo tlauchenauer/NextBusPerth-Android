@@ -16,14 +16,13 @@ import com.lauchenauer.nextbusperth.helper.SettingsHelper;
 
 public class NextBusActivity extends FragmentActivity {
     private ViewPager viewPager;
-    private SettingsHelper settingsHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.nextbus);
 
-        settingsHelper = new SettingsHelper(getApplicationContext());
+        SettingsHelper settingsHelper = new SettingsHelper(getApplicationContext());
 
         viewPager = (ViewPager) findViewById(R.id.view_pager);
         viewPager.setAdapter(new NextBusFragmentAdapter(getSupportFragmentManager()));
@@ -70,9 +69,9 @@ public class NextBusActivity extends FragmentActivity {
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return NextBusFragment.newInstance("Work");
+                    return NextBusFragment.newInstance(DatabaseHelper.getJourneyByName(NextBusApplication.WORK_JOURNEY_NAME).getId());
                 default:
-                    return NextBusFragment.newInstance("Home");
+                    return NextBusFragment.newInstance(DatabaseHelper.getJourneyByName(NextBusApplication.HOME_JOURNEY_NAME).getId());
             }
 
         }

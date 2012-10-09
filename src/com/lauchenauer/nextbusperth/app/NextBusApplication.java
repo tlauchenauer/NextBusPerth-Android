@@ -6,17 +6,16 @@ import android.database.sqlite.SQLiteDatabase;
 import com.lauchenauer.nextbusperth.dao.DaoMaster;
 import com.lauchenauer.nextbusperth.dao.DaoSession;
 import com.lauchenauer.nextbusperth.dao.Journey;
-import com.lauchenauer.nextbusperth.dao.JourneyDao;
+import com.lauchenauer.nextbusperth.dao.JourneyDefaultFor;
+import com.lauchenauer.nextbusperth.helper.DatabaseHelper;
 
 public class NextBusApplication extends Application {
     private static final String TIMETABLE_DB = "nextbus-perth-db";
-    private static final String WORK_JOURNEY_NAME = "work";
-    private static final String HOME_JOURNEY_NAME = "home";
+    public static final String WORK_JOURNEY_NAME = "Work";
+    public static final String HOME_JOURNEY_NAME = "Home";
     private static NextBusApplication application;
 
     private DaoSession daoSession;
-    private Journey workJourney;
-    private Journey homeJourney;
 
     public static NextBusApplication getApp() {
         return application;
@@ -35,22 +34,9 @@ public class NextBusApplication extends Application {
     }
 
     private void loadSeedData() {
-        homeJourney = getOrInsertJourney(HOME_JOURNEY_NAME);
-        workJourney = getOrInsertJourney(WORK_JOURNEY_NAME);
+        DatabaseHelper.getOrInsertJourney(HOME_JOURNEY_NAME, "", "", 0, 0, JourneyDefaultFor.pm);
+        DatabaseHelper.getOrInsertJourney(WORK_JOURNEY_NAME, "", "", 0, 0, JourneyDefaultFor.am);
     }
-
-    private Journey getOrInsertJourney(String journeyName) {
-        JourneyDao journeyDao = daoSession.getJourneyDao();
-
-        Journey journey = journeyDao.queryBuilder().where(JourneyDao.Properties.Name.eq(journeyName)).unique();
-        if (journey == null) {
-            journey = new Journey(null, journeyName);
-            journeyDao.insert(journey);
-        }
-
-        return journey;
-    }
-
 
     @Override
     public void onTerminate() {
@@ -60,17 +46,4 @@ public class NextBusApplication extends Application {
     public DaoSession getDaoSession() {
         return daoSession;
     }
-
-    public Journey getJourney(JourneyType jt) {
-        switch (jt) {
-            case work:
-                return workJourney;
-            case home:
-                return homeJourney;
-        }
-
-        return null;
-    }
-
-    public enum JourneyType {work, home}
 }

@@ -1,8 +1,5 @@
 package com.lauchenauer.nextbusperth.helper;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -16,10 +13,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.lauchenauer.nextbusperth.dao.Journey;
 import com.lauchenauer.nextbusperth.dao.Route;
 import com.lauchenauer.nextbusperth.dao.Stop;
 
-import static com.lauchenauer.nextbusperth.app.NextBusApplication.JourneyType;
 import static com.lauchenauer.nextbusperth.helper.DatabaseHelper.getOrInsertRoute;
 import static com.lauchenauer.nextbusperth.helper.DatabaseHelper.getOrInsertStop;
 import static com.lauchenauer.nextbusperth.helper.DatabaseHelper.getOrInsertStopTime;
@@ -29,21 +26,14 @@ public class TimetableHelper implements JSONConstants {
     private static final SimpleDateFormat DEPARTURETIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private static final String TIMETABLE_URL = "time_table/";
 
-    private Context context;
-
-    public TimetableHelper(Context context) {
-        this.context = context;
+    public TimetableHelper() {
     }
 
     public void downloadTimeTable() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-
         RoutesHelper helper = new RoutesHelper();
-        String homeStop = preferences.getString(SettingsHelper.HOME_STOP_SETTING, "");
-        String workStop = preferences.getString(SettingsHelper.WORK_STOP_SETTING, "");
-
-        downloadTimeTable(homeStop, helper.getSelectedRoutes(JourneyType.home));
-        downloadTimeTable(workStop, helper.getSelectedRoutes(JourneyType.work));
+        for (Journey journey : DatabaseHelper.getAllJourneys()) {
+            downloadTimeTable(journey.getStop_number(), helper.getSelectedRoutes(journey));
+        }
     }
 
     private void downloadTimeTable(String stopNumber, List<Route> routes) {

@@ -19,10 +19,6 @@ import com.lauchenauer.nextbusperth.R;
 import com.lauchenauer.nextbusperth.dao.Journey;
 import com.lauchenauer.nextbusperth.dao.Service;
 import com.lauchenauer.nextbusperth.helper.DatabaseHelper;
-import com.lauchenauer.nextbusperth.helper.SettingsHelper;
-
-import static com.lauchenauer.nextbusperth.app.NextBusApplication.JourneyType;
-import static com.lauchenauer.nextbusperth.app.NextBusApplication.getApp;
 
 public class NextBusFragment extends ListFragment {
     static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm");
@@ -31,14 +27,14 @@ public class NextBusFragment extends ListFragment {
     private TextView journeyNameView;
     private TextView stopNameView;
     private TextView lastUpdateView;
-    private String journeyName;
+    private Journey journey;
     private boolean active = true;
 
-    public static NextBusFragment newInstance(String journey) {
+    public static NextBusFragment newInstance(long journeyId) {
         NextBusFragment f = new NextBusFragment();
 
         Bundle args = new Bundle();
-        args.putString("journeyName", journey);
+        args.putLong("journeyId", journeyId);
         f.setArguments(args);
 
         return f;
@@ -48,7 +44,7 @@ public class NextBusFragment extends ListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        journeyName = getArguments() != null ? getArguments().getString("journeyName") : "Work";
+        journey = DatabaseHelper.getJourneyById(getArguments().getLong("journeyId"));
 
         adapter = new RowAdapter(getActivity().getApplicationContext(), new ArrayList<Service>());
         setListAdapter(adapter);
@@ -66,7 +62,7 @@ public class NextBusFragment extends ListFragment {
         updateData();
 
         Button btn;
-        if (journeyName.equals("Home")) {
+        if (journey.getName().equals(NextBusApplication.HOME_JOURNEY_NAME)) {
             btn = (Button) v.findViewById(R.id.prev_journey);
         } else {
             btn = (Button) v.findViewById(R.id.next_journey);
@@ -74,7 +70,7 @@ public class NextBusFragment extends ListFragment {
         btn.setVisibility(View.VISIBLE);
         btn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                int page = journeyName.equals("Home") ? 0 : 1;
+                int page = journey.getName().equals(NextBusApplication.HOME_JOURNEY_NAME) ? 0 : 1;
                 ((NextBusActivity) getActivity()).setPage(page);
             }
         });
@@ -99,13 +95,8 @@ public class NextBusFragment extends ListFragment {
     }
 
     private void updateData() {
-        journeyNameView.setText(journeyName);
+        journeyNameView.setText(journey.getName());
         lastUpdateView.setText("updated at " + TIME_FORMAT.format(new Date()));
-
-        Journey journey = getApp().getJourney(JourneyType.work);
-        if (journeyName.equals("Home")) {
-            journey = getApp().getJourney(JourneyType.home);
-        }
 
         List<Service> services = DatabaseHelper.getNextBuses(journey, 5);
         if (services.size() < 1) {

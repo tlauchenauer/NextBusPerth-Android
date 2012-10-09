@@ -239,4 +239,5 @@ public class StopTimeDao extends AbstractDao<StopTime, Long> {
         Cursor cursor = db.rawQuery(getSelectDeep() + where, selectionArg);
         return loadDeepAllAndCloseCursor(cursor);
     }
+ 
 }

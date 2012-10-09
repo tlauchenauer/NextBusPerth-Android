@@ -2,11 +2,9 @@ package com.lauchenauer.nextbusperth.app.map;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.OverlayItem;
 
@@ -66,9 +64,11 @@ public class StopItemOverlay extends ItemizedOverlay implements DialogInterface.
     }
 
     public void onClick(DialogInterface dialogInterface, int i) {
-        Log.d("MapItem selected!!!!!", item.getSnippet());
         Intent resultIntent = new Intent();
         resultIntent.putExtra("stop_number", item.getTitle());
+        resultIntent.putExtra("stop_name", item.getSnippet());
+        resultIntent.putExtra("lat", item.getPoint().getLatitudeE6());
+        resultIntent.putExtra("long", item.getPoint().getLongitudeE6());
         parentActivity.setResult(Activity.RESULT_OK, resultIntent);
         parentActivity.finish();
     }

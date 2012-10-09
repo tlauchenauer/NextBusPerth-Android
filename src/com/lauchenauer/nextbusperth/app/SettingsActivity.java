@@ -4,48 +4,36 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
-import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.lauchenauer.nextbusperth.R;
 import com.lauchenauer.nextbusperth.app.prefs.StopSelectorPreference;
+import com.lauchenauer.nextbusperth.dao.Journey;
 import com.lauchenauer.nextbusperth.dao.JourneyRoute;
 import com.lauchenauer.nextbusperth.dao.JourneyRouteDao;
 import com.lauchenauer.nextbusperth.dao.Route;
-import com.lauchenauer.nextbusperth.helper.TimetableHelper;
+import com.lauchenauer.nextbusperth.helper.DatabaseHelper;
 import com.lauchenauer.nextbusperth.helper.RoutesHelper;
-import com.lauchenauer.nextbusperth.helper.SettingsHelper;
-
-import static com.lauchenauer.nextbusperth.app.NextBusApplication.JourneyType;
+import com.lauchenauer.nextbusperth.helper.TimetableHelper;
 
 public class SettingsActivity extends PreferenceActivity implements Preference.OnPreferenceChangeListener {
-    private static final String SIX_DIGIT_STOP_NUMBER = "6 digit stop number";
     private static final String ROUTE_PREFIX = "route";
-    private static final String WORK_ROUTE_PREFIX = ROUTE_PREFIX + "W";
-    private static final String HOME_ROUTE_PREFIX = ROUTE_PREFIX + "H";
-    private static final int HOME_STOP = 1;
-    private static final int WORK_STOP = 2;
 
-    private StopSelectorPreference workStopNumberPref;
-    private StopSelectorPreference homeStopNumberPref;
-    private PreferenceScreen workRoutesScreenPref;
-    private PreferenceScreen homeRoutesScreenPref;
-    private String oldWorkStopNumber;
-    private String oldHomeStopNumber;
+    private Map<Journey, StopSelectorPreference> stopNumberPreferences;
+    private Map<Journey, PreferenceScreen> routesScreenPreferences;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -53,22 +41,22 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
         addPreferencesFromResource(R.xml.preferences);
         setContentView(R.layout.settings);
 
-        workStopNumberPref = (StopSelectorPreference) getPreferenceScreen().findPreference(SettingsHelper.WORK_STOP_SETTING);
-        homeStopNumberPref = (StopSelectorPreference) getPreferenceScreen().findPreference(SettingsHelper.HOME_STOP_SETTING);
-        homeRoutesScreenPref = (PreferenceScreen) getPreferenceScreen().findPreference("routes-home");
-        workRoutesScreenPref = (PreferenceScreen) getPreferenceScreen().findPreference("routes-work");
+        final Journey workJourney = DatabaseHelper.getJourneyByName(NextBusApplication.WORK_JOURNEY_NAME);
+        final Journey homeJourney = DatabaseHelper.getJourneyByName(NextBusApplication.HOME_JOURNEY_NAME);
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        oldHomeStopNumber = prefs.getString(SettingsHelper.HOME_STOP_SETTING, "");
-        oldWorkStopNumber = prefs.getString(SettingsHelper.WORK_STOP_SETTING, "");
+        stopNumberPreferences = new HashMap<Journey, StopSelectorPreference>();
+        stopNumberPreferences.put(workJourney, (StopSelectorPreference) getPreferenceScreen().findPreference("Work-Stop"));
+        stopNumberPreferences.put(homeJourney, (StopSelectorPreference) getPreferenceScreen().findPreference("Home-Stop"));
 
-        String stopNumber = prefs.getString(SettingsHelper.WORK_STOP_SETTING, SIX_DIGIT_STOP_NUMBER);
-        workStopNumberPref.setSummary(stopNumber);
-        stopNumber = prefs.getString(SettingsHelper.HOME_STOP_SETTING, SIX_DIGIT_STOP_NUMBER);
-        homeStopNumberPref.setSummary(stopNumber);
+        routesScreenPreferences = new HashMap<Journey, PreferenceScreen>();
+        routesScreenPreferences.put(workJourney, (PreferenceScreen) getPreferenceScreen().findPreference("routes-work"));
+        routesScreenPreferences.put(homeJourney, (PreferenceScreen) getPreferenceScreen().findPreference("routes-home"));
 
-        processRoutes(JourneyType.work);
-        processRoutes(JourneyType.home);
+        stopNumberPreferences.get(workJourney).setSummary(workJourney.getStop_name());
+        stopNumberPreferences.get(homeJourney).setSummary(homeJourney.getStop_name());
+
+        processRoutes(workJourney);
+        processRoutes(homeJourney);
 
         Button download = (Button) findViewById(R.id.download_button);
         download.setOnClickListener(new View.OnClickListener() {
@@ -77,18 +65,18 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
             }
         });
 
-        homeStopNumberPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+        stopNumberPreferences.get(homeJourney).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference preference) {
                 Intent i = new Intent(SettingsActivity.this, StopSelectorActivity.class);
-                startActivityForResult(i, HOME_STOP);
+                startActivityForResult(i, homeJourney.getId().intValue());
                 return true;
             }
         });
 
-        workStopNumberPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+        stopNumberPreferences.get(workJourney).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference preference) {
                 Intent i = new Intent(SettingsActivity.this, StopSelectorActivity.class);
-                startActivityForResult(i, WORK_STOP);
+                startActivityForResult(i, workJourney.getId().intValue());
                 return true;
             }
         });
@@ -100,25 +88,21 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
 
         if (resultCode == Activity.RESULT_OK) {
             String stopNumber = data.getStringExtra("stop_number");
-            SettingsHelper helper = new SettingsHelper(this);
+            String stopName = data.getStringExtra("stop_name");
+            int lat = data.getIntExtra("lat", 0);
+            int lon = data.getIntExtra("long", 0);
 
-            switch (requestCode) {
-                case HOME_STOP:
-                    homeStopNumberPref.setSummary(stopNumber);
-                    helper.setJourneyStopNumber(JourneyType.home, stopNumber);
-                    if (!stopNumber.equals(oldHomeStopNumber)) {
-                        new RoutesDownloadTask(this, JourneyType.home).execute(stopNumber);
-                        oldHomeStopNumber = stopNumber;
-                    }
-                    break;
-                case WORK_STOP:
-                    workStopNumberPref.setSummary(stopNumber);
-                    helper.setJourneyStopNumber(JourneyType.work, stopNumber);
-                    if (!stopNumber.equals(oldWorkStopNumber)) {
-                        new RoutesDownloadTask(this, JourneyType.work).execute(stopNumber);
-                        oldWorkStopNumber = stopNumber;
-                    }
-                    break;
+            Journey journey = DatabaseHelper.getJourneyById(requestCode);
+
+            if (!stopNumber.equals(journey.getStop_number())) {
+                journey.setStop_number(stopNumber);
+                journey.setStop_name(stopName);
+                journey.setStop_lat(lat);
+                journey.setStop_lon(lon);
+                DatabaseHelper.updateJourney(journey);
+                stopNumberPreferences.get(journey).setSummary(stopName);
+
+                new RoutesDownloadTask(this, journey).execute(stopNumber);
             }
         }
     }
@@ -136,27 +120,21 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
         return true;
     }
 
-    private void processRoutes(JourneyType journeyType) {
+    private void processRoutes(Journey journey) {
         RoutesHelper helper = new RoutesHelper();
-        List<JourneyRoute> journeyRoutes = helper.getJourneyRoutes(journeyType);
-        switch (journeyType) {
-            case work:
-                createRoutePreferences(workRoutesScreenPref, WORK_ROUTE_PREFIX, journeyRoutes);
-                break;
-            case home:
-                createRoutePreferences(homeRoutesScreenPref, HOME_ROUTE_PREFIX, journeyRoutes);
-                break;
-        }
+        List<JourneyRoute> journeyRoutes = helper.getJourneyRoutes(journey);
+
+        createRoutePreferences(routesScreenPreferences.get(journey), journeyRoutes);
     }
 
-    private void createRoutePreferences(PreferenceScreen screen, String key, List<JourneyRoute> routes) {
+    private void createRoutePreferences(PreferenceScreen screen, List<JourneyRoute> routes) {
         screen.removeAll();
 
         SelectAllListPreference selectAll = new SelectAllListPreference(this);
         screen.addPreference(selectAll);
 
         for (JourneyRoute jr : routes) {
-            CheckBoxPreference p = createCheckBoxPreference(key + "-" + jr.getId(), jr);
+            CheckBoxPreference p = createCheckBoxPreference(ROUTE_PREFIX + "-" + jr.getId(), jr);
             selectAll.addTrackedPreference(p);
             screen.addPreference(p);
         }
@@ -225,20 +203,20 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
     private class RoutesDownloadTask extends AsyncTask<String, Void, Boolean> {
         private ProgressDialog progressDialog;
         private Context context;
-        private JourneyType journeyType;
+        private Journey journey;
 
-        public RoutesDownloadTask(Context context, JourneyType journeyType) {
+        public RoutesDownloadTask(Context context, Journey journey) {
             this.context = context;
-            this.journeyType = journeyType;
+            this.journey = journey;
         }
 
         @Override
         protected Boolean doInBackground(String... stopNumbers) {
             RoutesHelper helper = new RoutesHelper();
 
-            helper.clearJourneyRoutesFromDatabase(journeyType);
+            helper.clearJourneyRoutesFromDatabase(journey);
             List<Route> routes = helper.retrieveRoutes(stopNumbers[0]);
-            helper.writeJourneyRoutesToDatabase(journeyType, routes);
+            helper.writeJourneyRoutesToDatabase(journey, routes);
 
             return true;
         }
@@ -255,7 +233,7 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
         protected void onPostExecute(Boolean success) {
             super.onPostExecute(success);
 
-            processRoutes(journeyType);
+            processRoutes(journey);
             progressDialog.dismiss();
         }
     }
@@ -270,8 +248,7 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
 
         @Override
         protected Boolean doInBackground(Void... voids) {
-            TimetableHelper helper = new TimetableHelper(context);
-            helper.downloadTimeTable();
+            new TimetableHelper().downloadTimeTable();
 
             return true;
         }

@@ -11,7 +11,7 @@ public class NextBusDaoGenerator {
     public static void main(String[] args) throws Exception {
         Schema schema = new Schema(1, "com.lauchenauer.nextbusperth.dao");
 
-//        schema.enableKeepSectionsByDefault();
+        schema.enableKeepSectionsByDefault();
 
         // Stop Entity (id LONG PRIMARY KEY, stop_number STRING, stop_name STRING)
         Entity stop = schema.addEntity("Stop");
@@ -53,6 +53,11 @@ public class NextBusDaoGenerator {
         Entity journey = schema.addEntity("Journey");
         journey.addIdProperty();
         journey.addStringProperty("name");
+        journey.addStringProperty("stop_number");
+        journey.addStringProperty("stop_name");
+        journey.addIntProperty("stop_lat");
+        journey.addIntProperty("stop_lon");
+        journey.addIntProperty("default_for");
 
         // JourneyRoute Entity (id LONG, journey_id LONG, route_id LONG, selected BOOLEAN)
         Entity journeyRoute = schema.addEntity("JourneyRoute");

@@ -22,6 +22,11 @@ public class JourneyDao extends AbstractDao<Journey, Long> {
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property Name = new Property(1, String.class, "name", false, "NAME");
+        public final static Property Stop_number = new Property(2, String.class, "stop_number", false, "STOP_NUMBER");
+        public final static Property Stop_name = new Property(3, String.class, "stop_name", false, "STOP_NAME");
+        public final static Property Stop_lat = new Property(4, Integer.class, "stop_lat", false, "STOP_LAT");
+        public final static Property Stop_lon = new Property(5, Integer.class, "stop_lon", false, "STOP_LON");
+        public final static Property Default_for = new Property(6, Integer.class, "default_for", false, "DEFAULT_FOR");
     };
 
     private DaoSession daoSession;
@@ -41,7 +46,12 @@ public class JourneyDao extends AbstractDao<Journey, Long> {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "'JOURNEY' (" + //
                 "'_id' INTEGER PRIMARY KEY ," + // 0: id
-                "'NAME' TEXT);"); // 1: name
+                "'NAME' TEXT," + // 1: name
+                "'STOP_NUMBER' TEXT," + // 2: stop_number
+                "'STOP_NAME' TEXT," + // 3: stop_name
+                "'STOP_LAT' INTEGER," + // 4: stop_lat
+                "'STOP_LON' INTEGER," + // 5: stop_lon
+                "'DEFAULT_FOR' INTEGER);"); // 6: default_for
     }
 
     /** Drops the underlying database table. */
@@ -64,6 +74,31 @@ public class JourneyDao extends AbstractDao<Journey, Long> {
         if (name != null) {
             stmt.bindString(2, name);
         }
+ 
+        String stop_number = entity.getStop_number();
+        if (stop_number != null) {
+            stmt.bindString(3, stop_number);
+        }
+ 
+        String stop_name = entity.getStop_name();
+        if (stop_name != null) {
+            stmt.bindString(4, stop_name);
+        }
+ 
+        Integer stop_lat = entity.getStop_lat();
+        if (stop_lat != null) {
+            stmt.bindLong(5, stop_lat);
+        }
+ 
+        Integer stop_lon = entity.getStop_lon();
+        if (stop_lon != null) {
+            stmt.bindLong(6, stop_lon);
+        }
+ 
+        Integer default_for = entity.getDefault_for();
+        if (default_for != null) {
+            stmt.bindLong(7, default_for);
+        }
     }
 
     @Override
@@ -83,7 +118,12 @@ public class JourneyDao extends AbstractDao<Journey, Long> {
     public Journey readEntity(Cursor cursor, int offset) {
         Journey entity = new Journey( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
-            cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1) // name
+            cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // name
+            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // stop_number
+            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // stop_name
+            cursor.isNull(offset + 4) ? null : cursor.getInt(offset + 4), // stop_lat
+            cursor.isNull(offset + 5) ? null : cursor.getInt(offset + 5), // stop_lon
+            cursor.isNull(offset + 6) ? null : cursor.getInt(offset + 6) // default_for
         );
         return entity;
     }
@@ -93,6 +133,11 @@ public class JourneyDao extends AbstractDao<Journey, Long> {
     public void readEntity(Cursor cursor, Journey entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setName(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
+        entity.setStop_number(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
+        entity.setStop_name(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
+        entity.setStop_lat(cursor.isNull(offset + 4) ? null : cursor.getInt(offset + 4));
+        entity.setStop_lon(cursor.isNull(offset + 5) ? null : cursor.getInt(offset + 5));
+        entity.setDefault_for(cursor.isNull(offset + 6) ? null : cursor.getInt(offset + 6));
      }
     
     /** @inheritdoc */

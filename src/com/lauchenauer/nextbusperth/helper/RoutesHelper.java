@@ -17,7 +17,6 @@ import com.lauchenauer.nextbusperth.dao.JourneyRouteDao;
 import com.lauchenauer.nextbusperth.dao.Route;
 import com.lauchenauer.nextbusperth.dao.Stop;
 
-import static com.lauchenauer.nextbusperth.app.NextBusApplication.JourneyType;
 import static com.lauchenauer.nextbusperth.app.NextBusApplication.getApp;
 import static com.lauchenauer.nextbusperth.helper.DatabaseHelper.getOrInsertRoute;
 import static com.lauchenauer.nextbusperth.helper.DatabaseHelper.getOrInsertStop;
@@ -57,14 +56,13 @@ public class RoutesHelper implements JSONConstants {
         return routes;
     }
 
-    public void clearJourneyRoutesFromDatabase(JourneyType journeyType) {
+    public void clearJourneyRoutesFromDatabase(Journey journey) {
         JourneyRouteDao journeyRouteDao = daoSession.getJourneyRouteDao();
-        journeyRouteDao.queryBuilder().where(JourneyRouteDao.Properties.Journey_id.eq(getJourney(journeyType).getId())).buildDelete().executeDeleteWithoutDetachingEntities();
-        getJourney(journeyType).resetJourneyRouteList();
+        journeyRouteDao.queryBuilder().where(JourneyRouteDao.Properties.Journey_id.eq(journey.getId())).buildDelete().executeDeleteWithoutDetachingEntities();
+        journey.resetJourneyRouteList();
     }
 
-    public void writeJourneyRoutesToDatabase(JourneyType journeyType, List<Route> routes) {
-        Journey journey = getJourney(journeyType);
+    public void writeJourneyRoutesToDatabase(Journey journey, List<Route> routes) {
         JourneyRouteDao journeyRouteDao = daoSession.getJourneyRouteDao();
 
         for (Route r : routes) {
@@ -73,11 +71,10 @@ public class RoutesHelper implements JSONConstants {
         }
     }
 
-    public List<JourneyRoute> getJourneyRoutes(JourneyType journeyType) {
+    public List<JourneyRoute> getJourneyRoutes(Journey journey) {
         JourneyRouteDao journeyRouteDao = daoSession.getJourneyRouteDao();
-        List<JourneyRoute> journeyRoutes = journeyRouteDao.queryBuilder().where(JourneyRouteDao.Properties.Journey_id.eq(getJourney(journeyType).getId())).list();
+        List<JourneyRoute> journeyRoutes = journeyRouteDao.queryBuilder().where(JourneyRouteDao.Properties.Journey_id.eq(journey.getId())).list();
         Collections.sort(journeyRoutes, new Comparator<JourneyRoute>() {
-            @Override
             public int compare(JourneyRoute journeyRoute1, JourneyRoute journeyRoute2) {
                 String routeNumber1 = journeyRoute1.getRoute().getNumber();
                 String routeNumber2 = journeyRoute2.getRoute().getNumber();
@@ -101,8 +98,8 @@ public class RoutesHelper implements JSONConstants {
         return journeyRoutes;
     }
 
-    public List<Route> getSelectedRoutes(JourneyType journeyType) {
-        List<JourneyRoute> journeyRoutes = getJourneyRoutes(journeyType);
+    public List<Route> getSelectedRoutes(Journey journey) {
+        List<JourneyRoute> journeyRoutes = getJourneyRoutes(journey);
 
         List<Route> routes = new ArrayList<Route>();
         for (JourneyRoute jr : journeyRoutes) {
@@ -112,9 +109,5 @@ public class RoutesHelper implements JSONConstants {
         }
 
         return routes;
-    }
-
-    private Journey getJourney(JourneyType journeyType) {
-        return getApp().getJourney(journeyType);
     }
 }
