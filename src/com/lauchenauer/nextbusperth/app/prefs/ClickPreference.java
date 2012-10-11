@@ -4,8 +4,8 @@ import android.content.Context;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
 
-public class StopSelectorPreference extends DialogPreference {
-    public StopSelectorPreference(Context context, AttributeSet attrs) {
+public class ClickPreference extends DialogPreference {
+    public ClickPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
         setPersistent(false);
     }

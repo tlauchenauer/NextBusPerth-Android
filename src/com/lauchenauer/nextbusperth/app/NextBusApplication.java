@@ -11,11 +11,10 @@ import com.lauchenauer.nextbusperth.helper.DatabaseHelper;
 
 public class NextBusApplication extends Application {
     private static final String TIMETABLE_DB = "nextbus-perth-db";
-    public static final String WORK_JOURNEY_NAME = "Work";
-    public static final String HOME_JOURNEY_NAME = "Home";
     private static NextBusApplication application;
 
     private DaoSession daoSession;
+    private boolean firstRun = false;
 
     public static NextBusApplication getApp() {
         return application;
@@ -29,13 +28,14 @@ public class NextBusApplication extends Application {
         SQLiteDatabase db = helper.getWritableDatabase();
         DaoMaster daoMaster = new DaoMaster(db);
         daoSession = daoMaster.newSession();
+        if (DatabaseHelper.getJourneysCount() == 0) {
+            firstRun = true;
+        }
 
-        loadSeedData();
-    }
-
-    private void loadSeedData() {
-        DatabaseHelper.getOrInsertJourney(HOME_JOURNEY_NAME, "", "", 0, 0, JourneyDefaultFor.pm);
-        DatabaseHelper.getOrInsertJourney(WORK_JOURNEY_NAME, "", "", 0, 0, JourneyDefaultFor.am);
+        if (firstRun) {
+            DatabaseHelper.getOrInsertJourney("Work", "", "", 0, 0, JourneyDefaultFor.am);
+            DatabaseHelper.getOrInsertJourney("Home", "", "", 0, 0, JourneyDefaultFor.pm);
+        }
     }
 
     @Override

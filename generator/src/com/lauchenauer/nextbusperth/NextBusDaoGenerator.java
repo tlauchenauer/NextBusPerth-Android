@@ -58,6 +58,7 @@ public class NextBusDaoGenerator {
         journey.addIntProperty("stop_lat");
         journey.addIntProperty("stop_lon");
         journey.addIntProperty("default_for");
+        journey.addIntProperty("position");
 
         // JourneyRoute Entity (id LONG, journey_id LONG, route_id LONG, selected BOOLEAN)
         Entity journeyRoute = schema.addEntity("JourneyRoute");

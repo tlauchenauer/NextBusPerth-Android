@@ -1,46 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceCategory
-            android:title="Journey to Work">
 
-        <com.lauchenauer.nextbusperth.app.prefs.StopSelectorPreference
-                android:title="Stop Number"
-                android:key="Work-Stop"
-                android:defaultValue=""
-                android:inputType="number"
-                android:summary="stop number"
-                android:persistent="false"/>
-        <PreferenceScreen
-                android:title="Routes to Work"
-                android:key="routes-work"
-                android:summary="Select all routes that should have their departure times listed.">
-        </PreferenceScreen>
-    </PreferenceCategory>
-    <PreferenceCategory
-            android:title="Journey Home">
+    <PreferenceCategory android:title="Journeys"
+            android:key="journeys_list">
 
-        <com.lauchenauer.nextbusperth.app.prefs.StopSelectorPreference
-                android:title="Stop Number"
-                android:key="Home-Stop"
-                android:defaultValue=""
-                android:inputType="number"
-                android:summary="stop number"
-                android:persistent="false"/>
-        <PreferenceScreen
-                android:title="Routes Home"
-                android:key="routes-home"
-                android:summary="Select all routes that should have their departure times listed.">
-        </PreferenceScreen>
     </PreferenceCategory>
 
-    <PreferenceCategory
-            android:title="Switching time">
+    <com.lauchenauer.nextbusperth.app.prefs.ClickPreference
+                                android:title="Add Journey"
+                                android:key="add_journey"
+                                android:widgetLayout="@layout/add_image"/>
 
-        <com.lauchenauer.nextbusperth.app.prefs.TimePreference
-                android:title="Switch Time"
-                android:key="SplitTime"
-                android:dialogLayout="@layout/time_preference"
-                android:summary="Time when to switch from work journey to home journey."/>
-    </PreferenceCategory>
+    <com.lauchenauer.nextbusperth.app.prefs.ClickPreference
+                            android:title="Download Departure Times"
+                            android:key="download_times"
+                            android:widgetLayout="@null"/>
 </PreferenceScreen>

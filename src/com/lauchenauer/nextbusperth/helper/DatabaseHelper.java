@@ -30,7 +30,7 @@ public class DatabaseHelper {
 
         Journey journey = journeyDao.queryBuilder().where(JourneyDao.Properties.Name.eq(journeyName)).unique();
         if (journey == null) {
-            journey = new Journey(null, journeyName, stop_number, stop_name, stop_lat, stop_lon, default_for);
+            journey = new Journey(null, journeyName, stop_number, stop_name, stop_lat, stop_lon, default_for, getJourneysCount());
             journeyDao.insert(journey);
         }
 
@@ -54,7 +54,12 @@ public class DatabaseHelper {
 
     public static List<Journey> getAllJourneys() {
         JourneyDao journeyDao = getApp().getDaoSession().getJourneyDao();
-        return journeyDao.queryBuilder().list();
+        return journeyDao.queryBuilder().orderAsc(JourneyDao.Properties.Position).list();
+    }
+
+    public static int getJourneysCount() {
+        JourneyDao journeyDao = getApp().getDaoSession().getJourneyDao();
+        return (int)journeyDao.queryBuilder().count();
     }
 
     public static Stop getOrInsertStop(String stopNumber, String stopName) {

@@ -7,12 +7,14 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.text.format.Time;
+import android.util.Log;
 import android.view.Menu;
 
+import java.util.List;
+
 import com.lauchenauer.nextbusperth.R;
+import com.lauchenauer.nextbusperth.dao.Journey;
 import com.lauchenauer.nextbusperth.helper.DatabaseHelper;
-import com.lauchenauer.nextbusperth.helper.SettingsHelper;
 
 public class NextBusActivity extends FragmentActivity {
     private ViewPager viewPager;
@@ -22,18 +24,8 @@ public class NextBusActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.nextbus);
 
-        SettingsHelper settingsHelper = new SettingsHelper(getApplicationContext());
-
         viewPager = (ViewPager) findViewById(R.id.view_pager);
         viewPager.setAdapter(new NextBusFragmentAdapter(getSupportFragmentManager()));
-
-        long splitTime = settingsHelper.getSplitTime();
-        Time t = new Time();
-        t.setToNow();
-        long currentTime = t.hour * 60 + t.minute;
-        if (currentTime > splitTime) {
-            viewPager.setCurrentItem(1);
-        }
 
 //        if (settingsHelper.isFirstRun()) {
 //            Log.d("[NextBusActivity]", "firstRun - starting Alarm");
@@ -41,6 +33,12 @@ public class NextBusActivity extends FragmentActivity {
 //        }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        Log.d("resuming", "will need to rebuild fragments if journeys were added");
+    }
 
     void setPage(int page) {
         viewPager.setCurrentItem(page);
@@ -56,24 +54,24 @@ public class NextBusActivity extends FragmentActivity {
     }
 
     private static class NextBusFragmentAdapter extends FragmentPagerAdapter {
+        private List<Journey> journeys;
+
         public NextBusFragmentAdapter(FragmentManager fm) {
             super(fm);
+            journeys = DatabaseHelper.getAllJourneys();
         }
 
         @Override
         public int getCount() {
-            return 2;
+            return journeys.size();
         }
 
         @Override
         public Fragment getItem(int position) {
-            switch (position) {
-                case 0:
-                    return NextBusFragment.newInstance(DatabaseHelper.getJourneyByName(NextBusApplication.WORK_JOURNEY_NAME).getId());
-                default:
-                    return NextBusFragment.newInstance(DatabaseHelper.getJourneyByName(NextBusApplication.HOME_JOURNEY_NAME).getId());
-            }
+            boolean hasPrev = position != 0;
+            boolean hasNext = position < journeys.size() - 1;
 
+            return NextBusFragment.newInstance(journeys.get(position).getId(), hasPrev, hasNext, position);
         }
     }
 }

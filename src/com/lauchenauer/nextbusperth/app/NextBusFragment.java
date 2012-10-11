@@ -28,13 +28,19 @@ public class NextBusFragment extends ListFragment {
     private TextView stopNameView;
     private TextView lastUpdateView;
     private Journey journey;
+    private boolean hasPrev;
+    private boolean hasNext;
+    private int pageNumber;
     private boolean active = true;
 
-    public static NextBusFragment newInstance(long journeyId) {
+    public static NextBusFragment newInstance(long journeyId, boolean hasPrev, boolean hasNext, int page) {
         NextBusFragment f = new NextBusFragment();
 
         Bundle args = new Bundle();
         args.putLong("journeyId", journeyId);
+        args.putBoolean("hasNext", hasNext);
+        args.putBoolean("hasPrev", hasPrev);
+        args.putInt("page", page);
         f.setArguments(args);
 
         return f;
@@ -45,6 +51,9 @@ public class NextBusFragment extends ListFragment {
         super.onCreate(savedInstanceState);
 
         journey = DatabaseHelper.getJourneyById(getArguments().getLong("journeyId"));
+        hasNext = getArguments().getBoolean("hasNext");
+        hasPrev = getArguments().getBoolean("hasPrev");
+        pageNumber = getArguments().getInt("page");
 
         adapter = new RowAdapter(getActivity().getApplicationContext(), new ArrayList<Service>());
         setListAdapter(adapter);
@@ -61,17 +70,19 @@ public class NextBusFragment extends ListFragment {
 
         updateData();
 
-        Button btn;
-        if (journey.getName().equals(NextBusApplication.HOME_JOURNEY_NAME)) {
-            btn = (Button) v.findViewById(R.id.prev_journey);
-        } else {
-            btn = (Button) v.findViewById(R.id.next_journey);
-        }
-        btn.setVisibility(View.VISIBLE);
-        btn.setOnClickListener(new View.OnClickListener() {
+        Button prevButton = (Button) v.findViewById(R.id.prev_journey);
+        prevButton.setVisibility(hasPrev ? View.VISIBLE : View.INVISIBLE);
+        prevButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                int page = journey.getName().equals(NextBusApplication.HOME_JOURNEY_NAME) ? 0 : 1;
-                ((NextBusActivity) getActivity()).setPage(page);
+                ((NextBusActivity) getActivity()).setPage(pageNumber - 1);
+            }
+        });
+
+        Button nextButton = (Button) v.findViewById(R.id.next_journey);
+        nextButton.setVisibility(hasNext ? View.VISIBLE : View.INVISIBLE);
+        nextButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                ((NextBusActivity) getActivity()).setPage(pageNumber + 1);
             }
         });
 

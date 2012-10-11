@@ -7,12 +7,12 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
+import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
-import android.view.View;
-import android.widget.Button;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.lauchenauer.nextbusperth.R;
-import com.lauchenauer.nextbusperth.app.prefs.StopSelectorPreference;
+import com.lauchenauer.nextbusperth.app.prefs.ClickPreference;
 import com.lauchenauer.nextbusperth.dao.Journey;
 import com.lauchenauer.nextbusperth.dao.JourneyRoute;
 import com.lauchenauer.nextbusperth.dao.JourneyRouteDao;
@@ -29,57 +29,106 @@ import com.lauchenauer.nextbusperth.helper.DatabaseHelper;
 import com.lauchenauer.nextbusperth.helper.RoutesHelper;
 import com.lauchenauer.nextbusperth.helper.TimetableHelper;
 
+import static com.lauchenauer.nextbusperth.dao.JourneyDefaultFor.am;
+import static com.lauchenauer.nextbusperth.dao.JourneyDefaultFor.none;
+import static com.lauchenauer.nextbusperth.dao.JourneyDefaultFor.pm;
+
 public class SettingsActivity extends PreferenceActivity implements Preference.OnPreferenceChangeListener {
     private static final String ROUTE_PREFIX = "route";
 
-    private Map<Journey, StopSelectorPreference> stopNumberPreferences;
+    private Map<Journey, ClickPreference> stopNumberPreferences;
     private Map<Journey, PreferenceScreen> routesScreenPreferences;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preferences);
-        setContentView(R.layout.settings);
-
-        final Journey workJourney = DatabaseHelper.getJourneyByName(NextBusApplication.WORK_JOURNEY_NAME);
-        final Journey homeJourney = DatabaseHelper.getJourneyByName(NextBusApplication.HOME_JOURNEY_NAME);
-
-        stopNumberPreferences = new HashMap<Journey, StopSelectorPreference>();
-        stopNumberPreferences.put(workJourney, (StopSelectorPreference) getPreferenceScreen().findPreference("Work-Stop"));
-        stopNumberPreferences.put(homeJourney, (StopSelectorPreference) getPreferenceScreen().findPreference("Home-Stop"));
 
         routesScreenPreferences = new HashMap<Journey, PreferenceScreen>();
-        routesScreenPreferences.put(workJourney, (PreferenceScreen) getPreferenceScreen().findPreference("routes-work"));
-        routesScreenPreferences.put(homeJourney, (PreferenceScreen) getPreferenceScreen().findPreference("routes-home"));
+        stopNumberPreferences = new HashMap<Journey, ClickPreference>();
 
-        stopNumberPreferences.get(workJourney).setSummary(workJourney.getStop_name());
-        stopNumberPreferences.get(homeJourney).setSummary(homeJourney.getStop_name());
+        PreferenceCategory journeysList = (PreferenceCategory) getPreferenceScreen().findPreference("journeys_list");
+        for (Journey j : DatabaseHelper.getAllJourneys()) {
+            PreferenceScreen ps = getPreferenceManager().createPreferenceScreen(this);
+            ps.setTitle(j.getName());
+            journeysList.addPreference(ps);
+            setupJourneyPreferenceScreen(j, ps);
+        }
 
-        processRoutes(workJourney);
-        processRoutes(homeJourney);
-
-        Button download = (Button) findViewById(R.id.download_button);
-        download.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
+        ClickPreference download = (ClickPreference) getPreferenceScreen().findPreference("download_times");
+        download.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            public boolean onPreferenceClick(Preference preference) {
                 new TimetableDownloadTask(SettingsActivity.this).execute();
+                return true;
             }
         });
+    }
 
-        stopNumberPreferences.get(homeJourney).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            public boolean onPreferenceClick(Preference preference) {
-                Intent i = new Intent(SettingsActivity.this, StopSelectorActivity.class);
-                startActivityForResult(i, homeJourney.getId().intValue());
+    private void setupJourneyPreferenceScreen(final Journey journey, PreferenceScreen preferenceScreen) {
+        final EditTextPreference journeyName = new EditTextPreference(this);
+        journeyName.setTitle(journey.getName());
+        journeyName.setSummary("Change the journey name");
+        journeyName.setText(journey.getName());
+        journeyName.setPersistent(false);
+        preferenceScreen.addPreference(journeyName);
+
+        journeyName.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            public boolean onPreferenceChange(Preference preference, Object o) {
+                journey.setName(o.toString());
+                DatabaseHelper.updateJourney(journey);
+                journeyName.setTitle(o.toString());
                 return true;
             }
         });
 
-        stopNumberPreferences.get(workJourney).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+        ClickPreference stopSelection = new ClickPreference(this, null);
+        stopSelection.setTitle("Stop");
+        stopSelection.setSummary(journey.getStop_name());
+        stopNumberPreferences.put(journey, stopSelection);
+        preferenceScreen.addPreference(stopSelection);
+
+        stopSelection.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference preference) {
                 Intent i = new Intent(SettingsActivity.this, StopSelectorActivity.class);
-                startActivityForResult(i, workJourney.getId().intValue());
+                startActivityForResult(i, journey.getId().intValue());
                 return true;
             }
         });
+
+        PreferenceScreen routesScreenPreference = getPreferenceManager().createPreferenceScreen(this);
+        routesScreenPreference.setTitle(journey.getName() + " Routes");
+        routesScreenPreference.setSummary("Select all routes that should have their departure times listed.");
+        routesScreenPreferences.put(journey, routesScreenPreference);
+        preferenceScreen.addPreference(routesScreenPreference);
+
+        processRoutes(journey, routesScreenPreference);
+
+        ListPreference defaultFor = new ListPreference(this);
+        defaultFor.setPersistent(false);
+        defaultFor.setTitle("Default for");
+        defaultFor.setSummary("changing this will override all other default settings");
+        defaultFor.setEntries(new String[]{"AM", "PM", "none"});
+        defaultFor.setEntryValues(new String[]{"" + am.getId(), "" + pm.getId(), "" + none.getId()});
+        defaultFor.setValue(journey.getDefault_for().toString());
+        preferenceScreen.addPreference(defaultFor);
+
+        defaultFor.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            public boolean onPreferenceChange(Preference preference, Object o) {
+                journey.setDefault_for(new Integer(o.toString()));
+                DatabaseHelper.updateJourney(journey);
+
+                // todo adjust other am pm settings
+
+                return true;
+            }
+        });
+
+
+//        ClickPreference deleteJourney = new ClickPreference(this, null);
+//        deleteJourney.setTitle("Delete Journey");
+//        deleteJourney.setSummary("Permanently delete this journey");
+//        deleteJourney.setWidgetLayoutResource(R.layout.remove_image);
+//        preferenceScreen.addPreference(deleteJourney);
     }
 
     @Override
@@ -93,17 +142,14 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
             int lon = data.getIntExtra("long", 0);
 
             Journey journey = DatabaseHelper.getJourneyById(requestCode);
+            journey.setStop_number(stopNumber);
+            journey.setStop_name(stopName);
+            journey.setStop_lat(lat);
+            journey.setStop_lon(lon);
+            DatabaseHelper.updateJourney(journey);
+            stopNumberPreferences.get(journey).setSummary(stopName);
 
-            if (!stopNumber.equals(journey.getStop_number())) {
-                journey.setStop_number(stopNumber);
-                journey.setStop_name(stopName);
-                journey.setStop_lat(lat);
-                journey.setStop_lon(lon);
-                DatabaseHelper.updateJourney(journey);
-                stopNumberPreferences.get(journey).setSummary(stopName);
-
-                new RoutesDownloadTask(this, journey).execute(stopNumber);
-            }
+            new RoutesDownloadTask(this, journey, routesScreenPreferences.get(journey)).execute(stopNumber);
         }
     }
 
@@ -120,11 +166,11 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
         return true;
     }
 
-    private void processRoutes(Journey journey) {
+    private void processRoutes(Journey journey, PreferenceScreen preferenceScreen) {
         RoutesHelper helper = new RoutesHelper();
         List<JourneyRoute> journeyRoutes = helper.getJourneyRoutes(journey);
 
-        createRoutePreferences(routesScreenPreferences.get(journey), journeyRoutes);
+        createRoutePreferences(preferenceScreen, journeyRoutes);
     }
 
     private void createRoutePreferences(PreferenceScreen screen, List<JourneyRoute> routes) {
@@ -204,10 +250,12 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
         private ProgressDialog progressDialog;
         private Context context;
         private Journey journey;
+        private PreferenceScreen preferenceScreen;
 
-        public RoutesDownloadTask(Context context, Journey journey) {
+        public RoutesDownloadTask(Context context, Journey journey, PreferenceScreen preferenceScreen) {
             this.context = context;
             this.journey = journey;
+            this.preferenceScreen = preferenceScreen;
         }
 
         @Override
@@ -233,7 +281,7 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
         protected void onPostExecute(Boolean success) {
             super.onPostExecute(success);
 
-            processRoutes(journey);
+            processRoutes(journey, preferenceScreen);
             progressDialog.dismiss();
         }
     }

@@ -1,6 +1,5 @@
 TODO
-- maintain stop name in settings so that stop name is displayed in settings instead of number
-- add loading of routes when entering routes selection if no routes available (i.e. routes download was cancelled)
+
 - maintain rectangle for loaded stops on map so it only loads stops if you move outside said rectangle
 - fix repainting issue on the map
 - add address/stopnumber search to mapview

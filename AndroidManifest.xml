@@ -7,7 +7,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <application android:label="@string/app_name"
+    <application android:label="@string/app_name" android:icon="@drawable/transperth"
                  android:theme="@android:style/Theme.NoTitleBar"
                  android:name=".app.NextBusApplication">
         <uses-library android:name="com.google.android.maps"/>
@@ -18,9 +18,9 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".app.AboutActivity" />
-        <activity android:name=".app.StopSelectorActivity" />
         <activity android:name=".app.SettingsActivity" />
+        <activity android:name=".app.StopSelectorActivity" />
+        <activity android:name=".app.AboutActivity" />
         <receiver android:name=".service.OnBootReceiver">
           <intent-filter>
             <action android:name="android.intent.action.BOOT_COMPLETED" />
