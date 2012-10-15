@@ -1,6 +1,5 @@
 TODO
 - handle default for time correctly
-- don't allow deleting all journeys (keep at least one)
 
 
 - maintain rectangle for loaded stops on map so it only loads stops if you move outside said rectangle

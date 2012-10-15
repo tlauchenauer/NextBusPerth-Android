@@ -58,6 +58,7 @@ public class SettingsActivity extends PreferenceActivity {
 
     private void createJourneyPreference(Journey journey, PreferenceCategory journeysList) {
         JourneyPreference journeyPreference = new JourneyPreference(journey, this, journeysList);
+
         journeyPreferences.put(journey, journeyPreference);
     }
 

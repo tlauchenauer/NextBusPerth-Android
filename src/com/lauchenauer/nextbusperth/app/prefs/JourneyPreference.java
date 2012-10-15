@@ -35,6 +35,7 @@ public class JourneyPreference implements Preference.OnPreferenceChangeListener 
     private PreferenceScreen routesPreferenceScreen;
     private EditTextPreference journeyName;
     private ClickPreference stopSelection;
+    private ClickPreference deleteJourneyBtn;
 
     public JourneyPreference(Journey journey, SettingsActivity parentActivity, PreferenceCategory journeysList) {
         this.journey = journey;
@@ -45,6 +46,7 @@ public class JourneyPreference implements Preference.OnPreferenceChangeListener 
         journeyPreferenceScreen.setTitle(journey.getName());
         journeyPreferenceScreen.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference preference) {
+                deleteJourneyBtn.setEnabled(DatabaseHelper.getJourneysCount() > 1);
 
                 return true;
             }
@@ -130,7 +132,7 @@ public class JourneyPreference implements Preference.OnPreferenceChangeListener 
     }
 
     private void createDeleteJourneyButton() {
-        ClickPreference deleteJourneyBtn = new ClickPreference(parent, null);
+        deleteJourneyBtn = new ClickPreference(parent, null);
         deleteJourneyBtn.setTitle("Delete Journey");
         deleteJourneyBtn.setSummary("Permanently delete this journey");
         deleteJourneyBtn.setWidgetLayoutResource(R.layout.remove_image);
