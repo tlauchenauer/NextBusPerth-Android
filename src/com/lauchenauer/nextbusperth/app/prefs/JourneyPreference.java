@@ -103,7 +103,7 @@ public class JourneyPreference implements Preference.OnPreferenceChangeListener 
                 if (journey.getStop_lat() != 0) {
                     i.putExtra("lat", journey.getStop_lat());
                     i.putExtra("lon", journey.getStop_lon());
-                    i.putExtra("zoom", 18);
+                    i.putExtra("zoom", 19);
                 }
                 parent.startActivityForResult(i, journey.getId().intValue());
                 return true;

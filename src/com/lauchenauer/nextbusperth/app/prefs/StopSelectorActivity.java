@@ -40,10 +40,12 @@ public class StopSelectorActivity extends MapActivity implements OnMapViewChange
         zoomText = (TextView) findViewById(R.id.zoom_text);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
+        Bundle extras = getIntent().getExtras();
+
         mapView = (NBMapView) findViewById(R.id.mapview);
         mapView.setBuiltInZoomControls(true);
-        mapView.getController().setCenter(new GeoPoint(-31957406, 115851122));
-        mapView.getController().setZoom(12);
+        mapView.getController().setCenter(new GeoPoint(extras.getInt("lat"), extras.getInt("lon")));
+        mapView.getController().setZoom(extras.getInt("zoom"));
         mapView.setOnMapViewChangedListener(this);
 
         Drawable bus_stop = this.getResources().getDrawable(R.drawable.green_pin_32);
