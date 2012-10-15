@@ -1,4 +1,4 @@
-package com.lauchenauer.nextbusperth.app.map;
+package com.lauchenauer.nextbusperth.app.prefs.map;
 
 public class MapStop {
     private String stopNumber;

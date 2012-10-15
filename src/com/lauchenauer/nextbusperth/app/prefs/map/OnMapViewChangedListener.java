@@ -1,4 +1,4 @@
-package com.lauchenauer.nextbusperth.app.map;
+package com.lauchenauer.nextbusperth.app.prefs.map;
 
 import com.google.android.maps.GeoPoint;
 

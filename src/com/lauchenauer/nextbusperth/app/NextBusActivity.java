@@ -5,9 +5,8 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.Menu;
 
 import java.util.List;
@@ -18,6 +17,7 @@ import com.lauchenauer.nextbusperth.helper.DatabaseHelper;
 
 public class NextBusActivity extends FragmentActivity {
     private ViewPager viewPager;
+    private NextBusFragmentAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,7 +25,8 @@ public class NextBusActivity extends FragmentActivity {
         setContentView(R.layout.nextbus);
 
         viewPager = (ViewPager) findViewById(R.id.view_pager);
-        viewPager.setAdapter(new NextBusFragmentAdapter(getSupportFragmentManager()));
+        adapter = new NextBusFragmentAdapter(getSupportFragmentManager());
+        viewPager.setAdapter(adapter);
 
 //        if (settingsHelper.isFirstRun()) {
 //            Log.d("[NextBusActivity]", "firstRun - starting Alarm");
@@ -37,7 +38,7 @@ public class NextBusActivity extends FragmentActivity {
     protected void onResume() {
         super.onResume();
 
-        Log.d("resuming", "will need to rebuild fragments if journeys were added");
+        adapter.refreshData();
     }
 
     void setPage(int page) {
@@ -53,7 +54,7 @@ public class NextBusActivity extends FragmentActivity {
         return true;
     }
 
-    private static class NextBusFragmentAdapter extends FragmentPagerAdapter {
+    private static class NextBusFragmentAdapter extends FragmentStatePagerAdapter {
         private List<Journey> journeys;
 
         public NextBusFragmentAdapter(FragmentManager fm) {
@@ -72,6 +73,16 @@ public class NextBusActivity extends FragmentActivity {
             boolean hasNext = position < journeys.size() - 1;
 
             return NextBusFragment.newInstance(journeys.get(position).getId(), hasPrev, hasNext, position);
+        }
+
+        public void refreshData() {
+            journeys = DatabaseHelper.getAllJourneys();
+            notifyDataSetChanged();
+        }
+
+        @Override
+        public int getItemPosition(Object object) {
+            return POSITION_NONE;
         }
     }
 }

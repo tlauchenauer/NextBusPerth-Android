@@ -11,7 +11,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.lauchenauer.nextbusperth.app.map.MapStop;
+import com.lauchenauer.nextbusperth.app.prefs.map.MapStop;
 
 public class StopsHelper implements JSONConstants {
     private static final String STOPS_URL = "stops";

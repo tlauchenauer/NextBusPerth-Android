@@ -25,6 +25,15 @@ import static com.lauchenauer.nextbusperth.app.NextBusApplication.getApp;
 public class DatabaseHelper {
     private static final long DEPARTURE_DELTA = 5 * 60 * 1000l;
 
+    public static Journey addNewJourney(String journeyName) {
+        Journey journey = new Journey(null, journeyName, "", "", 0, 0, JourneyDefaultFor.none, DatabaseHelper.getJourneysCount());
+
+        JourneyDao journeyDao = getApp().getDaoSession().getJourneyDao();
+        journeyDao.insert(journey);
+
+        return journey;
+    }
+
     public static Journey getOrInsertJourney(String journeyName, String stop_number, String stop_name, Integer stop_lat, Integer stop_lon, JourneyDefaultFor default_for) {
         JourneyDao journeyDao = getApp().getDaoSession().getJourneyDao();
 
@@ -45,11 +54,6 @@ public class DatabaseHelper {
     public static Journey getJourneyById(long id) {
         JourneyDao journeyDao = getApp().getDaoSession().getJourneyDao();
         return journeyDao.queryBuilder().where(JourneyDao.Properties.Id.eq(id)).unique();
-    }
-
-    public static Journey getJourneyByName(String name) {
-        JourneyDao journeyDao = getApp().getDaoSession().getJourneyDao();
-        return journeyDao.queryBuilder().where(JourneyDao.Properties.Name.eq(name)).unique();
     }
 
     public static List<Journey> getAllJourneys() {
@@ -156,5 +160,17 @@ public class DatabaseHelper {
                 }
             }
         }
+    }
+
+    public static void deleteJourneyAndJourneyRoutes(Journey journey) {
+        DaoSession daoSession = getApp().getDaoSession();
+        JourneyDao journeyDao = daoSession.getJourneyDao();
+        JourneyRouteDao journeyRouteDao = daoSession.getJourneyRouteDao();
+
+        journey.resetJourneyRouteList();
+        for (JourneyRoute jr : journey.getJourneyRouteList()) {
+            journeyRouteDao.delete(jr);
+        }
+        journeyDao.delete(journey);
     }
 }

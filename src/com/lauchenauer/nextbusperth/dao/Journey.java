@@ -171,6 +171,16 @@ public class Journey {
     public int hashCode() {
         return getId().intValue();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o.getClass() == Journey.class) {
+            return ((Journey)o).getId() == getId();
+        }
+
+        return false;
+    }
+
     // KEEP METHODS END
 
 }

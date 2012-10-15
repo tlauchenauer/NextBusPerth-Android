@@ -1,4 +1,4 @@
-package com.lauchenauer.nextbusperth.app;
+package com.lauchenauer.nextbusperth.app.prefs;
 
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
@@ -15,10 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.lauchenauer.nextbusperth.R;
-import com.lauchenauer.nextbusperth.app.map.MapStop;
-import com.lauchenauer.nextbusperth.app.map.NBMapView;
-import com.lauchenauer.nextbusperth.app.map.OnMapViewChangedListener;
-import com.lauchenauer.nextbusperth.app.map.StopItemOverlay;
+import com.lauchenauer.nextbusperth.app.prefs.map.MapStop;
+import com.lauchenauer.nextbusperth.app.prefs.map.NBMapView;
+import com.lauchenauer.nextbusperth.app.prefs.map.OnMapViewChangedListener;
+import com.lauchenauer.nextbusperth.app.prefs.map.StopItemOverlay;
 import com.lauchenauer.nextbusperth.helper.StopsHelper;
 
 public class StopSelectorActivity extends MapActivity implements OnMapViewChangedListener {

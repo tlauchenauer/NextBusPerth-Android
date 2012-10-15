@@ -1,12 +1,12 @@
 TODO
+- handle default for time correctly
+- don't allow deleting all journeys (keep at least one)
+
 
 - maintain rectangle for loaded stops on map so it only loads stops if you move outside said rectangle
 - fix repainting issue on the map
 - add address/stopnumber search to mapview
 - when a stop is already selected, zoom in to that stop as starting area for map
-
-
-- change from 2 journeys (home and work) to multiple journeys, allow selection of "Default for: AM / PM / Blank"
 
 
 - add updating service to download data periodically
