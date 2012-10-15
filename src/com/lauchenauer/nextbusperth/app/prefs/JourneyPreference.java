@@ -96,6 +96,15 @@ public class JourneyPreference implements Preference.OnPreferenceChangeListener 
         stopSelection.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference preference) {
                 Intent i = new Intent(parent, StopSelectorActivity.class);
+                i.putExtra("lat", -31957406);
+                i.putExtra("lon", 115851122);
+                i.putExtra("zoom", 12);
+
+                if (journey.getStop_lat() != 0) {
+                    i.putExtra("lat", journey.getStop_lat());
+                    i.putExtra("lon", journey.getStop_lon());
+                    i.putExtra("zoom", 18);
+                }
                 parent.startActivityForResult(i, journey.getId().intValue());
                 return true;
             }
