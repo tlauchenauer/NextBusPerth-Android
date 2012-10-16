@@ -1,5 +1,6 @@
 package com.lauchenauer.nextbusperth.app.prefs;
 
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -25,7 +26,7 @@ public class StopSelectorActivity extends MapActivity implements OnMapViewChange
     private static final int ZOOM_LEVEL = 16;
 
     private StopItemOverlay overlay;
-    private GeoPoint lastTopLeft = new GeoPoint(0, 0);
+    private Rect lastLoadedStopsArea = new Rect(0, 0, 0, 0);
     private NBMapView mapView;
     private TextView zoomText;
     private ProgressBar progressBar;
@@ -61,9 +62,10 @@ public class StopSelectorActivity extends MapActivity implements OnMapViewChange
     public void onMapViewChanged(int zoomlevel, GeoPoint topLeft, GeoPoint bottomRight) {
         Log.d("[StopSelectorActivity.onMapViewChanged]", "Zoom: " + zoomlevel + "   TL: " + topLeft.toString() + "   BR: " + bottomRight.toString());
 
-        boolean samePosition = lastTopLeft.getLatitudeE6() == topLeft.getLatitudeE6() && lastTopLeft.getLongitudeE6() == topLeft.getLongitudeE6();
-        if (samePosition) return;
-        lastTopLeft = topLeft;
+        Rect newArea = createRect(topLeft, bottomRight);
+        if (lastLoadedStopsArea.contains(newArea)) {
+            return;
+        }
 
         if (zoomlevel >= ZOOM_LEVEL) {
             zoomText.setVisibility(View.INVISIBLE);
@@ -76,10 +78,29 @@ public class StopSelectorActivity extends MapActivity implements OnMapViewChange
                 nextTask = new MapStopsDownloadTask(topLeft, bottomRight);
             }
 
+            lastLoadedStopsArea = newArea;
         } else {
             zoomText.setVisibility(View.VISIBLE);
             updateOverlays(new ArrayList<MapStop>());
         }
+    }
+
+    private Rect createRect(GeoPoint topLeft, GeoPoint bottomRight) {
+        int left = topLeft.getLatitudeE6();
+        int right = bottomRight.getLatitudeE6();
+        if (left > right) {
+            left = bottomRight.getLatitudeE6();
+            right = topLeft.getLatitudeE6();
+        }
+
+        int top = topLeft.getLongitudeE6();
+        int bottom = bottomRight.getLongitudeE6();
+        if (top > bottom) {
+            top = bottomRight.getLongitudeE6();
+            bottom = topLeft.getLongitudeE6();
+        }
+
+        return new Rect(left, top, right, bottom);
     }
 
     private void updateOverlays(List<MapStop> stops) {
@@ -97,6 +118,7 @@ public class StopSelectorActivity extends MapActivity implements OnMapViewChange
         }
 
         progressBar.setVisibility(View.INVISIBLE);
+        mapView.invalidate();
     }
 
     private synchronized void taskDone() {

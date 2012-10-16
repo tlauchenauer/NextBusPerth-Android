@@ -1,9 +1,6 @@
 TODO
 - handle default for time correctly
 
-
-- maintain rectangle for loaded stops on map so it only loads stops if you move outside said rectangle
-- fix repainting issue on the map
 - add address/stopnumber search to mapview
 
 

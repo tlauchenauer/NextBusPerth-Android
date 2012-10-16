@@ -11,7 +11,7 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:clickable="true"
-            android:apiKey="07fW_UxArtyGJ_DQemmbpCZg0WUFBbEyLrKLEsA" />
+            android:apiKey="07fW_UxArtyFiEONnXl1DW_sCzBkjhnTia_FM8g" />
 
     <TextView
             android:id="@+id/zoom_text"
@@ -31,5 +31,5 @@
             android:padding="3dp" android:layout_alignParentLeft="false" style="@android:style/Widget.ProgressBar.Inverse"/>
 </RelativeLayout>
 
+        <!--android:apiKey="07fW_UxArtyGJ_DQemmbpCZg0WUFBbEyLrKLEsA"-->
         <!---->
-        <!--android:apiKey="07fW_UxArtyFiEONnXl1DW_sCzBkjhnTia_FM8g"-->
