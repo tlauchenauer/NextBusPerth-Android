@@ -49,7 +49,7 @@ public class StopSelectorActivity extends MapActivity implements OnMapViewChange
         mapView.getController().setZoom(extras.getInt("zoom"));
         mapView.setOnMapViewChangedListener(this);
 
-        Drawable bus_stop = this.getResources().getDrawable(R.drawable.green_pin_32);
+        Drawable bus_stop = this.getResources().getDrawable(R.drawable.green_pin);
         overlay = new StopItemOverlay(bus_stop, this);
         mapView.getOverlays().add(overlay);
     }
