@@ -7,13 +7,17 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.text.format.Time;
 import android.view.Menu;
 
 import java.util.List;
 
 import com.lauchenauer.nextbusperth.R;
 import com.lauchenauer.nextbusperth.dao.Journey;
+import com.lauchenauer.nextbusperth.dao.JourneyDefaultFor;
 import com.lauchenauer.nextbusperth.helper.DatabaseHelper;
+
+import static com.lauchenauer.nextbusperth.dao.JourneyDefaultFor.*;
 
 public class NextBusActivity extends FragmentActivity {
     private ViewPager viewPager;
@@ -32,6 +36,24 @@ public class NextBusActivity extends FragmentActivity {
 //            Log.d("[NextBusActivity]", "firstRun - starting Alarm");
 //            OnBootReceiver.startTimeTableAlarm(getApplicationContext());
 //        }
+
+        showPageByDefault();
+    }
+
+    private void showPageByDefault() {
+        Time dtNow = new Time();
+        dtNow.setToNow();
+        int hours = dtNow.hour;
+
+        JourneyDefaultFor timePeriod = am;
+        if (hours >= 12) {
+            timePeriod = pm;
+        }
+
+        Journey j = DatabaseHelper.findJourneyByDefaultFor(timePeriod);
+        if (j == null) return;
+
+        setPage(adapter.getPositionFor(j));
     }
 
     @Override
@@ -83,6 +105,10 @@ public class NextBusActivity extends FragmentActivity {
         @Override
         public int getItemPosition(Object object) {
             return POSITION_NONE;
+        }
+
+        public int getPositionFor(Journey journey) {
+            return journeys.indexOf(journey);
         }
     }
 }

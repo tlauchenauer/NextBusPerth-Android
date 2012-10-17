@@ -56,6 +56,11 @@ public class DatabaseHelper {
         return journeyDao.queryBuilder().where(JourneyDao.Properties.Id.eq(id)).unique();
     }
 
+    public static Journey findJourneyByDefaultFor(JourneyDefaultFor defaultFor) {
+        JourneyDao journeyDao = getApp().getDaoSession().getJourneyDao();
+        return journeyDao.queryBuilder().where(JourneyDao.Properties.Default_for.eq(defaultFor.getId())).unique();
+    }
+
     public static List<Journey> getAllJourneys() {
         JourneyDao journeyDao = getApp().getDaoSession().getJourneyDao();
         return journeyDao.queryBuilder().orderAsc(JourneyDao.Properties.Position).list();
@@ -63,7 +68,7 @@ public class DatabaseHelper {
 
     public static int getJourneysCount() {
         JourneyDao journeyDao = getApp().getDaoSession().getJourneyDao();
-        return (int)journeyDao.queryBuilder().count();
+        return (int) journeyDao.queryBuilder().count();
     }
 
     public static Stop getOrInsertStop(String stopNumber, String stopName) {

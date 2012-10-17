@@ -1,6 +1,4 @@
 TODO
-- handle default for time correctly
-
 - add address/stopnumber search to mapview
 
 

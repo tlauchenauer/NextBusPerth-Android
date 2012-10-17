@@ -66,6 +66,12 @@ public class SettingsActivity extends PreferenceActivity {
         journeyPreferences.remove(journey);
     }
 
+    public void updateDefaultFor() {
+        for (JourneyPreference jp : journeyPreferences.values()) {
+            jp.updateDefaultFor();
+        }
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

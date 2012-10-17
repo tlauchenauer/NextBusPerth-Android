@@ -16,6 +16,7 @@ import com.lauchenauer.nextbusperth.R;
 import com.lauchenauer.nextbusperth.app.NextBusApplication;
 import com.lauchenauer.nextbusperth.app.SettingsActivity;
 import com.lauchenauer.nextbusperth.dao.Journey;
+import com.lauchenauer.nextbusperth.dao.JourneyDefaultFor;
 import com.lauchenauer.nextbusperth.dao.JourneyRoute;
 import com.lauchenauer.nextbusperth.dao.JourneyRouteDao;
 import com.lauchenauer.nextbusperth.helper.DatabaseHelper;
@@ -36,6 +37,7 @@ public class JourneyPreference implements Preference.OnPreferenceChangeListener 
     private EditTextPreference journeyName;
     private ClickPreference stopSelection;
     private ClickPreference deleteJourneyBtn;
+    private ListPreference defaultForPreference;
 
     public JourneyPreference(Journey journey, SettingsActivity parentActivity, PreferenceCategory journeysList) {
         this.journey = journey;
@@ -119,25 +121,41 @@ public class JourneyPreference implements Preference.OnPreferenceChangeListener 
     }
 
     private void createDefaultSelection() {
-        ListPreference defaultFor = new ListPreference(parent);
-        defaultFor.setPersistent(false);
-        defaultFor.setTitle("Default for");
-        defaultFor.setSummary("changing this will override all other default settings");
-        defaultFor.setEntries(new String[]{"AM", "PM", "none"});
-        defaultFor.setEntryValues(new String[]{"" + am.getId(), "" + pm.getId(), "" + none.getId()});
-        defaultFor.setValue(journey.getDefault_for().toString());
-        journeyPreferenceScreen.addPreference(defaultFor);
+        defaultForPreference = new ListPreference(parent);
+        defaultForPreference.setPersistent(false);
+        defaultForPreference.setTitle("Default for");
+        defaultForPreference.setSummary("changing this will override all other default settings");
+        defaultForPreference.setEntries(new String[]{"AM", "PM", "none"});
+        defaultForPreference.setEntryValues(new String[]{"" + am.getId(), "" + pm.getId(), "" + none.getId()});
+        defaultForPreference.setValue(journey.getDefault_for().toString());
+        journeyPreferenceScreen.addPreference(defaultForPreference);
 
-        defaultFor.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+        defaultForPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             public boolean onPreferenceChange(Preference preference, Object o) {
-                journey.setDefault_for(new Integer(o.toString()));
+                int defaultFor = Integer.parseInt(o.toString());
+                journey.setDefault_for(defaultFor);
                 DatabaseHelper.updateJourney(journey);
 
-                // todo adjust other am pm settings
+                if (defaultFor == none.getId()) return true;
+
+                for (Journey j : DatabaseHelper.getAllJourneys()) {
+                    if (j.getDefault_for() == defaultFor && (!j.equals(journey))) {
+                        j.setDefault_for(none.getId());
+                        DatabaseHelper.updateJourney(j);
+                    }
+                }
+                parent.updateDefaultFor();
 
                 return true;
             }
         });
+    }
+
+    public void updateDefaultFor() {
+        journey.refresh();
+        if (journey.getDefault_for() == none.getId()) {
+            defaultForPreference.setValue(journey.getDefault_for().toString());
+        }
     }
 
     private void createDeleteJourneyButton() {
