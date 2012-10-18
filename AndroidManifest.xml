@@ -4,9 +4,9 @@
           android:versionCode="1"
           android:versionName="1.0">
     <uses-sdk android:minSdkVersion="7"/>
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <application android:label="@string/app_name" android:icon="@drawable/transperth"
                  android:theme="@android:style/Theme.NoTitleBar"
                  android:name=".app.NextBusApplication">
@@ -18,15 +18,29 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".app.SettingsActivity" />
-        <activity android:name=".app.prefs.StopSelectorActivity" />
-        <activity android:name=".app.AboutActivity" />
+        <activity android:name=".app.SettingsActivity"/>
+        <activity android:name=".app.prefs.StopSelectorActivity"/>
+        <activity android:name=".app.AboutActivity"/>
         <receiver android:name=".service.OnBootReceiver">
-          <intent-filter>
-            <action android:name="android.intent.action.BOOT_COMPLETED" />
-          </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
         </receiver>
         <receiver android:name=".service.OnAlarmReceiver"></receiver>
         <service android:name=".service.TimeTableService"></service>
+        <activity android:name=".widget.WidgetConfiguration"
+                  android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
+            </intent-filter>
+        </activity>
+        <receiver android:name=".widget.WidgetProvider_4x2" android:label="NextBus 4x2">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data
+                    android:name="android.appwidget.provider"
+                    android:resource="@xml/widget_provider_4x2"/>
+        </receiver>
     </application>
 </manifest> 

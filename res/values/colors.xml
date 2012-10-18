@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="gray_gradient_start">#6A6A6A</color>
+    <color name="gray_gradient_end">#363636</color>
+    <color name="lightgray_gradient_start">#EFEFEF</color>
+    <color name="lightgray_gradient_end">#CCCCCC</color>
+    <color name="green_gradient_start">#16A73C</color>
+    <color name="green_gradient_end">#107A2C</color>
+</resources>
