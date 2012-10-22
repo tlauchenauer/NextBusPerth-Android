@@ -21,7 +21,7 @@ import com.lauchenauer.nextbusperth.dao.Service;
 import com.lauchenauer.nextbusperth.helper.DatabaseHelper;
 
 public class NextBusFragment extends ListFragment {
-    static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm");
+    public static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm");
 
     private RowAdapter adapter;
     private TextView journeyNameView;

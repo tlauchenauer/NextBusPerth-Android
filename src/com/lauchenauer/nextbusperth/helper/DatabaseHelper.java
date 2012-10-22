@@ -1,5 +1,6 @@
 package com.lauchenauer.nextbusperth.helper;
 
+import android.text.format.Time;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -21,6 +22,8 @@ import com.lauchenauer.nextbusperth.dao.StopTime;
 import com.lauchenauer.nextbusperth.dao.StopTimeDao;
 
 import static com.lauchenauer.nextbusperth.app.NextBusApplication.getApp;
+import static com.lauchenauer.nextbusperth.dao.JourneyDefaultFor.am;
+import static com.lauchenauer.nextbusperth.dao.JourneyDefaultFor.pm;
 
 public class DatabaseHelper {
     private static final long DEPARTURE_DELTA = 5 * 60 * 1000l;
@@ -56,9 +59,18 @@ public class DatabaseHelper {
         return journeyDao.queryBuilder().where(JourneyDao.Properties.Id.eq(id)).unique();
     }
 
-    public static Journey findJourneyByDefaultFor(JourneyDefaultFor defaultFor) {
+    public static Journey findCurrentDefaultJourney() {
+        Time dtNow = new Time();
+        dtNow.setToNow();
+        int hours = dtNow.hour;
+
+        JourneyDefaultFor timePeriod = am;
+        if (hours >= 12) {
+            timePeriod = pm;
+        }
+
         JourneyDao journeyDao = getApp().getDaoSession().getJourneyDao();
-        return journeyDao.queryBuilder().where(JourneyDao.Properties.Default_for.eq(defaultFor.getId())).unique();
+        return journeyDao.queryBuilder().where(JourneyDao.Properties.Default_for.eq(timePeriod.getId())).unique();
     }
 
     public static List<Journey> getAllJourneys() {

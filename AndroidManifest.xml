@@ -28,18 +28,19 @@
         </receiver>
         <receiver android:name=".service.OnAlarmReceiver"></receiver>
         <service android:name=".service.TimeTableService"></service>
-        <activity android:name=".widget.WidgetConfiguration"
-                  android:label="@string/app_name">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
-            </intent-filter>
-        </activity>
         <receiver android:name=".widget.WidgetProvider_4x2" android:label="NextBus 4x2">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
             </intent-filter>
             <meta-data android:name="android.appwidget.provider"
                        android:resource="@xml/widget_provider_4x2"/>
+        </receiver>
+        <receiver android:name=".widget.WidgetProvider_4x1" android:label="NextBus 4x1">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                       android:resource="@xml/widget_provider_4x1"/>
         </receiver>
     </application>
 </manifest> 

@@ -41,19 +41,10 @@ public class NextBusActivity extends FragmentActivity {
     }
 
     private void showPageByDefault() {
-        Time dtNow = new Time();
-        dtNow.setToNow();
-        int hours = dtNow.hour;
-
-        JourneyDefaultFor timePeriod = am;
-        if (hours >= 12) {
-            timePeriod = pm;
+        Journey j = DatabaseHelper.findCurrentDefaultJourney();
+        if (j != null) {
+            setPage(adapter.getPositionFor(j));
         }
-
-        Journey j = DatabaseHelper.findJourneyByDefaultFor(timePeriod);
-        if (j == null) return;
-
-        setPage(adapter.getPositionFor(j));
     }
 
     @Override
