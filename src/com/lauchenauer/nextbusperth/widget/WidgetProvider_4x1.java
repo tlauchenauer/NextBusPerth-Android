@@ -21,7 +21,7 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
 public class WidgetProvider_4x1 extends AppWidgetProvider {
-    private static final int UPDATE_SECONDS = 5;
+    private static final int UPDATE_SECONDS = 30;
     private static final Service EMPTY_SERVICE = new Service("", "", "", "", "", null);
     private static List<Integer> alarmList = new ArrayList<Integer>();
 

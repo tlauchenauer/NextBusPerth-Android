@@ -1,5 +1,6 @@
 TODO
 - add address/stopnumber search to mapview
+- refactor widgets to have base class
 
 
 - add updating service to download data periodically

@@ -1,17 +1,28 @@
 package com.lauchenauer.nextbusperth.app.prefs;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.BaseAdapter;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.OverlayItem;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +43,8 @@ public class StopSelectorActivity extends MapActivity implements OnMapViewChange
     private ProgressBar progressBar;
     private MapStopsDownloadTask currentTask;
     private MapStopsDownloadTask nextTask;
+    private ImageButton searchButton;
+    private EditText searchText;
 
     @Override
     protected void onCreate(Bundle bundle) {
@@ -40,6 +53,8 @@ public class StopSelectorActivity extends MapActivity implements OnMapViewChange
 
         zoomText = (TextView) findViewById(R.id.zoom_text);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        searchButton = (ImageButton) findViewById(R.id.search_btn);
+        searchText = (EditText) findViewById(R.id.search_text);
 
         Bundle extras = getIntent().getExtras();
 
@@ -52,6 +67,36 @@ public class StopSelectorActivity extends MapActivity implements OnMapViewChange
         Drawable bus_stop = this.getResources().getDrawable(R.drawable.green_pin);
         overlay = new StopItemOverlay(bus_stop, this);
         mapView.getOverlays().add(overlay);
+
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                // -31.379434,115.301102
+                // -33.045508,116.682632
+                Geocoder geocoder = new Geocoder(StopSelectorActivity.this);
+                try {
+                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(searchText.getWindowToken(), 0);
+
+                    List<Address> addresses = geocoder.getFromLocationName(searchText.getText().toString(), 10, -33.045508, 115.301102, -31.379434, 116.682632);
+                    final List<String> addressTexts = new ArrayList<String>(addresses.size());
+                    for (Address a : addresses) {
+                        Log.d("Address", a.toString());
+                        addressTexts.add(a.getAddressLine(0) + ", " + a.getAddressLine(1));
+                    }
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(StopSelectorActivity.this);
+                    builder.setTitle("Select address");
+                    builder.setItems(addressTexts.toArray(new String[1]), new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            Log.d("SELECTED", addressTexts.get(i));
+                        }
+                    });
+                    builder.create().show();
+                } catch (IOException e) {
+                    Log.d("EXCEPTION", e.getMessage(), e);
+                }
+            }
+        });
     }
 
     @Override

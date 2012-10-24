@@ -24,7 +24,7 @@ import static android.view.View.VISIBLE;
 import static com.lauchenauer.nextbusperth.app.NextBusFragment.TIME_FORMAT;
 
 public class WidgetProvider_4x2 extends AppWidgetProvider {
-    private static final int UPDATE_SECONDS = 5;
+    private static final int UPDATE_SECONDS = 30;
     private static final Service EMPTY_SERVICE = new Service("", "", "", "", "", null);
     private static List<Integer> alarmList = new ArrayList<Integer>();
 
