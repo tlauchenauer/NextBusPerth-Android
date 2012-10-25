@@ -6,6 +6,6 @@
               android:layout_height="fill_parent">
 
     <Button android:layout_height="wrap_content" android:layout_gravity="bottom" android:layout_width="fill_parent"
-            android:id="@+id/save_button" android:text="Save Config"></Button>
+            android:id="@+id/save_button" android:text="Save Config" />
 
 </LinearLayout>
