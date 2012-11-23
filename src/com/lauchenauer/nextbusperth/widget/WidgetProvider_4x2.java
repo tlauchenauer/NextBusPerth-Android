@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.os.SystemClock;
 import android.util.Log;
 import android.widget.RemoteViews;
+
 import com.lauchenauer.nextbusperth.R;
 import com.lauchenauer.nextbusperth.dao.Journey;
 import com.lauchenauer.nextbusperth.dao.Service;
@@ -45,12 +46,10 @@ public class WidgetProvider_4x2 extends AppWidgetProvider {
             remoteView.setTextViewText(R.id.last_update, "updated at " + TIME_FORMAT.format(new Date()));
 
             List<Service> services = getCurrentServices(journey);
-            setService1Settings(remoteView, services.get(0));
-            setService2Settings(remoteView, services.get(1));
+            setService1Settings(remoteView, services.get(0), context);
+            setService2Settings(remoteView, services.get(1), context);
 
             appWidgetManager.updateAppWidget(appWidgetId, remoteView);
-//            ComponentName cn = new ComponentName(context, WidgetProvider_4x2.class);
-//            appWidgetManager.updateAppWidget(cn, remoteView);
 
             if (!alarmList.contains(appWidgetId)) {
                 startAlarmForWidget(context, appWidgetId);
@@ -70,7 +69,7 @@ public class WidgetProvider_4x2 extends AppWidgetProvider {
         return services;
     }
 
-    private void setService1Settings(RemoteViews remoteView, Service s) {
+    private void setService1Settings(RemoteViews remoteView, Service s, Context context) {
         remoteView.setTextViewText(R.id.s1_headsign, s.getHeadsign());
         remoteView.setTextViewText(R.id.s1_route_number, s.getRouteNumber());
         remoteView.setTextViewText(R.id.s1_stop_name, s.getStopName());
@@ -79,6 +78,14 @@ public class WidgetProvider_4x2 extends AppWidgetProvider {
             remoteView.setTextViewText(R.id.s1_departure_time, "");
         } else {
             remoteView.setTextViewText(R.id.s1_departure_time, TIME_FORMAT.format(s.getDepartureTime()));
+        }
+
+        if (s.getTimeDelta().contains("-")) {
+            remoteView.setTextColor(R.id.s1_mins, context.getResources().getColor(R.color.departed_service));
+            remoteView.setTextColor(R.id.s1_time_delta, context.getResources().getColor(R.color.departed_service));
+        } else {
+            remoteView.setTextColor(R.id.s1_mins, context.getResources().getColor(R.color.future_service));
+            remoteView.setTextColor(R.id.s1_time_delta, context.getResources().getColor(R.color.future_service));
         }
 
         if (s.getTimeDelta().equals("Now") || s.getTimeDelta().equals("\u221e")) {
@@ -93,7 +100,7 @@ public class WidgetProvider_4x2 extends AppWidgetProvider {
         }
     }
 
-    private void setService2Settings(RemoteViews remoteView, Service s) {
+    private void setService2Settings(RemoteViews remoteView, Service s, Context context) {
         remoteView.setTextViewText(R.id.s2_headsign, s.getHeadsign());
         remoteView.setTextViewText(R.id.s2_route_number, s.getRouteNumber());
         remoteView.setTextViewText(R.id.s2_stop_name, s.getStopName());
@@ -102,6 +109,14 @@ public class WidgetProvider_4x2 extends AppWidgetProvider {
             remoteView.setTextViewText(R.id.s2_departure_time, "");
         } else {
             remoteView.setTextViewText(R.id.s2_departure_time, TIME_FORMAT.format(s.getDepartureTime()));
+        }
+
+        if (s.getTimeDelta().contains("-")) {
+            remoteView.setTextColor(R.id.s2_mins, context.getResources().getColor(R.color.departed_service));
+            remoteView.setTextColor(R.id.s2_time_delta, context.getResources().getColor(R.color.departed_service));
+        } else {
+            remoteView.setTextColor(R.id.s2_mins, context.getResources().getColor(R.color.future_service));
+            remoteView.setTextColor(R.id.s2_time_delta, context.getResources().getColor(R.color.future_service));
         }
 
         if (s.getTimeDelta().equals("Now") || s.getTimeDelta().equals("\u221e")) {

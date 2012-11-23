@@ -6,4 +6,6 @@
     <color name="lightgray_gradient_end">#CCCCCC</color>
     <color name="green_gradient_start">#16A73C</color>
     <color name="green_gradient_end">#107A2C</color>
+    <color name="departed_service">#A73C16</color>
+    <color name="future_service">#FFFFFF</color>
 </resources>

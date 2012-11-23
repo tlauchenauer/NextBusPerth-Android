@@ -2,6 +2,7 @@ package com.lauchenauer.nextbusperth.app;
 
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,6 +49,14 @@ public class RowAdapter extends ArrayAdapter<Service> {
         routeNumber.setText(s.getRouteNumber());
         headsign.setText(s.getHeadsign());
         timeDelta.setText(s.getTimeDelta());
+        if (s.getTimeDelta().contains("-")) {
+            timeDelta.setTextColor(getContext().getResources().getColor(R.color.departed_service));
+            minsLabel.setTextColor(getContext().getResources().getColor(R.color.departed_service));
+        } else {
+            timeDelta.setTextColor(getContext().getResources().getColor(R.color.future_service));
+            minsLabel.setTextColor(getContext().getResources().getColor(R.color.future_service));
+        }
+
         stopName.setText(s.getStopName());
         if (s.getDepartureTime() == null) {
             departureTime.setText("");
